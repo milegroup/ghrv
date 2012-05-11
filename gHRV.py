@@ -32,6 +32,7 @@
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Macosx tamaño ventana about
 # TODO: Comprobar la edición de puntos en windows
+# TODO: Un montón de cosas más
 
 import wx
 import matplotlib
