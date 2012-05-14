@@ -53,10 +53,10 @@ reportWindowSize=(800,800)
 reportWindowMinSize=(800,700)
 
 
-exportSettingsWindowSize=(500,250)
+exportSettingsWindowSize=(500,300)
 exportSettingsWindowMinSize=exportSettingsWindowSize
 
-exportSettingsWindowSizeMac=(500,300)
+exportSettingsWindowSizeMac=(500,350)
 exportSettingsWindowMinSizeMac=exportSettingsWindowSizeMac
 
 alphaMatplotlibTags=0.5

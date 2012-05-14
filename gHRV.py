@@ -189,7 +189,9 @@ class FrameBasedExportSettings(wx.Frame):
 # ----------------- Beginning of sizer for bands
 
         sbBands = wx.StaticBox(panel, label="Bands")
-        sbBandsSizer = wx.StaticBoxSizer(sbBands, wx.HORIZONTAL)
+        sbBandsSizer = wx.StaticBoxSizer(sbBands, wx.VERTICAL)
+        sbBandsSizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        sbBandsSizer2 = wx.BoxSizer(wx.HORIZONTAL)
         
         AllBandsOrig,VisibleBandsOrig = dm.GetVisibleBands()
         self.AllBands=list(AllBandsOrig)
@@ -199,14 +201,21 @@ class FrameBasedExportSettings(wx.Frame):
         self.AllBands.remove("Heart rate")
         
         self.cbDict={}
+        bandsInSizer1=0
         for Band in self.AllBands:
             self.cbDict[Band]=wx.CheckBox(panel,-1,Band,size=wx.DefaultSize)
-            sbBandsSizer.Add(self.cbDict[Band], wx.EXPAND)
+            if bandsInSizer1 < 5:
+                sbBandsSizer1.Add(self.cbDict[Band], wx.EXPAND)
+                bandsInSizer1 += 1
+            else:
+                sbBandsSizer2.Add(self.cbDict[Band], wx.EXPAND)
             if Band in VisibleBands:
                 self.cbDict[Band].SetValue(True)
     
-        
+        sbBandsSizer.Add(sbBandsSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+        sbBandsSizer.Add(sbBandsSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
         sizer.Add(sbBandsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+        
         
 # ----------------- End of sizer for bands
 
