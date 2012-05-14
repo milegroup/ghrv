@@ -27,6 +27,7 @@
 #   ----------------------------------------------------------------------
 
 Verbose=True
+Version="0.19"
 
 from sys import platform
 borderBig=10

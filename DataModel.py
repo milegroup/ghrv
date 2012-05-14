@@ -48,21 +48,26 @@ class DM:
     def ClearAll(self):
         self.data={}
         self.data["Verbose"]=Verbose
-        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Mean HR","HR STD","Heart rate"]
-        self.data["VisibleBands"]=["LF/HF","ULF","VLF","LF","HF","Heart rate"]
-        self.data["FixedBands"]=["Heart rate"]
         
         self.data["name"]=""
+        #self.data["version"]=Version
         self.ClearColors()
+        self.ClearBands()
         if (self.data["Verbose"]==True):
             print("** Clearing all data")
+            
                 
     def ClearColors(self):
         """Resets colors for episodes"""
         self.data["ColorIndex"]=0
         self.data["DictColors"]={}
         
-            
+    def ClearBands(self):
+        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Mean HR","HR STD","Heart rate"]
+        self.data["VisibleBands"]=["LF/HF","ULF","VLF","LF","HF","Heart rate"]
+        self.data["FixedBands"]=["Heart rate"]
+        
+         
     def AssignEpisodeColor(self,Tag):
         """Assigns color to episodes tags"""
         if self.data["ColorIndex"] == len(self.labelColors)-1:
@@ -85,9 +90,6 @@ class DM:
                 
         self.data["BeatTime"]=np.loadtxt(beatsFile)
         
-        
-        
-
         self.data["niHR"] = 60.0/(self.data["BeatTime"][1:]-self.data["BeatTime"][0:-1])
         self.data["niHR"] = np.insert(self.data["niHR"],[0],self.data["niHR"][0])
 
@@ -108,6 +110,8 @@ class DM:
         
         if (self.data["Verbose"]):
             print("   Project created: "+self.data["name"])
+            
+        self.data["version"]=Version
                 
             
     def LoadEpisodesAscii(self,episodesFile):
@@ -145,7 +149,7 @@ class DM:
                     
     def LoadDataModel(self,datamodelFile):
         """Loads the data model from a zip file"""
-        import zipfile, tempfile, shutil                
+        import zipfile, tempfile, shutil
         tempDir = tempfile.mkdtemp(prefix="gHRV")
         if self.data["Verbose"]:
             print("** Loading project: "+datamodelFile)
@@ -183,6 +187,15 @@ class DM:
             for k in factorySettings.keys():
                 self.data[k]=float(factorySettings[k])
             self.data['name']='mygHRVproject'
+            
+        if "version" not in self.data.keys(): # Project generated with gHRV 0.18 or older
+            if self.data['Verbose']:
+                print("   Importing project from gHRV 0.18 or older")
+                self.ClearBands()
+                if self.HasPowerBands():
+                    self.ClearPowerBands()
+                    self.CalculatePowerBand()
+           
            
         
         shutil.rmtree(tempDir)
