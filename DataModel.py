@@ -195,10 +195,9 @@ class DM:
                 if self.HasPowerBands():
                     self.ClearPowerBands()
                     self.CalculatePowerBand()
-           
-           
-        
+              
         shutil.rmtree(tempDir)
+        self.data["version"]=Version
         
             
     def GetSettings(self):
