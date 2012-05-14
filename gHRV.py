@@ -74,6 +74,10 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.AllBands, self.VisibleBands=dm.GetVisibleBands()
         self.insertBandsSelector()
         
+        self.refreshButton = wx.Button(self.panel, -1, "Refresh")
+        self.vboxRightArea.Add(self.refreshButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_LEFT)
+        self.Bind(wx.EVT_BUTTON, self.onRefresh, self.refreshButton)
+        
         self.vboxRightArea.AddStretchSpacer(prop=1)
         
         self.exportButton = wx.Button(self.panel, -1, "Export txt...", size=buttonSizeFrameBased)
@@ -109,31 +113,41 @@ class FrameBasedEvolutionWindow(wx.Frame):
         sbBands = wx.StaticBox(self.panel, label="Visible bands")
         sbBandsSizer = wx.StaticBoxSizer(sbBands, wx.VERTICAL)
         
-        self.cbList = wx.CheckListBox(self.panel,choices=self.AllBands,size=wx.DefaultSize)
-        self.cbList.SetCheckedStrings(self.VisibleBands)
-        self.Bind(wx.EVT_CHECKLISTBOX, self.onBandsList, self.cbList)
-        sbBandsSizer.Add(self.cbList)
+        self.bandsRB=[]
+        for band in self.AllBands:
+            if len(self.bandsRB)==0:
+                tmp = wx.CheckBox(self.panel, label=band,style=wx.RB_GROUP)
+            else:
+                tmp = wx.CheckBox(self.panel, label=band)
+            tmp.SetValue(False)
+            if band in self.VisibleBands:
+                tmp.SetValue(True)
+            if band == "Heart rate":
+                tmp.Disable()
+            self.bandsRB.append(tmp)
+            sbBandsSizer.Add(tmp, wx.EXPAND)
         
         self.vboxRightArea.Insert(0,sbBandsSizer, flag=wx.ALL, border=borderSmall)
+        
+    def onRefresh(self,event):
+        checkedBands=[]
+        for indexband in range(len(self.AllBands)):
+            bandname = self.AllBands[indexband]
+            bandstatus = self.bandsRB[indexband].GetValue()
+            if bandstatus:
+                checkedBands.append(bandname)
+            #print "Band: ",bandname,"  - Checked: ",bandstatus
+        
+        dm.SetVisibleBands(checkedBands)
+        
+        dm.CreatePlotFBEmbedded(self.fig)
+        self.canvas.draw()
 
 
     def Refresh(self):
         dm.CreatePlotFBEmbedded(self.fig)
         self.canvas.draw()
-        
-    def onBandsList(self,event):
-        listbands=list(self.cbList.GetCheckedStrings())
-        
-        # Some bands cannot be unselected
-        for FixedBand in dm.GetFixedBands():
-            if FixedBand not in listbands:
-                listbands.append(FixedBand)
-                
-        self.cbList.SetCheckedStrings(listbands)
-        dm.SetVisibleBands(list(self.cbList.GetCheckedStrings()))
-        dm.CreatePlotFBEmbedded(self.fig)
-        self.canvas.draw()
-        
+    
         
     def OnEnd(self,event):
         self.WindowParent.OnFrameBasedEnded()
