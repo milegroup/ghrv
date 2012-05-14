@@ -48,7 +48,7 @@ class DM:
     def ClearAll(self):
         self.data={}
         self.data["Verbose"]=Verbose
-        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Mean HR","Heart rate"]
+        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Mean HR","HR STD","Heart rate"]
         self.data["VisibleBands"]=["LF/HF","ULF","VLF","LF","HF","Heart rate"]
         self.data["FixedBands"]=["Heart rate"]
         
@@ -436,6 +436,7 @@ class DM:
         self.data["HF"]=[]
         self.data["LFHF"]=[]
         self.data["Mean HR"]=[]
+        self.data["HR STD"]=[]
                 
         for indexframe in range(numframes):
             begframe=indexframe*shiftsamp
@@ -478,6 +479,7 @@ class DM:
             
             frameHR = self.data["HR"][begframe:endframe]
             self.data["Mean HR"].append(np.mean(frameHR))
+            self.data["HR STD"].append(np.std(frameHR))
                 
         self.data["ULF"]=np.array(self.data["ULF"])
         self.data["VLF"]=np.array(self.data["VLF"])
@@ -485,6 +487,7 @@ class DM:
         self.data["HF"]=np.array(self.data["HF"])
         self.data["LFHF"]=np.array(self.data["LFHF"])
         self.data["Mean HR"]=np.array(self.data["Mean HR"])
+        self.data["HR STD"]=np.array(self.data["HR STD"])
                 
         self.data["PBXVector1"]=np.arange(numframes)
         self.data["PBXVector2"]=np.linspace(start=0, stop=self.data["BeatTime"][-1]-self.data["BeatTime"][0], num=len(self.data["HR"]))
@@ -738,7 +741,7 @@ class DM:
             
     def GetPowerBandsDataPlot(self):
         """Returns data necessary for frame-based plot"""
-        return(self.data["PBXVector1"], self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Mean HR"], self.data["PBXVector2"], self.data["HR"])
+        return(self.data["PBXVector1"], self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Mean HR"], self.data["HR STD"], self.data["PBXVector2"], self.data["HR"])
     
     def CreatePlot(self,plotType):
         
@@ -837,7 +840,7 @@ class DM:
         def CreateBandSupblot(axes,x,y,ylabel):
             axes.plot(x,y,'-k')        
             axes.set_ylabel(ylabel)
-            if ylabel not in ["Mean HR"]:
+            if ylabel not in ["Mean HR","HR STD"]:
                 axes.set_ylim(bottom=0)
             axes.tick_params(axis='x',labelbottom='off')
             axes.autoscale(enable=True,axis='x',tight=True)
@@ -864,7 +867,7 @@ class DM:
         
         fig.clear()        
 
-        xvector1,lfhfvector,ulfvector,vlfvector, lfvector, hfvector, meanhrvector, xvector2, hrvector = self.GetPowerBandsDataPlot()
+        xvector1,lfhfvector,ulfvector,vlfvector, lfvector, hfvector, meanhrvector, hrstdvector, xvector2, hrvector = self.GetPowerBandsDataPlot()
         # xvector1 -> xaxis for lfhf, hlf, vlf, lf, hf 
         # xvector2 -> xaxis for hrvector
         
@@ -937,6 +940,8 @@ class DM:
                     CreateBandSupblot(axTop, xvector1, hfvector, 'HF')
                 if Band == "Mean HR":
                     CreateBandSupblot(axTop, xvector1, meanhrvector, 'Mean HR')
+                if Band == "HR STD":
+                    CreateBandSupblot(axTop, xvector1, hrstdvector, 'HR STD')
                     
                 axTop.set_xlabel('Frame number',size=10)
                 axTop.tick_params(axis='x',labeltop='on')
@@ -959,6 +964,8 @@ class DM:
                     CreateBandSupblot(axMiddle, xvector1, hfvector, 'HF')
                 if Band == "Mean HR":
                     CreateBandSupblot(axMiddle, xvector1, meanhrvector, 'Mean HR')
+                if Band == "HR STD":
+                    CreateBandSupblot(axMiddle, xvector1, hrstdvector, 'HR STD')
                     
                 if hasEpisodes:
                     AddEpisodesToBandSubplot(axMiddle)                
