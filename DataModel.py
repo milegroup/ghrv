@@ -63,7 +63,7 @@ class DM:
         self.data["DictColors"]={}
         
     def ClearBands(self):
-        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Mean HR","HR STD","Heart rate"]
+        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Power","Mean HR","HR STD","pNN50","rmssd","Heart rate"]
         self.data["VisibleBands"]=["LF/HF","ULF","VLF","LF","HF","Heart rate"]
         self.data["FixedBands"]=["Heart rate"]
         
@@ -447,13 +447,19 @@ class DM:
         self.data["LF"]=[]
         self.data["HF"]=[]
         self.data["LFHF"]=[]
+        self.data["Power"]=[]
         self.data["Mean HR"]=[]
         self.data["HR STD"]=[]
+        self.data["pNN50"]=[]
+        self.data["rmssd"]=[]
                 
         for indexframe in range(numframes):
             begframe=indexframe*shiftsamp
-            endframe=begframe+sizesamp
+            endframe=begframe+sizesamp # samples
             frame=signal[begframe:endframe]
+            
+            begtime=indexframe*self.data['windowshift']
+            endtime=begtime+self.data['windowsize'] # seconds
             
             h=np.hamming(len(frame))
             frame=frame-np.mean(frame)
@@ -484,6 +490,9 @@ class DM:
             self.data["HF"].append(hfpower)
             #print("HF: "+str(hfpower))
             
+            totalpower=2*np.sum(spec*spec)/len(frame)  # Hz^2
+            self.data["Power"].append(totalpower)
+            
             #print("ULF+VLF+LF+HF power: "+str(ulfpower+vlfpower+lfpower+hfpower))
             
             self.data["LFHF"].append(lfpower/hfpower)
@@ -491,15 +500,28 @@ class DM:
             
             frameHR = self.data["HR"][begframe:endframe]
             self.data["Mean HR"].append(np.mean(frameHR))
-            self.data["HR STD"].append(np.std(frameHR))
+            self.data["HR STD"].append(np.std(frameHR))            
+            
+            BeatsFrame = [x for x in self.data["BeatTime"] if x>=begtime and x<=endtime]
+            frameRR = 1000.0*np.diff(BeatsFrame)
+            #print "Window has ",len(BeatsFrame), " beats"
+            #print "frameHR - ",len(frameHR)
+            #print "frameRR - ",len(frameRR)
+            RRDiffs=np.diff(frameRR)
+            RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
+            self.data["pNN50"].append(100.0*len(RRDiffs50)/len(RRDiffs))
+            self.data["rmssd"].append(np.sqrt(np.mean(RRDiffs**2)))
                 
         self.data["ULF"]=np.array(self.data["ULF"])
         self.data["VLF"]=np.array(self.data["VLF"])
         self.data["LF"]=np.array(self.data["LF"])
         self.data["HF"]=np.array(self.data["HF"])
         self.data["LFHF"]=np.array(self.data["LFHF"])
+        self.data["Power"]=np.array(self.data["Power"])
         self.data["Mean HR"]=np.array(self.data["Mean HR"])
         self.data["HR STD"]=np.array(self.data["HR STD"])
+        self.data["pNN50"]=np.array(self.data["pNN50"])
+        self.data["rmssd"]=np.array(self.data["rmssd"])
                 
         self.data["PBXVector1"]=np.arange(numframes)
         self.data["PBXVector2"]=np.linspace(start=0, stop=self.data["BeatTime"][-1]-self.data["BeatTime"][0], num=len(self.data["HR"]))
@@ -753,7 +775,7 @@ class DM:
             
     def GetPowerBandsDataPlot(self):
         """Returns data necessary for frame-based plot"""
-        return(self.data["PBXVector1"], self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Mean HR"], self.data["HR STD"], self.data["PBXVector2"], self.data["HR"])
+        return(self.data["PBXVector1"], self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rmssd"], self.data["PBXVector2"], self.data["HR"])
     
     def CreatePlot(self,plotType):
         
@@ -879,7 +901,7 @@ class DM:
         
         fig.clear()        
 
-        xvector1,lfhfvector,ulfvector,vlfvector, lfvector, hfvector, meanhrvector, hrstdvector, xvector2, hrvector = self.GetPowerBandsDataPlot()
+        xvector1,lfhfvector,ulfvector,vlfvector, lfvector, hfvector, powervector,meanhrvector, hrstdvector, pnn50vector, rmssdvector, xvector2, hrvector = self.GetPowerBandsDataPlot()
         # xvector1 -> xaxis for lfhf, hlf, vlf, lf, hf 
         # xvector2 -> xaxis for hrvector
         
@@ -950,10 +972,16 @@ class DM:
                     CreateBandSupblot(axTop, xvector1, lfvector, 'LF')
                 if Band == "HF":
                     CreateBandSupblot(axTop, xvector1, hfvector, 'HF')
+                if Band == "Power":
+                    CreateBandSupblot(axTop, xvector1, powervector, 'Power')
                 if Band == "Mean HR":
                     CreateBandSupblot(axTop, xvector1, meanhrvector, 'Mean HR')
                 if Band == "HR STD":
                     CreateBandSupblot(axTop, xvector1, hrstdvector, 'HR STD')
+                if Band == "pNN50":
+                    CreateBandSupblot(axTop, xvector1, pnn50vector, 'pNN50')
+                if Band == "rmssd":
+                    CreateBandSupblot(axTop, xvector1, rmssdvector, 'rmssd')
                     
                 axTop.set_xlabel('Frame number',size=10)
                 axTop.tick_params(axis='x',labeltop='on')
@@ -974,16 +1002,22 @@ class DM:
                     CreateBandSupblot(axMiddle, xvector1, lfvector, 'LF')
                 if Band == "HF":
                     CreateBandSupblot(axMiddle, xvector1, hfvector, 'HF')
+                if Band == "Power":
+                    CreateBandSupblot(axMiddle, xvector1 , powervector, 'Power')
                 if Band == "Mean HR":
                     CreateBandSupblot(axMiddle, xvector1, meanhrvector, 'Mean HR')
                 if Band == "HR STD":
                     CreateBandSupblot(axMiddle, xvector1, hrstdvector, 'HR STD')
+                if Band == "pNN50":
+                    CreateBandSupblot(axMiddle, xvector1, pnn50vector, 'pNN50')
+                if Band == "rmssd":
+                    CreateBandSupblot(axMiddle, xvector1, rmssdvector, 'rmssd')
                     
                 if hasEpisodes:
                     AddEpisodesToBandSubplot(axMiddle)                
         
         
-        fig.suptitle(self.GetName() + " - HRV Spectral Bands", fontsize=16) 
+        fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16) 
         
         
         

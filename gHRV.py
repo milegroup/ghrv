@@ -30,7 +30,6 @@
 # TODO: MacOSX change dialog messages as in http://www.blog.pythonlibrary.org/2010/07/10/the-dialogs-of-wxpython-part-2-of-2/
 # TODO: Comprobar episodios fuera del rango de la señal de latidos
 # TODO: Comprobar cuando la ventana es más grande que la señal
-# TODO: Macosx tamaño ventana about
 # TODO: Comprobar la edición de puntos en windows
 # TODO: Un montón de cosas más
 
@@ -1797,7 +1796,12 @@ class AboutDlg(wx.Frame):
     import wx.html
  
     def __init__(self, parent, id):
-        wx.Frame.__init__(self, parent, wx.ID_ANY, title="About", size=aboutWindowSize)
+        if platform != 'darwin':
+            wx.Frame.__init__(self, parent, wx.ID_ANY, title="About", size=aboutWindowSize)
+            self.SetMinSize(aboutWindowMinSize)
+        else:
+            wx.Frame.__init__(self, parent, wx.ID_ANY, title="About", size=aboutWindowSizeMac)
+            self.SetMinSize(aboutWindowSizeMac)
         
         self.WindowParent=parent
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
@@ -1822,7 +1826,6 @@ class AboutDlg(wx.Frame):
             '<p align="justify">This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).</p>'
             )
         
-        self.SetMinSize(aboutWindowMinSize)
         self.Show()
         self.Layout()
         #self.Centre()
