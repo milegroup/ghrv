@@ -227,6 +227,7 @@ class FrameBasedExportSettings(wx.Frame):
       
         self.scSemiColon = wx.RadioButton(panel, label=';',style=wx.RB_GROUP)
         sbSepCharSizer.Add(self.scSemiColon,wx.EXPAND)
+        self.scSemiColon.SetValue(True)
         
         self.scColon = wx.RadioButton(panel, label=':')
         sbSepCharSizer.Add(self.scColon,wx.EXPAND)
