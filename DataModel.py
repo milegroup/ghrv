@@ -347,6 +347,8 @@ class DM:
     def ClearHR(self):
         """Purges interpolated HR from data model"""
         del self.data["HR"]
+        del self.data["PlotHRXMin"]
+        del self.data["PlotHRXMax"]
         if (self.data["Verbose"]):
             print("** Interpolated HR removed from data model")
             
@@ -879,12 +881,19 @@ class DM:
         """Creates an HR Plot embedded in axes
         Valid for windows and stand-alone plots"""
         
+        
         axes = fig.add_subplot(1,1,1)
         
         xvector, yvector = self.GetHRDataPlot()
+        if "PlotHRXMin" not in self.data:
+            self.data["PlotHRXMin"]=xvector[0]
+            self.data["PlotHRXMax"]=xvector[-1]
+        
         axes.plot(xvector,yvector,'k-')
         axes.set_xlabel("Time (sec.)")
         axes.set_ylabel("HR (beats/min.)")
+        
+        
         axes.set_title(self.GetHeartRatePlotTitle())
             
         
@@ -906,7 +915,7 @@ class DM:
             for t in leg.get_texts():
                 t.set_fontsize('small')
                
-        axes.set_xlim(xvector[0],xvector[-1])
+        axes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         axes.grid()
         
         
@@ -1039,6 +1048,13 @@ class DM:
         
         fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16) 
         
+    def PlotHRZoomIn(self):
+        self.data["PlotHRXMin"]+=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.25
+        self.data["PlotHRXMax"]-=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.25
+        
+    def PlotHRZoomReset(self):
+        del self.data["PlotHRXMin"]
+        del self.data["PlotHRXMax"]
         
         
    

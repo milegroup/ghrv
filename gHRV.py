@@ -1080,13 +1080,31 @@ class MainWindow(wx.Frame):
         # End of plot area
         # ----------------
         
+        
+        self.canvas.Bind(wx.EVT_CHAR, self.OnKeyPress)
+        
         self.SetMinSize(mainWindowMinSize)
         self.SetTitle('gHRV')
         self.Centre()
         self.MainPanel.SetSizer(self.sizer)
         self.MainPanel.Layout()
-                    
+        self.canvas.SetFocus()
         
+    def OnKeyPress(self, event):
+        if not dm.HasHR():
+            event.Skip()
+            return
+        keycode = event.GetKeyCode()
+        print keycode
+        if keycode == 43:
+            dm.PlotHRZoomIn()
+            self.RefreshMainWindowPlot()
+        if keycode == 48:
+            dm.PlotHRZoomReset()
+            self.RefreshMainWindowPlot()
+        event.Skip()
+    
+   
     def ConfigInit(self):
         """If config dir and file does not exist, it is created
         If config file exists, it is loaded"""
@@ -1209,6 +1227,7 @@ class MainWindow(wx.Frame):
         
         self.RefreshMainWindowButtons()
         self.RefreshMainWindowPlot()
+        self.canvas.SetFocus()
     
     def RefreshMainWindowPlot(self):
         """Redraws the plot of the main window"""
@@ -1226,7 +1245,7 @@ class MainWindow(wx.Frame):
        
 
     def OnLoadBeat(self, event):
-        filetypes = "TXT beats files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|" "All files (*.*)|*.*"
+        filetypes = "Beats supported files (*.txt;*.hrm)|*.txt;*.TXT;*.hrm;*.HRM|TXT beats files (*.txt)|*.txt;*.TXT|Polar beats files (*.hrm)|*.hrm;*.HRM|" "All files (*.*)|*.*"
         fileName=""
         dial = wx.FileDialog(self, message="Load beats file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
