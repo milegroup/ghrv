@@ -1226,20 +1226,30 @@ class MainWindow(wx.Frame):
        
 
     def OnLoadBeat(self, event):
-        filetypes = "TXT beats files (*.txt)|*.txt|" "All files (*.*)|*.*"
+        filetypes = "TXT beats files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|" "All files (*.*)|*.*"
         fileName=""
         dial = wx.FileDialog(self, message="Load beats file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
         if result == wx.ID_OK:
             fileName=dial.GetPath()
+            ext=fileName[-3:].lower()            
             dial.Destroy()
-            try:
-                dm.LoadBeatAscii(fileName,self.settings)
-            except:
-                self.ErrorWindow(messageStr=fileName+" does not seem to be a valid beats file",
-                                 captionStr="Error loading beats file")
-            else:
-                self.RefreshMainWindow()
+            if ext=="txt":
+                try:
+                    dm.LoadBeatAscii(fileName,self.settings)
+                except:
+                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid beats file",
+                                     captionStr="Error loading beats file")
+                else:
+                    self.RefreshMainWindow()
+            if ext=="hrm":
+                try:
+                    dm.LoadBeatPolar(fileName,self.settings)
+                except:
+                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid polar file",
+                                     captionStr="Error loading polar file")
+                else:
+                    self.RefreshMainWindow()
         
     def OnLoadEpisodes(self,event):
         fileName=""
@@ -1351,8 +1361,8 @@ class MainWindow(wx.Frame):
         
         
     def OnFrameBased(self,event):
-        if dm.HasPowerBands()==False:
-            dm.CalculatePowerBand()
+        if dm.HasFrameBasedParams()==False:
+            dm.CalculateFrameBasedParams()
         self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters")
         self.fbWindowPresent=True
         self.RefreshMainWindowButtons()
@@ -1432,10 +1442,10 @@ class MainWindow(wx.Frame):
         
         self.RefreshMainWindowPlot()
             
-        if dm.HasPowerBands():
+        if dm.HasFrameBasedParams():
             if not onlyNameChanges:
-                dm.ClearPowerBands()
-                dm.CalculatePowerBand()
+                dm.ClearFrameBasedParams()
+                dm.CalculateFrameBasedParams()
             if self.fbWindowPresent:
                 self.fbWindow.Refresh()
     

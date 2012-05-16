@@ -85,8 +85,8 @@ class DM:
         Beats instants must be in seconds, and one per line"""
         
         if (self.data["Verbose"]==True):
-            print("** Loaded beats file "+beatsFile)
-            print("** Calculating non-interpolated heart rate")
+            print("** Loading beats file "+beatsFile)
+            print("   Calculating non-interpolated heart rate")
                 
         self.data["BeatTime"]=np.loadtxt(beatsFile)
         
@@ -112,7 +112,61 @@ class DM:
             print("   Project created: "+self.data["name"])
             
         self.data["version"]=Version
+    
+    def LoadBeatPolar(self,polarFile,settings):
+        """Loads beats from polar file
+        Polar files contain rr series, expresed in milliseconds"""
+        
+        if (self.data["Verbose"]==True):
+            print("** Loading polar file "+polarFile)
+        
+        self.data["RR"]=[]
+        dataFound=False
+        File = open(polarFile,'r')
+        for line in File:
+            if dataFound:
+                data=line.strip()
+                if data:
+                    self.data["RR"].append(float(data))
+            if line.strip() == "[HRData]":
+                dataFound=True
+        File.close()
+        
+        self.data["RR"]=np.array(self.data["RR"])
+        self.data["BeatTime"]=np.cumsum(self.data["RR"])/1000.0
+        self.data["niHR"]=60.0/(self.data["RR"]/1000.0)
+        
+        if (self.data["Verbose"]==True):
+            print("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")")
+            print("   RR: "+str(len(self.data["RR"]))+" points")
+            print("   niHR: "+str(len(self.data["niHR"]))+" points")
+        
                 
+        #self.data["BeatTime"]=np.loadtxt(polarFile)
+        #
+        #self.data["niHR"] = 60.0/(self.data["BeatTime"][1:]-self.data["BeatTime"][0:-1])
+        #self.data["niHR"] = np.insert(self.data["niHR"],[0],self.data["niHR"][0])
+        #
+        #self.data["RR"] = 1000.0*(self.data["BeatTime"][1:]-self.data["BeatTime"][0:-1])
+        #self.data["RR"] = np.insert(self.data["RR"],[0],self.data["RR"][0])
+        #
+        #if (self.data["Verbose"]):
+        #    
+        #    print("   niHR: "+str(len(self.data["niHR"]))+" points")
+        #    print("   RR: "+str(len(self.data["RR"]))+" points")
+            
+        for k in settings.keys():
+            self.data[k]=float(settings[k])
+        if (self.data["Verbose"]):
+            print("   Parameters set to default values")
+            
+        self.data["name"]=os.path.splitext(os.path.basename(polarFile))[0]
+        
+        if (self.data["Verbose"]):
+            print("   Project created: "+self.data["name"])
+            
+        self.data["version"]=Version
+                     
             
     def LoadEpisodesAscii(self,episodesFile):
         """Reads espisodes from ascii file
@@ -140,6 +194,7 @@ class DM:
                 HMS=linedata[0].split(":")
                 self.data["EpisodesInitTime"].append(float(HMS[0])*3600.0+float(HMS[1])*60.0+float(HMS[2]))
             index += 1
+        epFile.close()
                 
         self.data["EpisodesVisible"]=list(set(self.data["EpisodesType"]))
                 
@@ -192,9 +247,9 @@ class DM:
             if self.data['Verbose']:
                 print("   Importing project from gHRV 0.18 or older")
                 self.ClearBands()
-                if self.HasPowerBands():
-                    self.ClearPowerBands()
-                    self.CalculatePowerBand()
+                if self.HasFrameBasedParams():
+                    self.ClearFrameBasedParams()
+                    self.CalculateFrameBasedParams()
               
         shutil.rmtree(tempDir)
         self.data["version"]=Version
@@ -309,7 +364,7 @@ class DM:
         if (self.data["Verbose"]):
             print("** Interpolated HR removed from data model")
             
-    def ClearPowerBands(self):
+    def ClearFrameBasedParams(self):
         """Purges power bands information from data model"""
         del self.data["ULF"]
         del self.data["VLF"]
@@ -417,7 +472,7 @@ class DM:
             print ("   Obtained "+str(len(self.data["HR"]))+" points")   
         
                 
-    def CalculatePowerBand(self):
+    def CalculateFrameBasedParams(self):
         """Calculates power per band
             size -> size of window (seconds)
             shift -> displacement of window (seconds)"""
@@ -609,8 +664,8 @@ class DM:
         
         # Frame-based parameters
         if self.HasInterpolatedHR():
-            if self.HasPowerBands()==False:
-                self.CalculatePowerBand()
+            if self.HasFrameBasedParams()==False:
+                self.CalculateFrameBasedParams()
             WriteSubtitleLine(File,'Frequency-domain analysis')
             self.CreatePlotFile("FB",DirName+os.sep+reportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight)
             File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
@@ -725,7 +780,7 @@ class DM:
         else:
             return False
                         
-    def HasPowerBands(self):
+    def HasFrameBasedParams(self):
         """Checks if there is information of power bands"""
         if self.data.has_key("ULF"):
             return(True)
@@ -773,7 +828,7 @@ class DM:
         """Changes the list of bands visible in plot"""
         self.data["VisibleBands"]=ListOfBands
             
-    def GetPowerBandsDataPlot(self):
+    def GetFrameBasedDataPlot(self):
         """Returns data necessary for frame-based plot"""
         return(self.data["PBXVector1"], self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rmssd"], self.data["PBXVector2"], self.data["HR"])
     
@@ -878,7 +933,7 @@ class DM:
                 axes.set_ylim(bottom=0)
             axes.tick_params(axis='x',labelbottom='off')
             axes.autoscale(enable=True,axis='x',tight=True)
-            axes.yaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(5))
+            axes.yaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(4))
             axes.grid()
         
         def AddEpisodesToBandSubplot(axes):
@@ -901,7 +956,7 @@ class DM:
         
         fig.clear()        
 
-        xvector1,lfhfvector,ulfvector,vlfvector, lfvector, hfvector, powervector,meanhrvector, hrstdvector, pnn50vector, rmssdvector, xvector2, hrvector = self.GetPowerBandsDataPlot()
+        xvector1,lfhfvector,ulfvector,vlfvector, lfvector, hfvector, powervector,meanhrvector, hrstdvector, pnn50vector, rmssdvector, xvector2, hrvector = self.GetFrameBasedDataPlot()
         # xvector1 -> xaxis for lfhf, hlf, vlf, lf, hf 
         # xvector2 -> xaxis for hrvector
         
@@ -931,7 +986,7 @@ class DM:
         axBottom.set_ylabel('Heart rate')
         axBottom.set_xlabel('Time [sec.]',fontsize=10)
         axBottom.autoscale(enable=True,axis='x',tight=True)
-        axBottom.yaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(5))
+        axBottom.yaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(4))
         axBottom.grid()
         
         if hasEpisodes:
