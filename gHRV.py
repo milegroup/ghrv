@@ -1098,10 +1098,19 @@ class MainWindow(wx.Frame):
         print keycode
         if keycode == 43:
             dm.PlotHRZoomIn()
-            self.RefreshMainWindowPlot()
+            self.canvas.draw()
+        if keycode == 45:
+            dm.PlotHRZoomOut()
+            self.canvas.draw()
         if keycode == 48:
             dm.PlotHRZoomReset()
-            self.RefreshMainWindowPlot()
+            self.canvas.draw()
+        if keycode == 316:
+            dm.PlotHRPanRight()
+            self.canvas.draw()
+        if keycode == 314:
+            dm.PlotHRPanLeft()
+            self.canvas.draw()
         event.Skip()
     
    
