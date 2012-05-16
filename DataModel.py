@@ -141,20 +141,6 @@ class DM:
             print("   RR: "+str(len(self.data["RR"]))+" points")
             print("   niHR: "+str(len(self.data["niHR"]))+" points")
         
-                
-        #self.data["BeatTime"]=np.loadtxt(polarFile)
-        #
-        #self.data["niHR"] = 60.0/(self.data["BeatTime"][1:]-self.data["BeatTime"][0:-1])
-        #self.data["niHR"] = np.insert(self.data["niHR"],[0],self.data["niHR"][0])
-        #
-        #self.data["RR"] = 1000.0*(self.data["BeatTime"][1:]-self.data["BeatTime"][0:-1])
-        #self.data["RR"] = np.insert(self.data["RR"],[0],self.data["RR"][0])
-        #
-        #if (self.data["Verbose"]):
-        #    
-        #    print("   niHR: "+str(len(self.data["niHR"]))+" points")
-        #    print("   RR: "+str(len(self.data["RR"]))+" points")
-            
         for k in settings.keys():
             self.data[k]=float(settings[k])
         if (self.data["Verbose"]):
@@ -469,8 +455,8 @@ class DM:
         self.data["HR"] = tck(xnew)
 
         if self.data["Verbose"]:
-            print ("   Obtained "+str(len(self.data["HR"]))+" points")   
-        
+            print ("   Obtained "+str(len(self.data["HR"]))+" points")
+            
                 
     def CalculateFrameBasedParams(self):
         """Calculates power per band
@@ -486,10 +472,11 @@ class DM:
             
                 
         signal=self.data["HR"]/60.0
-        shiftsamp=int(self.data['windowshift']*self.data["interpfreq"])
-        sizesamp=int(self.data['windowsize']*self.data["interpfreq"])
+        shiftsamp=self.data['windowshift']*self.data["interpfreq"]
+        sizesamp=self.data['windowsize']*self.data["interpfreq"]
         
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
+        
         
         if self.data["Verbose"]:
             print("   Signal length: "+str(len(signal))+" samples")
@@ -509,8 +496,8 @@ class DM:
         self.data["rmssd"]=[]
                 
         for indexframe in range(numframes):
-            begframe=indexframe*shiftsamp
-            endframe=begframe+sizesamp # samples
+            begframe=int(indexframe*shiftsamp)
+            endframe=int(begframe+sizesamp) # samples
             frame=signal[begframe:endframe]
             
             begtime=indexframe*self.data['windowshift']
@@ -830,7 +817,8 @@ class DM:
             
     def GetFrameBasedDataPlot(self):
         """Returns data necessary for frame-based plot"""
-        return(self.data["PBXVector1"], self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rmssd"], self.data["PBXVector2"], self.data["HR"])
+        return(self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rmssd"], self.data["HR"])
+        
     
     def CreatePlot(self,plotType):
         
@@ -923,42 +911,50 @@ class DM:
         
         
         
+    
+        
     def CreatePlotFBEmbedded(self, fig):
         """ Redraws the frame-based evolution figure"""
         
         def CreateBandSupblot(axes,x,y,ylabel):
             axes.plot(x,y,'-k')        
             axes.set_ylabel(ylabel)
-            if ylabel not in ["Mean HR","HR STD"]:
+            if ylabel not in ["Mean HR","HR STD","Heart rate"]:
                 axes.set_ylim(bottom=0)
             axes.tick_params(axis='x',labelbottom='off')
-            axes.autoscale(enable=True,axis='x',tight=True)
+            axes.set_xlim(xvectortimemin,xvectortimemax)
             axes.yaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(4))
             axes.grid()
         
-        def AddEpisodesToBandSubplot(axes):
+        
+        def AddEpisodesToBandSubplot(axes,legend=False):
             
-            #Transforms axis coordinates to data coordinates
-            frameStarts=[xx[0] for xx in axes.transLimits.inverted().transform(episodesstartsaxisdata)]
-            frameEnds=[xx[0] for xx in axes.transLimits.inverted().transform(episodesendsaxisdata)]
-                 
             i=0
             for tag in tagsVisible:
-                startsvector=[frameStarts[w] for w in range(numEpisodes) if tags[w]==tag]
-                endsvector=[frameEnds[w] for w in range(numEpisodes) if tags[w]==tag]
+                startsvector=[self.data["EpisodesInitTime"][w] for w in range(numEpisodes) if tags[w]==tag]
+                endsvector=[self.data["EpisodesInitTime"][w]+self.data["EpisodesDuration"][w] for w in range(numEpisodes) if tags[w]==tag]
                 for j in range(len(startsvector)):
-                    axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
+                    if not legend:
+                        axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
+                    else:
+                        if j==0:
+                            axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
+                        else:
+                           axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
                 i=i+1
 
-        # end of AddEpisodesToBandSubplot
         
         
         
-        fig.clear()        
+        fig.clear()
+        xvectortimemin=0
+        xvectortimemax=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+        xvectortime=np.linspace(start=0, stop=xvectortimemax, num=len(self.data["HR"]))
+        
+       
 
-        xvector1,lfhfvector,ulfvector,vlfvector, lfvector, hfvector, powervector,meanhrvector, hrstdvector, pnn50vector, rmssdvector, xvector2, hrvector = self.GetFrameBasedDataPlot()
-        # xvector1 -> xaxis for lfhf, hlf, vlf, lf, hf 
-        # xvector2 -> xaxis for hrvector
+        lfhfvector,ulfvector,vlfvector, lfvector, hfvector, powervector,meanhrvector, hrstdvector, pnn50vector, rmssdvector, hrvector = self.GetFrameBasedDataPlot()
+        xvectorframe=np.array([x*self.data["windowshift"]+self.data["windowsize"]/2.0 for x in range(len(ulfvector))])
         
         self.AllBands, self.VisibleBands=self.GetVisibleBands()
         
@@ -982,27 +978,23 @@ class DM:
             
         # Heart rate plot
         axBottom = fig.add_subplot(len(self.VisibleBands),1,len(self.VisibleBands))
-        axBottom.plot(xvector2,hrvector,'-k')
-        axBottom.set_ylabel('Heart rate')
+        CreateBandSupblot(axBottom, xvectortime, hrvector, 'Heart rate')
+        axBottom.tick_params(axis='x',labelbottom='on')
         axBottom.set_xlabel('Time [sec.]',fontsize=10)
-        axBottom.autoscale(enable=True,axis='x',tight=True)
-        axBottom.yaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(4))
-        axBottom.grid()
         
         if hasEpisodes:
-            i=0
-            for tag in tagsVisible:
-                startsvector=[starts[w] for w in range(numEpisodes) if tags[w]==tag]
-                endsvector=[ends[w] for w in range(numEpisodes) if tags[w]==tag]
-                for j in range(len(startsvector)):
-                    if j==0:
-                        axBottom.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
-                    else:
-                        axBottom.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
-                i=i+1       
-            # Obtain axis coordinates for episodes                 
-            episodesstartsaxisdata=axBottom.transLimits.transform(zip(starts,[0 for i in range(len(starts))]))
-            episodesendsaxisdata=axBottom.transLimits.transform(zip(ends,[0 for i in range(len(starts))]))
+            AddEpisodesToBandSubplot(axBottom,legend=True)
+            #i=0
+            #for tag in tagsVisible:
+            #    startsvector=[starts[w] for w in range(numEpisodes) if tags[w]==tag]
+            #    endsvector=[ends[w] for w in range(numEpisodes) if tags[w]==tag]
+            #    for j in range(len(startsvector)):
+            #        if j==0:
+            #            axBottom.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
+            #        else:
+            #            axBottom.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
+            #    i=i+1       
+
             leg=axBottom.legend(bbox_to_anchor=(1.02, 0.0), loc=3, ncol=1, borderaxespad=0.)
             for t in leg.get_texts():
                 t.set_fontsize('small')
@@ -1014,63 +1006,36 @@ class DM:
         for Band in BandsToPlot:
             BandIndex = BandsToPlot.index(Band)
             
-            axTop=None
-            if BandIndex==0:
-                axTop=fig.add_subplot(len(self.VisibleBands),1,BandIndex+1)
-                if Band == "LF/HF":
-                    CreateBandSupblot(axTop, xvector1, lfhfvector, 'LF/HF')
-                if Band == "ULF":
-                    CreateBandSupblot(axTop, xvector1, ulfvector, 'ULF')
-                if Band == "VLF":
-                    CreateBandSupblot(axTop, xvector1, vlfvector, 'VLF')
-                if Band == "LF":
-                    CreateBandSupblot(axTop, xvector1, lfvector, 'LF')
-                if Band == "HF":
-                    CreateBandSupblot(axTop, xvector1, hfvector, 'HF')
-                if Band == "Power":
-                    CreateBandSupblot(axTop, xvector1, powervector, 'Power')
-                if Band == "Mean HR":
-                    CreateBandSupblot(axTop, xvector1, meanhrvector, 'Mean HR')
-                if Band == "HR STD":
-                    CreateBandSupblot(axTop, xvector1, hrstdvector, 'HR STD')
-                if Band == "pNN50":
-                    CreateBandSupblot(axTop, xvector1, pnn50vector, 'pNN50')
-                if Band == "rmssd":
-                    CreateBandSupblot(axTop, xvector1, rmssdvector, 'rmssd')
-                    
-                axTop.set_xlabel('Frame number',size=10)
-                axTop.tick_params(axis='x',labeltop='on')
-                axTop.xaxis.set_label_position("top")        
-        
-                if hasEpisodes :
-                    AddEpisodesToBandSubplot(axTop)
-                    
-            else: # BandIndex not 0
-                axMiddle=fig.add_subplot(len(self.VisibleBands),1,BandIndex+1, sharex=axTop)
-                if Band == "LF/HF":
-                    CreateBandSupblot(axMiddle, xvector1, lfhfvector, 'LF/HF')
-                if Band == "ULF":
-                    CreateBandSupblot(axMiddle, xvector1, ulfvector, 'ULF')
-                if Band == "VLF":
-                    CreateBandSupblot(axMiddle, xvector1, vlfvector, 'VLF')
-                if Band == "LF":
-                    CreateBandSupblot(axMiddle, xvector1, lfvector, 'LF')
-                if Band == "HF":
-                    CreateBandSupblot(axMiddle, xvector1, hfvector, 'HF')
-                if Band == "Power":
-                    CreateBandSupblot(axMiddle, xvector1 , powervector, 'Power')
-                if Band == "Mean HR":
-                    CreateBandSupblot(axMiddle, xvector1, meanhrvector, 'Mean HR')
-                if Band == "HR STD":
-                    CreateBandSupblot(axMiddle, xvector1, hrstdvector, 'HR STD')
-                if Band == "pNN50":
-                    CreateBandSupblot(axMiddle, xvector1, pnn50vector, 'pNN50')
-                if Band == "rmssd":
-                    CreateBandSupblot(axMiddle, xvector1, rmssdvector, 'rmssd')
-                    
-                if hasEpisodes:
-                    AddEpisodesToBandSubplot(axMiddle)                
-        
+            axBand=fig.add_subplot(len(self.VisibleBands),1,BandIndex+1)
+            if Band == "LF/HF":
+                CreateBandSupblot(axBand, xvectorframe, lfhfvector, 'LF/HF')
+            if Band == "ULF":
+                CreateBandSupblot(axBand, xvectorframe, ulfvector, 'ULF')
+            if Band == "VLF":
+                CreateBandSupblot(axBand, xvectorframe, vlfvector, 'VLF')
+            if Band == "LF":
+                CreateBandSupblot(axBand, xvectorframe, lfvector, 'LF')
+            if Band == "HF":
+                CreateBandSupblot(axBand, xvectorframe, hfvector, 'HF')
+            if Band == "Power":
+                CreateBandSupblot(axBand, xvectorframe, powervector, 'Power')
+            if Band == "Mean HR":
+                CreateBandSupblot(axBand, xvectorframe, meanhrvector, 'Mean HR')
+            if Band == "HR STD":
+                CreateBandSupblot(axBand, xvectorframe, hrstdvector, 'HR STD')
+            if Band == "pNN50":
+                CreateBandSupblot(axBand, xvectorframe, pnn50vector, 'pNN50')
+            if Band == "rmssd":
+                CreateBandSupblot(axBand, xvectorframe, rmssdvector, 'rmssd')
+                
+            #axBand.set_xlabel('Frame number',size=10)
+            #axBand.tick_params(axis='x',labeltop='on')
+            #axBand.xaxis.set_label_position("top")        
+    
+            if hasEpisodes :
+                AddEpisodesToBandSubplot(axBand)
+                
+          
         
         fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16) 
         
