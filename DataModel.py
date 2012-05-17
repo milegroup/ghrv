@@ -1113,7 +1113,7 @@ class DM:
             print("*** HR Zoom out")
             
     def PlotHRPanRight(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.25
+        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.15
         xvector = self.GetHRDataPlot()[0]
         delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
         self.data["PlotHRXMin"] += delta
@@ -1123,7 +1123,7 @@ class DM:
             print("*** HR Pan right")
             
     def PlotHRPanLeft(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.25
+        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.15
         xvector = self.GetHRDataPlot()[0]
         delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
         self.data["PlotHRXMin"] -= delta
