@@ -673,8 +673,8 @@ class DM:
         File.write('<tr><td><b>STD HR: </b><i>'+info["stdhr"]+' bps</i></td></tr>')
         File.write('<tr><td><b>Mean RR (AVNN): </b><i>'+info["meanrr"]+' msec.</i></td></tr>')
         File.write('<tr><td><b>STD RR (SDNN): </b><i>'+info["stdrr"]+' msec.</i></td></tr>')
-        File.write('<tr><td><b>SDANN: </b><i>'+info["sdann"]+' msec.</i></td></tr>')
-        File.write('<tr><td><b>SDNNIDX: </b><i>'+info["sdnnidx"]+' msec.</i></td></tr>')
+        File.write('<tr><td><b>SDANN: </b><i>'+info["sdann"]+'</i></td></tr>')
+        File.write('<tr><td><b>SDNNIDX: </b><i>'+info["sdnnidx"]+'</i></td></tr>')
         File.write('</table>\n</font></td>\n')
         File.write('<td align="left"><font size="-1"><table>\n')
         File.write('<tr><td><b>pNN50: </b><i>'+info["pnn50"]+'%</i></td></tr>')
@@ -743,8 +743,13 @@ class DM:
             winmin=winmin+winsize
             winmax=winmax+winsize
                 
-        info["sdann"]="{0:.2f}".format(np.std(RRWindowMean,ddof=1))
-        info["sdnnidx"]="{0:.2f}".format(np.mean(RRWindowSD))
+        if len(RRWindowMean)>1:
+            info["sdann"]="{0:.2f} msec.".format(np.std(RRWindowMean,ddof=1))
+            info["sdnnidx"]="{0:.2f} msec.".format(np.mean(RRWindowSD))
+        
+        else:
+            info["sdann"]="--"
+            info["sdnnidx"]="--"
         
         RRDiffs=np.diff(self.data["RR"])
         RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
