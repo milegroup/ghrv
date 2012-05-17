@@ -63,7 +63,7 @@ class DM:
         self.data["DictColors"]={}
         
     def ClearBands(self):
-        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Power","Mean HR","HR STD","pNN50","rmssd","Heart rate"]
+        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Power","Mean HR","HR STD","pNN50","rMSSD","Heart rate"]
         self.data["VisibleBands"]=["LF/HF","ULF","VLF","LF","HF","Heart rate"]
         self.data["FixedBands"]=["Heart rate"]
         
@@ -535,7 +535,7 @@ class DM:
         self.data["Mean HR"]=[]
         self.data["HR STD"]=[]
         self.data["pNN50"]=[]
-        self.data["rmssd"]=[]
+        self.data["rMSSD"]=[]
                 
         for indexframe in range(numframes):
             begframe=int(indexframe*shiftsamp)
@@ -594,7 +594,7 @@ class DM:
             RRDiffs=np.diff(frameRR)
             RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
             self.data["pNN50"].append(100.0*len(RRDiffs50)/len(RRDiffs))
-            self.data["rmssd"].append(np.sqrt(np.mean(RRDiffs**2)))
+            self.data["rMSSD"].append(np.sqrt(np.mean(RRDiffs**2)))
                 
         self.data["ULF"]=np.array(self.data["ULF"])
         self.data["VLF"]=np.array(self.data["VLF"])
@@ -605,7 +605,7 @@ class DM:
         self.data["Mean HR"]=np.array(self.data["Mean HR"])
         self.data["HR STD"]=np.array(self.data["HR STD"])
         self.data["pNN50"]=np.array(self.data["pNN50"])
-        self.data["rmssd"]=np.array(self.data["rmssd"])
+        self.data["rMSSD"]=np.array(self.data["rMSSD"])
                 
                     
         
@@ -678,7 +678,7 @@ class DM:
         File.write('</table>\n</font></td>\n')
         File.write('<td align="left"><font size="-1"><table>\n')
         File.write('<tr><td><b>pNN50: </b><i>'+info["pnn50"]+'%</i></td></tr>')
-        File.write('<tr><td><b>rMSSD: </b><i>'+info["rmssd"]+' msec.</i></td></tr>')
+        File.write('<tr><td><b>rMSSD: </b><i>'+info["rMSSD"]+' msec.</i></td></tr>')
         File.write('<tr><td><b>IRRR: </b><i>'+info["irrr"]+' msec.</i></td></tr>')
         File.write('<tr><td><b>MADRR: </b><i>'+info["madrr"]+' msec.</i></td></tr>')
         File.write('<tr><td><b>TINN: </b><i>'+info["tinn"]+' msec.</i></td></tr>')
@@ -754,7 +754,7 @@ class DM:
         RRDiffs=np.diff(self.data["RR"])
         RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
         info["pnn50"]="{0:.2f}".format(100.0*len(RRDiffs50)/len(RRDiffs))
-        info["rmssd"]="{0:.2f}".format(np.sqrt(np.mean(RRDiffs**2)))
+        info["rMSSD"]="{0:.2f}".format(np.sqrt(np.mean(RRDiffs**2)))
         
         RRQuant=mquantiles(RRDiffs)
         info["irrr"]="{0:.2f}".format(RRQuant[-1]-RRQuant[0])
@@ -861,7 +861,7 @@ class DM:
             
     def GetFrameBasedDataPlot(self):
         """Returns data necessary for frame-based plot"""
-        return(self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rmssd"], self.data["HR"])
+        return(self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rMSSD"], self.data["HR"])
         
     
     def CreatePlot(self,plotType):
@@ -1076,8 +1076,8 @@ class DM:
                 CreateBandSupblot(axBand, xvectorframe, hrstdvector, 'HR STD')
             if Band == "pNN50":
                 CreateBandSupblot(axBand, xvectorframe, pnn50vector, 'pNN50')
-            if Band == "rmssd":
-                CreateBandSupblot(axBand, xvectorframe, rmssdvector, 'rmssd')
+            if Band == "rMSSD":
+                CreateBandSupblot(axBand, xvectorframe, rmssdvector, 'rMSSD')
                 
             #axBand.set_xlabel('Frame number',size=10)
             #axBand.tick_params(axis='x',labeltop='on')
