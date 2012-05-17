@@ -33,6 +33,7 @@
 # TODO: Comprobar la edición de puntos en windows
 # TODO: Un montón de cosas más
 # TODO: Comprobar report cuando el nombre del fichero contiene acentos
+# TODO: Completar en main con setfocus
 
 import wx
 import matplotlib
@@ -836,7 +837,9 @@ class MainWindow(wx.Frame):
     """ Main window application"""
 
     configDir = os.path.expanduser('~')+os.sep+'.ghrv'
-    configFile = configDir+os.sep+"ghrv.cfg"    
+    configFile = configDir+os.sep+"ghrv.cfg"
+    sbDefaultText="  gHRV 0.19 - http://ghrv.milegroup.net"
+    sbPlotHRText="  Press +, -, 0, left, right for zooming/panning. Press s to save plot"
         
     def __init__(self, parent, id, title):
 
@@ -1081,6 +1084,8 @@ class MainWindow(wx.Frame):
         # End of plot area
         # ----------------
         
+        self.sb = self.CreateStatusBar()
+        self.sb.SetStatusText(self.sbDefaultText)
         
         self.canvas.Bind(wx.EVT_CHAR, self.OnKeyPress)
         
@@ -1095,8 +1100,10 @@ class MainWindow(wx.Frame):
         if not dm.HasHR():
             event.Skip()
             return
+        if self.reportWindowPresent:
+            event.Skip()
+            return
         keycode = event.GetKeyCode()
-        print keycode
         if keycode == 43:
             dm.PlotHRZoomIn()
             self.canvas.draw()
@@ -1112,7 +1119,21 @@ class MainWindow(wx.Frame):
         if keycode == 314:
             dm.PlotHRPanLeft()
             self.canvas.draw()
+        if keycode==115:
+            fileName=""
+            filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName(), style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
+            result = dial.ShowModal()
+            if result == wx.ID_OK:
+                fileName=dial.GetPath()
+                try:
+                    print "File: ",fileName
+                    self.canvas.print_figure(fileName)
+                except:
+                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
+            dial.Destroy()
         event.Skip()
+        self.canvas.SetFocus()
     
    
     def ConfigInit(self):
@@ -1238,6 +1259,8 @@ class MainWindow(wx.Frame):
         self.RefreshMainWindowButtons()
         self.RefreshMainWindowPlot()
         self.canvas.SetFocus()
+        if dm.HasHR():
+            self.sb.SetStatusText(self.sbPlotHRText)
     
     def RefreshMainWindowPlot(self):
         """Redraws the plot of the main window"""
@@ -1245,6 +1268,7 @@ class MainWindow(wx.Frame):
         self.fig.clear()
         dm.CreatePlotHREmbedded(self.fig)
         self.canvas.draw()
+        self.canvas.SetFocus()
         
         
     def ErrorWindow(self,messageStr,captionStr="ERROR"):
@@ -1252,6 +1276,7 @@ class MainWindow(wx.Frame):
         dial = wx.MessageDialog(self, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
         result = dial.ShowModal()
         dial.Destroy()
+        self.canvas.SetFocus()
        
 
     def OnLoadBeat(self, event):
@@ -1287,6 +1312,9 @@ class MainWindow(wx.Frame):
                                      captionStr="Error loading suunto file")
                 else:
                     self.RefreshMainWindow()
+        self.canvas.SetFocus()
+        
+        
         
     def OnLoadEpisodes(self,event):
         fileName=""
@@ -1307,6 +1335,7 @@ class MainWindow(wx.Frame):
                 self.RefreshMainWindow()
                 if self.fbWindowPresent:
                     self.fbWindow.Refresh()
+        self.canvas.SetFocus()
         
     def OnProjectLoad(self,event):
         filetypes = "gHRV project files (*.ghrv)|*.ghrv|" "All files (*.*)|*.*"
@@ -1346,6 +1375,7 @@ class MainWindow(wx.Frame):
             self.RefreshMainWindowButtons()
             self.fig.clear()
             self.canvas.draw()
+            self.sb.SetStatusText(self.sbDefaultText)
     
     def OnEpisodesEdit(self,event):
         EditEpisodesWindow(self,-1,'Episodes Edition')
@@ -1377,6 +1407,7 @@ class MainWindow(wx.Frame):
     def OnNIHREditEnded(self):
         self.editNIHRWindowPresent=False
         self.RefreshMainWindow()
+        
     
     def OnInterpolateNIHR(self,event):
         dm.InterpolateNIHR()
@@ -1391,10 +1422,12 @@ class MainWindow(wx.Frame):
         ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName)
         self.reportWindowPresent=True
         self.RefreshMainWindowButtons()
+
         
     def OnReportEnded(self):
         self.reportWindowPresent=False
-        self.RefreshMainWindowButtons()
+        self.RefreshMainWindow()
+        self.canvas.SetFocus()
         
         
     def OnFrameBased(self,event):
@@ -1407,6 +1440,7 @@ class MainWindow(wx.Frame):
     def OnFrameBasedEnded(self):
         self.fbWindowPresent=False
         self.RefreshMainWindowButtons()
+        self.canvas.SetFocus()
         
     
     
@@ -1422,9 +1456,11 @@ class MainWindow(wx.Frame):
         self.RefreshMainWindowButtons()
         AboutDlg(self,-1)
         
+        
     def OnAboutEnded(self):
         self.aboutWindowPresent=False
         self.RefreshMainWindowButtons()
+        self.canvas.SetFocus()
        
         
     def OnConfig(self,event):
@@ -1438,6 +1474,7 @@ class MainWindow(wx.Frame):
         self.configWindowPresent=False
         self.RefreshMainWindowButtons()
         #print 'After configuration: ',self.settings
+        self.canvas.SetFocus()
         
     def OnProjectOptions(self,event):
         self.projectSettings=dm.GetSettings()
