@@ -31,9 +31,7 @@
 # TODO: Comprobar episodios fuera del rango de la señal de latidos
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Comprobar la edición de puntos en windows
-# TODO: Un montón de cosas más
 # TODO: Comprobar report cuando el nombre del fichero contiene acentos
-# TODO: Completar en main con setfocus
 
 import wx
 import matplotlib
@@ -1277,6 +1275,13 @@ class MainWindow(wx.Frame):
         result = dial.ShowModal()
         dial.Destroy()
         self.canvas.SetFocus()
+    
+    def WarningWindow(self,messageStr,captionStr="WARNING"):
+        """Generic warning window"""
+        dial = wx.MessageDialog(self, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_WARNING)
+        result = dial.ShowModal()
+        dial.Destroy()
+        self.canvas.SetFocus()
        
 
     def OnLoadBeat(self, event):
@@ -1335,6 +1340,13 @@ class MainWindow(wx.Frame):
                 self.RefreshMainWindow()
                 if self.fbWindowPresent:
                     self.fbWindow.Refresh()
+                EpInit = dm.GetEpisodes()[1]
+                EpDur = dm.GetEpisodes()[2]
+                EpFin = [float(EpInit[x])+float(EpDur[x]) for x in range(len(EpInit))]
+                EpFinMax = max(EpFin)
+                if EpFinMax > dm.GetHRDataPlot()[0][-1]:
+                    self.WarningWindow(messageStr="WARNING: one or more episodes are outside of time axis",captionStr="Episodes warning")
+
         self.canvas.SetFocus()
         
     def OnProjectLoad(self,event):
