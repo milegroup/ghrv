@@ -152,6 +152,48 @@ class DM:
             print("   Project created: "+self.data["name"])
             
         self.data["version"]=Version
+        
+    def LoadBeatSuunto(self,suuntoFile,settings):
+        """Loads beats from suunto file
+        suunto files contain rr series, expresed in milliseconds"""
+        
+        if (self.data["Verbose"]==True):
+            print("** Loading suunto file "+suuntoFile)
+        
+        self.data["RR"]=[]
+        dataFound=False
+        File = open(suuntoFile,'r')
+        for line in File:
+            if dataFound:
+                data=line.strip()
+                if data:
+                    self.data["RR"].append(float(data))
+            if line.strip() == "[CUSTOM1]":
+                dataFound=True
+        File.close()
+        
+        self.data["RR"]=np.array(self.data["RR"])
+        self.data["BeatTime"]=np.cumsum(self.data["RR"])/1000.0
+        self.data["niHR"]=60.0/(self.data["RR"]/1000.0)
+        
+        if (self.data["Verbose"]==True):
+            print("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")")
+            print("   RR: "+str(len(self.data["RR"]))+" points")
+            print("   niHR: "+str(len(self.data["niHR"]))+" points")
+        
+        for k in settings.keys():
+            self.data[k]=float(settings[k])
+        if (self.data["Verbose"]):
+            print("   Parameters set to default values")
+            
+        self.data["name"]=os.path.splitext(os.path.basename(suuntoFile))[0]
+        
+        if (self.data["Verbose"]):
+            print("   Project created: "+self.data["name"])
+            
+        self.data["version"]=Version
+                     
+            
                      
             
     def LoadEpisodesAscii(self,episodesFile):

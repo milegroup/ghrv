@@ -32,6 +32,7 @@
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Comprobar la edición de puntos en windows
 # TODO: Un montón de cosas más
+# TODO: Comprobar report cuando el nombre del fichero contiene acentos
 
 import wx
 import matplotlib
@@ -1254,7 +1255,7 @@ class MainWindow(wx.Frame):
        
 
     def OnLoadBeat(self, event):
-        filetypes = "Beats supported files (*.txt;*.hrm)|*.txt;*.TXT;*.hrm;*.HRM|TXT beats files (*.txt)|*.txt;*.TXT|Polar beats files (*.hrm)|*.hrm;*.HRM|" "All files (*.*)|*.*"
+        filetypes = "Beats supported files (*.txt;*.hrm;*sdf)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF|TXT beats files (*.txt)|*.txt;*.TXT| Polar beats files (*.hrm)|*.hrm;*.HRM|Suunto beats files (*.sdf)|*.sdf;*.SDF|All files (*.*)|*.*"
         fileName=""
         dial = wx.FileDialog(self, message="Load beats file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
@@ -1276,6 +1277,14 @@ class MainWindow(wx.Frame):
                 except:
                     self.ErrorWindow(messageStr=fileName+" does not seem to be a valid polar file",
                                      captionStr="Error loading polar file")
+                else:
+                    self.RefreshMainWindow()
+            if ext=="sdf":
+                try:
+                    dm.LoadBeatSuunto(fileName,self.settings)
+                except:
+                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid suunto file",
+                                     captionStr="Error loading suunto file")
                 else:
                     self.RefreshMainWindow()
         
