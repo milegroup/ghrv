@@ -30,7 +30,6 @@
 # TODO: MacOSX change dialog messages as in http://www.blog.pythonlibrary.org/2010/07/10/the-dialogs-of-wxpython-part-2-of-2/
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Comprobar la edición de puntos en windows
-# TODO: Comprobar report cuando el nombre del fichero contiene acentos
 
 import wx
 import matplotlib

@@ -669,8 +669,7 @@ class DM:
         info=self.GetInfoFile()
         self.CreatePlotFile("HR",DirName+os.sep+reportSubDir+os.sep+"HR.png",plotHRWidth,plotHRHeight)
         
-        File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"> <td width="50%"><b>Name: </b><i>'+info["name"]+'</i></td><td width="50%"><b>Signal length: </b><i>'+info["length"]+'</i></td></tr></table>\n')
-
+        File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"> <td width="50%"><b>Name: </b><i>'+info["name"].encode('ascii', 'xmlcharrefreplace')+'</i></td><td width="50%"><b>Signal length: </b><i>'+info["length"]+'</i></td></tr></table>\n')
         File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"><td><img src="./'+reportSubDir+'/HR.png"/></td></tr></table>\n')
         
         File.write("<hr>\n")
