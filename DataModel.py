@@ -634,6 +634,11 @@ class DM:
             
         # -----------------
         
+        def WriteSubsubtitleLine(fileHandler,text):
+            fileHandler.write('<table cellspacing="5" border="0" width="'+str(HTMLPageWidth)+'">\n<tr><td align="left" ><font size="-1" color='+ReportWindowSubTitleColor+'><b>&nbsp;'+text+'</b></font></td></tr></table>\n')
+            
+        # -----------------
+        
         
         reportSubDir='report_files'
         os.mkdir(DirName+os.sep+reportSubDir)
@@ -662,26 +667,26 @@ class DM:
         
         
         # Histogram and time-based parameters
-        WriteSubtitleLine(File,'Time-domain analysis')          
+        WriteSubtitleLine(File,'Global analysis (time-domain parameters)')          
         info=self.GetInfoTime()
         self.CreatePlotFile("HRHistogram",DirName+os.sep+reportSubDir+os.sep+"HRHistogram.png",plotHRHistogramWidth,plotHRHistogramHeight)
         File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
         File.write('<tr align="center"><td><img src="./'+reportSubDir+'/HRHistogram.png"/></td><td align="left">\n')
         File.write('<font size="-1">\n<table align="left">')
         File.write('<tr><td><b>No. of beats: </b><i>'+info["beats"]+'</i></td></tr>')
-        File.write('<tr><td><b>Mean HR: </b><i>'+info["meanhr"]+' bps</i></td></tr>')
-        File.write('<tr><td><b>STD HR: </b><i>'+info["stdhr"]+' bps</i></td></tr>')
-        File.write('<tr><td><b>Mean RR (AVNN): </b><i>'+info["meanrr"]+' msec.</i></td></tr>')
-        File.write('<tr><td><b>STD RR (SDNN): </b><i>'+info["stdrr"]+' msec.</i></td></tr>')
+        File.write('<tr><td><b>Mean HR: </b><i>'+info["meanhr"]+'</i></td></tr>')
+        File.write('<tr><td><b>STD HR: </b><i>'+info["stdhr"]+'</i></td></tr>')
+        File.write('<tr><td><b>Mean RR (AVNN): </b><i>'+info["meanrr"]+'</i></td></tr>')
+        File.write('<tr><td><b>STD RR (SDNN): </b><i>'+info["stdrr"]+'</i></td></tr>')
         File.write('<tr><td><b>SDANN: </b><i>'+info["sdann"]+'</i></td></tr>')
         File.write('<tr><td><b>SDNNIDX: </b><i>'+info["sdnnidx"]+'</i></td></tr>')
         File.write('</table>\n</font></td>\n')
         File.write('<td align="left"><font size="-1"><table>\n')
-        File.write('<tr><td><b>pNN50: </b><i>'+info["pnn50"]+'%</i></td></tr>')
-        File.write('<tr><td><b>rMSSD: </b><i>'+info["rMSSD"]+' msec.</i></td></tr>')
-        File.write('<tr><td><b>IRRR: </b><i>'+info["irrr"]+' msec.</i></td></tr>')
-        File.write('<tr><td><b>MADRR: </b><i>'+info["madrr"]+' msec.</i></td></tr>')
-        File.write('<tr><td><b>TINN: </b><i>'+info["tinn"]+' msec.</i></td></tr>')
+        File.write('<tr><td><b>pNN50: </b><i>'+info["pnn50"]+'</i></td></tr>')
+        File.write('<tr><td><b>rMSSD: </b><i>'+info["rMSSD"]+'</i></td></tr>')
+        File.write('<tr><td><b>IRRR: </b><i>'+info["irrr"]+'</i></td></tr>')
+        File.write('<tr><td><b>MADRR: </b><i>'+info["madrr"]+'</i></td></tr>')
+        File.write('<tr><td><b>TINN: </b><i>'+info["tinn"]+'</i></td></tr>')
         File.write('<tr><td><b>HRV index: </b><i>'+info["hrvi"]+'</i></td></tr>')
         File.write('</table>\n</font>\n')
         File.write('</td></tr>\n')
@@ -692,12 +697,31 @@ class DM:
         if self.HasInterpolatedHR():
             if self.HasFrameBasedParams()==False:
                 self.CalculateFrameBasedParams()
-            WriteSubtitleLine(File,'Frequency-domain analysis')
+            WriteSubtitleLine(File,'Frame-based analysis')
             self.CreatePlotFile("FB",DirName+os.sep+reportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight)
             File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
     
             File.write('<tr align="center"><td><img src="./'+reportSubDir+'/FB.png"/></td></tr>\n')
             File.write('</table>\n')
+            
+            
+            info = self.GetInfoWindow()
+            WriteSubsubtitleLine(File,'Window details')
+            
+            File.write('<font size="-1"><table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
+            File.write('<tr align="left"><td>&nbsp;&nbsp;&nbsp;</td>\n')
+            File.write('<td><b>Interpolation freq.: </b><i>'+info["freqinterp"]+'</i></td>')
+            File.write('<td><b>Frame length: </b><i>'+info["windowsize"]+'</i></td>')
+            File.write('<td><b>Frame shift: </b><i>'+info["windowshift"]+'</i></td>')
+            File.write('</tr>')
+            File.write('<tr align="left"><td></td>')
+            File.write('<td><b>No. of frames: </b><i>'+info["numframes"]+'</i></td>')
+            File.write('<td><b>Window type: </b><i>'+info["windowtype"]+'</i></td>')
+            File.write('<td><b>Mean removal: </b><i>'+info["meanremoval"]+'</i></td>')
+            File.write('</tr>')
+            File.write('</table></font>\n')
+            
+           
             File.write("<hr>\n")
             
         
@@ -720,6 +744,23 @@ class DM:
             
         return info
     
+    def GetInfoWindow(self):
+        info={}
+        info["freqinterp"]="{0:.2f} Hz.".format(self.data["interpfreq"])
+        info["windowsize"]="{0:.2f} sec.".format(self.data['windowsize'])
+        info["windowshift"]="{0:.2f} sec.".format(self.data['windowshift'])
+        
+        shiftsamp=self.data['windowshift']*self.data["interpfreq"]
+        sizesamp=self.data['windowsize']*self.data["interpfreq"]
+        numframes=int(((len(self.data["HR"])-sizesamp)/shiftsamp)+1.0)
+        info["numframes"]="{0:.2f}".format(numframes)
+        
+        info["windowtype"]="Hamming"
+        info["meanremoval"]="yes"
+        
+        return info
+    
+    
     def GetInfoTime(self, winsize=300.0, interval=7.8125):
         from scipy.stats.mstats import mquantiles
         
@@ -727,10 +768,10 @@ class DM:
         info["beats"]="{0:.2f}".format((len(self.data["BeatTime"])))
         info["minhr"]="{0:.2f}".format(min(self.data["niHR"]))
         info["maxhr"]="{0:.2f}".format(max(self.data["niHR"]))
-        info["meanhr"]="{0:.2f}".format(np.mean(self.data["niHR"]))
-        info["meanrr"]="{0:.2f}".format(np.mean(self.data["RR"]))
-        info["stdhr"]="{0:.2f}".format(np.std(self.data["niHR"],ddof=1))
-        info["stdrr"]="{0:.2f}".format(np.std(self.data["RR"],ddof=1))
+        info["meanhr"]="{0:.2f} bps".format(np.mean(self.data["niHR"]))
+        info["meanrr"]="{0:.2f} msec.".format(np.mean(self.data["RR"]))
+        info["stdhr"]="{0:.2f} bps".format(np.std(self.data["niHR"],ddof=1))
+        info["stdrr"]="{0:.2f} msec.".format(np.std(self.data["RR"],ddof=1))
         
         RRWindowMean=[]
         RRWindowSD=[]
@@ -753,13 +794,13 @@ class DM:
         
         RRDiffs=np.diff(self.data["RR"])
         RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
-        info["pnn50"]="{0:.2f}".format(100.0*len(RRDiffs50)/len(RRDiffs))
-        info["rMSSD"]="{0:.2f}".format(np.sqrt(np.mean(RRDiffs**2)))
+        info["pnn50"]="{0:.2f}%".format(100.0*len(RRDiffs50)/len(RRDiffs))
+        info["rMSSD"]="{0:.2f} msec.".format(np.sqrt(np.mean(RRDiffs**2)))
         
         RRQuant=mquantiles(RRDiffs)
-        info["irrr"]="{0:.2f}".format(RRQuant[-1]-RRQuant[0])
+        info["irrr"]="{0:.2f} msec.".format(RRQuant[-1]-RRQuant[0])
         
-        info["madrr"]="{0:.2f}".format(np.median(np.abs(RRDiffs)))
+        info["madrr"]="{0:.2f} msec.".format(np.median(np.abs(RRDiffs)))
         
         minRR = min(self.data["RR"])
         maxRR = max(self.data["RR"])
@@ -770,7 +811,7 @@ class DM:
         h=np.histogram(self.data["RR"],vecthist)
         area = float(len(self.data["RR"])) * interval
         maxhist = max(h[0])
-        info["tinn"] = "{0:.2f}".format(area/maxhist)
+        info["tinn"] = "{0:.2f} msec.".format(area/maxhist)
         info["hrvi"] = "{0:.2f}".format(float(len(self.data["RR"]))/maxhist)
    
         return info

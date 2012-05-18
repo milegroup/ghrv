@@ -27,6 +27,7 @@
 #   ----------------------------------------------------------------------
 
 Verbose=True
+DebugMode = True
 Version="0.19"
 
 from sys import platform
@@ -70,6 +71,7 @@ ReportBGColor='#B3DF5D'
 EpisodesEditionBGColor='#FFD966'
 LogoVertColor='#5C7F19'
 ReportWindowTitleColor='#5C7F19'
+ReportWindowSubTitleColor='navyblue'
 
 buttonSizeEditNIHR=(150,35)
 buttonSizeFrameBased = buttonSizeEditNIHR

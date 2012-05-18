@@ -102,6 +102,8 @@ class FrameBasedEvolutionWindow(wx.Frame):
         #self.SetSize(BandsWindowSize)
         self.Layout()
         #self.Centre()
+        
+        
       
 
     def insertBandsSelector(self):
@@ -1091,6 +1093,18 @@ class MainWindow(wx.Frame):
         self.Centre()
         self.MainPanel.SetSizer(self.sizer)
         self.MainPanel.Layout()
+        
+        if DebugMode:
+            dm.LoadDataModel("/home/leandro/Documentos/Programacion/gHRV/data_0_17/caca2.ghrv")
+            self.RefreshMainWindow()
+            import tempfile
+            reportName="report.html"
+            reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
+            dm.CreateReport(reportDir,reportName)
+            ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName)
+            self.reportWindowPresent=True
+            self.RefreshMainWindowButtons()
+        
         self.canvas.SetFocus()
         
     def OnKeyPress(self, event):
