@@ -1457,7 +1457,7 @@ class MainWindow(wx.Frame):
         
     def OnFrameBased(self,event):
         if dm.HasFrameBasedParams()==False:
-            dm.CalculateFrameBasedParams()
+            dm.CalculateFrameBasedParams(showProgress=True)
         self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters")
         self.fbWindowPresent=True
         self.RefreshMainWindowButtons()
@@ -1544,7 +1544,7 @@ class MainWindow(wx.Frame):
         if dm.HasFrameBasedParams():
             if not onlyNameChanges:
                 dm.ClearFrameBasedParams()
-                dm.CalculateFrameBasedParams()
+                dm.CalculateFrameBasedParams(showProgress=True)
             if self.fbWindowPresent:
                 self.fbWindow.Refresh()
     

@@ -27,7 +27,7 @@
 #   ----------------------------------------------------------------------
 
 Verbose=True
-DebugMode = True
+DebugMode = False
 Version="0.19"
 
 from sys import platform

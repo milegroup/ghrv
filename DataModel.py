@@ -473,7 +473,7 @@ class DM:
 
         if self.data["Verbose"]:
             print ("** Interpolating instantaneous heart rate (method: linear interpolation)")
-            print ("   Frequency: "+str(self.data["interpfreq"])+" Hz.")
+            print ("   Frequency: "+str(self.data["interpfreq"])+" Hz")
 
 
         
@@ -500,7 +500,7 @@ class DM:
             print ("   Obtained "+str(len(self.data["HR"]))+" points")
             
                 
-    def CalculateFrameBasedParams(self):
+    def CalculateFrameBasedParams(self, showProgress=False):
         """Calculates power per band
             size -> size of window (seconds)
             shift -> displacement of window (seconds)"""
@@ -518,6 +518,10 @@ class DM:
         sizesamp=self.data['windowsize']*self.data["interpfreq"]
         
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
+        
+        if showProgress:
+            import wx
+            dlg = wx.ProgressDialog("Calculating parameters","An informative message",maximum = (numframes-1)//10)
         
         
         if self.data["Verbose"]:
@@ -538,6 +542,9 @@ class DM:
         self.data["rMSSD"]=[]
                 
         for indexframe in range(numframes):
+            if showProgress:
+                if indexframe%10 == 0:
+                    dlg.Update(indexframe//10, "Frame number: %s/%s" % (indexframe,numframes))
             begframe=int(indexframe*shiftsamp)
             endframe=int(begframe+sizesamp) # samples
             frame=signal[begframe:endframe]
@@ -596,6 +603,9 @@ class DM:
             self.data["pNN50"].append(100.0*len(RRDiffs50)/len(RRDiffs))
             self.data["rMSSD"].append(np.sqrt(np.mean(RRDiffs**2)))
                 
+        if showProgress:
+            dlg.Destroy()
+            
         self.data["ULF"]=np.array(self.data["ULF"])
         self.data["VLF"]=np.array(self.data["VLF"])
         self.data["LF"]=np.array(self.data["LF"])
@@ -725,12 +735,43 @@ class DM:
             WriteSubsubtitleLine(File,'Bands limits')
             File.write('<font size="-1"><table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
             File.write('<tr align="left"><td>&nbsp;&nbsp;&nbsp;</td>\n')
-            File.write('<td><b>ULF: </b><i>'+info["ulf"]+'</i></td>')
-            File.write('<td><b>VLF: </b><i>'+info["vlf"]+'</i></td>')
-            File.write('<td><b>LF: </b><i>'+info["lf"]+'</i></td>')
-            File.write('<td><b>HF: </b><i>'+info["hf"]+'</i></td>')
+            File.write('<td><b>ULF: </b><i>'+info["ulflim"]+'</i></td>')
+            File.write('<td><b>VLF: </b><i>'+info["vlflim"]+'</i></td>')
+            File.write('<td><b>LF: </b><i>'+info["lflim"]+'</i></td>')
+            File.write('<td><b>HF: </b><i>'+info["hflim"]+'</i></td>')
             File.write('</tr>')
             File.write('</table></font>\n')
+            File.write('<br><br>\n')
+            
+            WriteSubsubtitleLine(File,'Mean and STD of frame-based parameters')
+            File.write('<font size="-1"><table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
+            File.write('<tr align="left"><td>&nbsp;&nbsp;&nbsp;</td>\n')
+            File.write('<td><b>ULF power: </b><i>'+info["ulf"]+'</i></td>')
+            File.write('<td><b>Total power: </b><i>'+info["Power"]+'</i></td>')
+            File.write('<td><b>Mean HR: </b><i>'+info["Mean HR"]+'</i></td>')
+            File.write('</tr>')
+            
+            File.write('<tr align="left"><td></td>')
+            File.write('<td><b>VLF power: </b><i>'+info["vlf"]+'</i></td>')
+            File.write('<td><b>LF/HF ratio: </b><i>'+info["LFHF"]+'</i></td>')
+            File.write('<td><b>HR STD: </b><i>'+info["HR STD"]+'</i></td>')
+            File.write('</tr>')
+            
+            File.write('<tr align="left"><td></td>')
+            File.write('<td><b>LF power: </b><i>'+info["lf"]+'</i></td>')
+            File.write('<td></td>')
+            File.write('<td><b>pNN50: </b><i>'+info["pNN50"]+'</i></td>')
+            File.write('</tr>')
+            
+            File.write('<tr align="left"><td></td>')
+            File.write('<td><b>HF power: </b><i>'+info["hf"]+'</i></td>')
+            File.write('<td></td>')
+            File.write('<td><b>rMSSD: </b><i>'+info["rMSSD"]+'</i></td>')
+            File.write('</tr>')
+            
+            File.write('</table></font>\n')
+            File.write('<br><br>\n')
+            
             
            
             File.write("<hr>\n")
@@ -757,7 +798,7 @@ class DM:
     
     def GetInfoFB(self):
         info={}
-        info["freqinterp"]="{0:.2f} Hz.".format(self.data["interpfreq"])
+        info["freqinterp"]="{0:.2f} Hz".format(self.data["interpfreq"])
         info["windowsize"]="{0:.2f} sec.".format(self.data['windowsize'])
         info["windowshift"]="{0:.2f} sec.".format(self.data['windowshift'])
         
@@ -769,10 +810,22 @@ class DM:
         info["windowtype"]="Hamming"
         info["meanremoval"]="yes"
         
-        info["ulf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['ulfmin'],self.data['ulfmax'])
-        info["vlf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['vlfmin'],self.data['vlfmax'])
-        info["lf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['lfmin'],self.data['lfmax'])
-        info["hf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['hfmin'],self.data['hfmax'])
+        info["ulflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['ulfmin'],self.data['ulfmax'])
+        info["vlflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['vlfmin'],self.data['vlfmax'])
+        info["lflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['lfmin'],self.data['lfmax'])
+        info["hflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['hfmin'],self.data['hfmax'])
+        
+        info["ulf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['ULF']),np.std(self.data['ULF'],ddof=1))
+        info["vlf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['VLF']),np.std(self.data['VLF'],ddof=1))
+        info["lf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['LF']),np.std(self.data['LF'],ddof=1))
+        info["hf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['HF']),np.std(self.data['HF'],ddof=1))
+        info["Power"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['Power']),np.std(self.data['Power'],ddof=1))
+        info["LFHF"]="{0:.3f} +- {1:.3f}".format(np.mean(self.data['LFHF']),np.std(self.data['LFHF'],ddof=1))
+        info["Mean HR"]="{0:.3f} +- {1:.3f} bps".format(np.mean(self.data['Mean HR']),np.std(self.data['Mean HR'],ddof=1))
+        info["HR STD"]="{0:.3f} +- {1:.3f} bps".format(np.mean(self.data['HR STD']),np.std(self.data['HR STD'],ddof=1))
+        info["pNN50"]="{0:.3f} +- {1:.3f} %".format(np.mean(self.data['pNN50']),np.std(self.data['pNN50'],ddof=1))
+        info["rMSSD"]="{0:.3f} +- {1:.3f} msec.".format(np.mean(self.data['rMSSD']),np.std(self.data['rMSSD'],ddof=1))
+                       
         
         return info
     
@@ -1153,7 +1206,7 @@ class DM:
         self.data["PlotHRXMax"]-=delta
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
-            print("*** HR Zoom in")
+            print("** HR Zoom in")
         
     def PlotHRZoomReset(self):
         xvector = self.GetHRDataPlot()[0]
@@ -1161,7 +1214,7 @@ class DM:
         self.data["PlotHRXMax"] = xvector[-1]
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
-            print("*** HR Zoom reset")
+            print("** HR Zoom reset")
         
     def PlotHRZoomOut(self):
         delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.5
@@ -1172,7 +1225,7 @@ class DM:
         self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
-            print("*** HR Zoom out")
+            print("** HR Zoom out")
             
     def PlotHRPanRight(self):
         delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.15
@@ -1182,7 +1235,7 @@ class DM:
         self.data["PlotHRXMax"] += delta
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
-            print("*** HR Pan right")
+            print("** HR Pan right")
             
     def PlotHRPanLeft(self):
         delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.15
@@ -1192,7 +1245,7 @@ class DM:
         self.data["PlotHRXMax"] -= delta
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
-            print("*** HR Pan left")
+            print("** HR Pan left")
         
         
    
