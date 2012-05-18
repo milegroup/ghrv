@@ -815,16 +815,16 @@ class DM:
         info["lflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['lfmin'],self.data['lfmax'])
         info["hflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['hfmin'],self.data['hfmax'])
         
-        info["ulf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['ULF']),np.std(self.data['ULF'],ddof=1))
-        info["vlf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['VLF']),np.std(self.data['VLF'],ddof=1))
-        info["lf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['LF']),np.std(self.data['LF'],ddof=1))
-        info["hf"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['HF']),np.std(self.data['HF'],ddof=1))
-        info["Power"]="{0:.3f} +- {1:.3f} Hz2".format(np.mean(self.data['Power']),np.std(self.data['Power'],ddof=1))
-        info["LFHF"]="{0:.3f} +- {1:.3f}".format(np.mean(self.data['LFHF']),np.std(self.data['LFHF'],ddof=1))
-        info["Mean HR"]="{0:.3f} +- {1:.3f} bps".format(np.mean(self.data['Mean HR']),np.std(self.data['Mean HR'],ddof=1))
-        info["HR STD"]="{0:.3f} +- {1:.3f} bps".format(np.mean(self.data['HR STD']),np.std(self.data['HR STD'],ddof=1))
-        info["pNN50"]="{0:.3f} +- {1:.3f} %".format(np.mean(self.data['pNN50']),np.std(self.data['pNN50'],ddof=1))
-        info["rMSSD"]="{0:.3f} +- {1:.3f} msec.".format(np.mean(self.data['rMSSD']),np.std(self.data['rMSSD'],ddof=1))
+        info["ulf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['ULF']),np.std(self.data['ULF'],ddof=1))
+        info["vlf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['VLF']),np.std(self.data['VLF'],ddof=1))
+        info["lf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['LF']),np.std(self.data['LF'],ddof=1))
+        info["hf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['HF']),np.std(self.data['HF'],ddof=1))
+        info["Power"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['Power']),np.std(self.data['Power'],ddof=1))
+        info["LFHF"]="{0:.3f} &plusmn; {1:.3f}".format(np.mean(self.data['LFHF']),np.std(self.data['LFHF'],ddof=1))
+        info["Mean HR"]="{0:.3f} &plusmn; {1:.3f} bps".format(np.mean(self.data['Mean HR']),np.std(self.data['Mean HR'],ddof=1))
+        info["HR STD"]="{0:.3f} &plusmn; {1:.3f} bps".format(np.mean(self.data['HR STD']),np.std(self.data['HR STD'],ddof=1))
+        info["pNN50"]="{0:.3f} &plusmn; {1:.3f} %".format(np.mean(self.data['pNN50']),np.std(self.data['pNN50'],ddof=1))
+        info["rMSSD"]="{0:.3f} &plusmn; {1:.3f} msec.".format(np.mean(self.data['rMSSD']),np.std(self.data['rMSSD'],ddof=1))
                        
         
         return info
@@ -1035,6 +1035,7 @@ class DM:
         
         
         self.HRaxes = fig.add_subplot(1,1,1)
+        fig.subplots_adjust(left=0.07, bottom=0.07, right=0.98, top=0.94, wspace=0.20, hspace=0.15)
         
         xvector, yvector = self.GetHRDataPlot()
         if "PlotHRXMin" not in self.data:
