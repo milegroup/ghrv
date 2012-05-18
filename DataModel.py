@@ -705,9 +705,9 @@ class DM:
             File.write('</table>\n')
             
             
-            info = self.GetInfoWindow()
-            WriteSubsubtitleLine(File,'Window details')
             
+            info = self.GetInfoFB()
+            WriteSubsubtitleLine(File,'Window details')
             File.write('<font size="-1"><table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
             File.write('<tr align="left"><td>&nbsp;&nbsp;&nbsp;</td>\n')
             File.write('<td><b>Interpolation freq.: </b><i>'+info["freqinterp"]+'</i></td>')
@@ -718,6 +718,17 @@ class DM:
             File.write('<td><b>No. of frames: </b><i>'+info["numframes"]+'</i></td>')
             File.write('<td><b>Window type: </b><i>'+info["windowtype"]+'</i></td>')
             File.write('<td><b>Mean removal: </b><i>'+info["meanremoval"]+'</i></td>')
+            File.write('</tr>')
+            File.write('</table></font>\n')
+            File.write('<br><br>\n')
+            
+            WriteSubsubtitleLine(File,'Bands limits')
+            File.write('<font size="-1"><table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
+            File.write('<tr align="left"><td>&nbsp;&nbsp;&nbsp;</td>\n')
+            File.write('<td><b>ULF: </b><i>'+info["ulf"]+'</i></td>')
+            File.write('<td><b>VLF: </b><i>'+info["vlf"]+'</i></td>')
+            File.write('<td><b>LF: </b><i>'+info["lf"]+'</i></td>')
+            File.write('<td><b>HF: </b><i>'+info["hf"]+'</i></td>')
             File.write('</tr>')
             File.write('</table></font>\n')
             
@@ -744,7 +755,7 @@ class DM:
             
         return info
     
-    def GetInfoWindow(self):
+    def GetInfoFB(self):
         info={}
         info["freqinterp"]="{0:.2f} Hz.".format(self.data["interpfreq"])
         info["windowsize"]="{0:.2f} sec.".format(self.data['windowsize'])
@@ -757,6 +768,11 @@ class DM:
         
         info["windowtype"]="Hamming"
         info["meanremoval"]="yes"
+        
+        info["ulf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['ulfmin'],self.data['ulfmax'])
+        info["vlf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['vlfmin'],self.data['vlfmax'])
+        info["lf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['lfmin'],self.data['lfmax'])
+        info["hf"]="{0:.3f} - {1:.3f} Hz.".format(self.data['hfmin'],self.data['hfmax'])
         
         return info
     
