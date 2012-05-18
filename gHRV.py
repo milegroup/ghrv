@@ -30,6 +30,7 @@
 # TODO: MacOSX change dialog messages as in http://www.blog.pythonlibrary.org/2010/07/10/the-dialogs-of-wxpython-part-2-of-2/
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Comprobar la edición de puntos en windows
+# TODO: Ver zoom en HR y FB. En report y fuera de él o tras edición de episodios
 
 import wx
 import matplotlib
@@ -50,6 +51,8 @@ dm=DM(Verbose)
 
 class FrameBasedEvolutionWindow(wx.Frame):  
     """ Window for temporal evolution of parameters obtained from interpolated HR"""
+    
+    sbDefaultText="  Press +, -, 0, left, right for zooming/panning. Press s to save plot"
     
     def __init__(self,parent,id,title):
         
@@ -91,18 +94,51 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.mainBox.Add(self.vboxRightArea, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
         
         self.panel.SetSizer(self.mainBox)
-        #self.mainBox.Fit(self)
+        
+        self.sb = self.CreateStatusBar()
+        self.sb.SetStatusText(self.sbDefaultText)
         
         dm.CreatePlotFBEmbedded(self.fig)
         self.canvas.draw()
+        self.canvas.Bind(wx.EVT_CHAR, self.OnKeyPress)
         
         self.SetMinSize(mainWindowMinSize)
         self.Show(True)
-        #self.SetSize(BandsWindowSize)
         self.Layout()
-        #self.Centre()
+        self.canvas.SetFocus()
         
-        
+    def OnKeyPress(self, event):
+        keycode = event.GetKeyCode()
+        if keycode == 43:
+            dm.PlotFBZoomIn()
+            self.canvas.draw()
+        #if keycode == 45:
+        #    dm.PlotHRZoomOut()
+        #    self.canvas.draw()
+        if keycode == 48:
+            dm.PlotFBZoomReset()
+            self.canvas.draw()
+        if keycode == 316:
+            dm.PlotFBPanRight()
+            self.canvas.draw()
+        #if keycode == 314:
+        #    dm.PlotHRPanLeft()
+        #    self.canvas.draw()
+        if keycode==115:
+            fileName=""
+            filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName()+"_FB", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
+            result = dial.ShowModal()
+            if result == wx.ID_OK:
+                fileName=dial.GetPath()
+                try:
+                    print "File: ",fileName
+                    self.canvas.print_figure(fileName)
+                except:
+                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
+            dial.Destroy()
+        event.Skip()
+        self.canvas.SetFocus()  
       
 
     def insertBandsSelector(self):
@@ -1096,21 +1132,17 @@ class MainWindow(wx.Frame):
         if DebugMode:
             dm.LoadDataModel("/home/leandro/Documentos/Programacion/gHRV/data_0_17/caca2.ghrv")
             self.RefreshMainWindow()
-            import tempfile
-            reportName="report.html"
-            reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
-            dm.CreateReport(reportDir,reportName)
-            ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName)
-            self.reportWindowPresent=True
+            if dm.HasFrameBasedParams()==False:
+                dm.CalculateFrameBasedParams(showProgress=True)
+            self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters")
+            self.fbWindowPresent=True
             self.RefreshMainWindowButtons()
+            
         
         self.canvas.SetFocus()
         
     def OnKeyPress(self, event):
         if not dm.HasHR():
-            event.Skip()
-            return
-        if self.reportWindowPresent:
             event.Skip()
             return
         keycode = event.GetKeyCode()

@@ -1112,6 +1112,9 @@ class DM:
         xvectortimemax=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
         xvectortime=np.linspace(start=0, stop=xvectortimemax, num=len(self.data["HR"]))
         
+        if "PlotFBXMin" not in self.data:
+            self.data["PlotFBXMin"]=0
+            self.data["PlotFBXMax"]=xvectortimemax
        
 
         lfhfvector,ulfvector,vlfvector, lfvector, hfvector, powervector,meanhrvector, hrstdvector, pnn50vector, rmssdvector, hrvector = self.GetFrameBasedDataPlot()
@@ -1132,10 +1135,7 @@ class DM:
         matplotlib.rc('legend', fontsize=10) 
         
         
-        if hasEpisodes:
-            fig.subplots_adjust(left=0.10, right=0.83, bottom=0.08, top=0.90)
-        else:
-            fig.subplots_adjust(left=0.10, right=0.96, bottom=0.08, top=0.90)
+        self.FBaxesbands=[]
             
         # Heart rate plot
         axBottom = fig.add_subplot(len(self.VisibleBands),1,len(self.VisibleBands))
@@ -1145,22 +1145,13 @@ class DM:
         
         if hasEpisodes:
             AddEpisodesToBandSubplot(axBottom,legend=True)
-            #i=0
-            #for tag in tagsVisible:
-            #    startsvector=[starts[w] for w in range(numEpisodes) if tags[w]==tag]
-            #    endsvector=[ends[w] for w in range(numEpisodes) if tags[w]==tag]
-            #    for j in range(len(startsvector)):
-            #        if j==0:
-            #            axBottom.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
-            #        else:
-            #            axBottom.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
-            #    i=i+1       
 
             leg=axBottom.legend(bbox_to_anchor=(1.02, 0.0), loc=3, ncol=1, borderaxespad=0.)
             for t in leg.get_texts():
                 t.set_fontsize('small')
+                
+        self.FBaxesbands.append(axBottom)
 
-    
            
         BandsToPlot = [ x for x in self.VisibleBands if x not in self.GetFixedBands()]
         
@@ -1187,26 +1178,37 @@ class DM:
             if Band == "pNN50":
                 CreateBandSupblot(axBand, xvectorframe, pnn50vector, 'pNN50')
             if Band == "rMSSD":
-                CreateBandSupblot(axBand, xvectorframe, rmssdvector, 'rMSSD')
-                
-            #axBand.set_xlabel('Frame number',size=10)
-            #axBand.tick_params(axis='x',labeltop='on')
-            #axBand.xaxis.set_label_position("top")        
+                CreateBandSupblot(axBand, xvectorframe, rmssdvector, 'rMSSD')        
     
             if hasEpisodes :
                 AddEpisodesToBandSubplot(axBand)
                 
+            self.FBaxesbands.append(axBand)
+                
           
         
-        fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16) 
+        fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16)
+        if hasEpisodes:
+            fig.subplots_adjust(left=0.07, bottom=0.07, right=0.84, top=0.94, wspace=0.20, hspace=0.15)
+        else:
+            fig.subplots_adjust(left=0.07, bottom=0.07, right=0.98, top=0.94, wspace=0.20, hspace=0.15)
         
     def PlotHRZoomIn(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.25
+        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
         self.data["PlotHRXMin"]+=delta
         self.data["PlotHRXMax"]-=delta
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
             print("** HR Zoom in")
+            
+    def PlotFBZoomIn(self):
+        delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
+        self.data["PlotFBXMin"]+=delta
+        self.data["PlotFBXMax"]-=delta
+        for axes in self.FBaxesbands:
+            axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+        if self.data["Verbose"]:
+            print("** FB Zoom in")
         
     def PlotHRZoomReset(self):
         xvector = self.GetHRDataPlot()[0]
@@ -1215,9 +1217,17 @@ class DM:
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
             print("** HR Zoom reset")
+            
+    def PlotFBZoomReset(self):
+        self.data["PlotFBXMin"] = 0
+        self.data["PlotFBXMax"] = 1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+        for axes in self.FBaxesbands:
+            axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+        if self.data["Verbose"]:
+            print("** FB Zoom reset")
         
     def PlotHRZoomOut(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.5
+        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.2
         self.data["PlotHRXMin"]-=delta
         self.data["PlotHRXMax"]+=delta
         xvector = self.GetHRDataPlot()[0]
@@ -1228,7 +1238,7 @@ class DM:
             print("** HR Zoom out")
             
     def PlotHRPanRight(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.15
+        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
         xvector = self.GetHRDataPlot()[0]
         delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
         self.data["PlotHRXMin"] += delta
@@ -1237,8 +1247,19 @@ class DM:
         if self.data["Verbose"]:
             print("** HR Pan right")
             
+    def PlotFBPanRight(self):
+        delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
+        maxtmp=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+        delta=min(delta,maxtmp-self.data["PlotFBXMax"])
+        self.data["PlotFBXMin"] += delta
+        self.data["PlotFBXMax"] += delta
+        for axes in self.FBaxesbands:
+            axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+        if self.data["Verbose"]:
+            print("** FB Pan right")
+            
     def PlotHRPanLeft(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.15
+        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
         xvector = self.GetHRDataPlot()[0]
         delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
         self.data["PlotHRXMin"] -= delta
