@@ -121,9 +121,9 @@ class FrameBasedEvolutionWindow(wx.Frame):
         if keycode == 316:
             dm.PlotFBPanRight()
             self.canvas.draw()
-        #if keycode == 314:
-        #    dm.PlotHRPanLeft()
-        #    self.canvas.draw()
+        if keycode == 314:
+            dm.PlotFBPanLeft()
+            self.canvas.draw()
         if keycode==115:
             fileName=""
             filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
@@ -1164,7 +1164,7 @@ class MainWindow(wx.Frame):
         if keycode==115:
             fileName=""
             filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
-            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName(), style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
+            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName()+"_HR", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
             result = dial.ShowModal()
             if result == wx.ID_OK:
                 fileName=dial.GetPath()

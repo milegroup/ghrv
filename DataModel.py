@@ -1185,7 +1185,8 @@ class DM:
                 
             self.FBaxesbands.append(axBand)
                 
-          
+        for axes in self.FBaxesbands:
+            axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])  
         
         fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16)
         if hasEpisodes:
@@ -1267,6 +1268,16 @@ class DM:
         self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
         if self.data["Verbose"]:
             print("** HR Pan left")
+            
+    def PlotFBPanLeft(self):
+        delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
+        delta=min(delta,self.data["PlotFBXMin"])
+        self.data["PlotFBXMin"] -= delta
+        self.data["PlotFBXMax"] -= delta
+        for axes in self.FBaxesbands:
+            axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+        if self.data["Verbose"]:
+            print("** FB Pan left")
         
         
    
