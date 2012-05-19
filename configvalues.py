@@ -35,8 +35,8 @@ borderBig=10
 borderSmall=5
 borderVeryBig=20
 
-mainWindowSize=(1200,600)
-mainWindowMinSize=(1000,550)
+mainWindowSize=(1200,650)
+mainWindowMinSize=(1000,600)
 
 #editNIHRWindowSize=(1024,768)
 #BandsWindowSize=(1024,768)

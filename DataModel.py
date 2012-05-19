@@ -723,7 +723,7 @@ class DM:
         # Frame-based parameters
         if self.HasInterpolatedHR():
             if self.HasFrameBasedParams()==False:
-                self.CalculateFrameBasedParams()
+                self.CalculateFrameBasedParams(showProgress=True)
             WriteSubtitleLine(File,'Frame-based analysis')
             self.CreatePlotFile("FB",DirName+os.sep+reportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight,zoomReset=True)
             File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
@@ -822,7 +822,7 @@ class DM:
         shiftsamp=self.data['windowshift']*self.data["interpfreq"]
         sizesamp=self.data['windowsize']*self.data["interpfreq"]
         numframes=int(((len(self.data["HR"])-sizesamp)/shiftsamp)+1.0)
-        info["numframes"]="{0:.2f}".format(numframes)
+        info["numframes"]=str(numframes)
         
         info["windowtype"]="Hamming"
         info["meanremoval"]="yes"
