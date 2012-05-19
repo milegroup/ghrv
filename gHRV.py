@@ -30,7 +30,6 @@
 # TODO: MacOSX change dialog messages as in http://www.blog.pythonlibrary.org/2010/07/10/the-dialogs-of-wxpython-part-2-of-2/
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Comprobar la edición de puntos en windows
-# TODO: Ver zoom en HR y FB. En report y fuera de él o tras edición de episodios
 
 import wx
 import matplotlib
@@ -959,7 +958,7 @@ class MainWindow(wx.Frame):
         # --------------------------------
         # Begin of sizer for beats buttons
         
-        sbBeatsButtons = wx.StaticBox(self.MainPanel, label="Heart Beats")
+        sbBeatsButtons = wx.StaticBox(self.MainPanel, label="Heart rate data")
         sbBeatsButtonsSizer = wx.StaticBoxSizer(sbBeatsButtons, wx.VERTICAL)
         
         sbBeatsButtonsSizerRow1=wx.BoxSizer(wx.HORIZONTAL)
@@ -967,7 +966,7 @@ class MainWindow(wx.Frame):
         self.buttonLoadBeats = wx.Button(self.MainPanel, -1, label="Load...")
         sbBeatsButtonsSizerRow1.Add(self.buttonLoadBeats, flag=wx.ALL, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnLoadBeat, id=self.buttonLoadBeats.GetId())
-        self.buttonLoadBeats.SetToolTip(wx.ToolTip("Click to load ascii beats file"))
+        self.buttonLoadBeats.SetToolTip(wx.ToolTip("Click to load file"))
                 
         self.buttonFilterHR = wx.Button(self.MainPanel, -1, label="Filter")
         sbBeatsButtonsSizerRow1.Add(self.buttonFilterHR, flag=wx.ALL, border=borderSmall) 
@@ -1329,9 +1328,9 @@ class MainWindow(wx.Frame):
        
 
     def OnLoadBeat(self, event):
-        filetypes = "Beats supported files (*.txt;*.hrm;*sdf)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF|TXT beats files (*.txt)|*.txt;*.TXT| Polar beats files (*.hrm)|*.hrm;*.HRM|Suunto beats files (*.sdf)|*.sdf;*.SDF|All files (*.*)|*.*"
+        filetypes = "Supported files (*.txt;*.hrm;*sdf)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|All files (*.*)|*.*"
         fileName=""
-        dial = wx.FileDialog(self, message="Load beats file", wildcard=filetypes, style=wx.FD_OPEN)
+        dial = wx.FileDialog(self, message="Load file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
         if result == wx.ID_OK:
             fileName=dial.GetPath()
@@ -1339,15 +1338,15 @@ class MainWindow(wx.Frame):
             dial.Destroy()
             if ext=="txt":
                 try:
-                    dm.LoadBeatAscii(fileName,self.settings)
+                    dm.LoadFileAscii(fileName,self.settings)
                 except:
-                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid beats file",
-                                     captionStr="Error loading beats file")
+                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid ascii file",
+                                     captionStr="Error loading ascii file")
                 else:
                     self.RefreshMainWindow()
             if ext=="hrm":
                 try:
-                    dm.LoadBeatPolar(fileName,self.settings)
+                    dm.LoadFilePolar(fileName,self.settings)
                 except:
                     self.ErrorWindow(messageStr=fileName+" does not seem to be a valid polar file",
                                      captionStr="Error loading polar file")
@@ -1355,7 +1354,7 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow()
             if ext=="sdf":
                 try:
-                    dm.LoadBeatSuunto(fileName,self.settings)
+                    dm.LoadFileSuunto(fileName,self.settings)
                 except:
                     self.ErrorWindow(messageStr=fileName+" does not seem to be a valid suunto file",
                                      captionStr="Error loading suunto file")

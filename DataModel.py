@@ -80,15 +80,47 @@ class DM:
         """Returns color assigned to an episode Tag"""
         return self.data["DictColors"][Tag]
                 
-    def LoadBeatAscii(self,beatsFile,settings):
-        """Loads beats from ascii file
-        Beats instants must be in seconds, and one per line"""
+    def LoadFileAscii(self,asciiFile,settings):
+        """Loads from ascii file
+        One data (beats instants in seconds, rr in msec. or rr in sec.) per line"""
+        
         
         if (self.data["Verbose"]==True):
-            print("** Loading beats file "+beatsFile)
-            print("   Calculating non-interpolated heart rate")
+            print("** Loading asii file "+asciiFile)
                 
-        self.data["BeatTime"]=np.loadtxt(beatsFile)
+                
+        asciiData = np.loadtxt(asciiFile)
+        asciiDataDiffs=np.diff(asciiData)
+        asciiDataNeg = [ x for x in asciiDataDiffs if x<0]
+        
+        if len(asciiDataNeg)>0:  # The file contains an RR series
+            asciiDataBig = [x for x in asciiData if x>100]
+            if len(asciiDataBig)>0:
+                print("   File contains RR data in milliseconds")
+                self.LoadRRMillisec(asciiData,settings)
+            else:
+                print("   File contains RR data in seconds")
+                self.LoadRRMillisec(asciiData*1000.0,settings)
+        else:
+            if (self.data["Verbose"]==True):
+                print("   File contains beats instants in seconds")
+                
+            self.LoadBeatSec(asciiData,settings)
+            
+        
+            
+        self.data["name"]=os.path.splitext(os.path.basename(asciiFile))[0]
+        
+        if (self.data["Verbose"]):
+            print("   Project created: "+self.data["name"])
+            
+        self.data["version"]=Version
+        
+    def LoadBeatSec(self,dataSec,settings):
+        """Loads a vector containing beats positions in seconds"""
+        
+        self.data["BeatTime"]=dataSec
+         
         
         self.data["niHR"] = 60.0/(self.data["BeatTime"][1:]-self.data["BeatTime"][0:-1])
         self.data["niHR"] = np.insert(self.data["niHR"],[0],self.data["niHR"][0])
@@ -106,33 +138,11 @@ class DM:
         if (self.data["Verbose"]):
             print("   Parameters set to default values")
             
-        self.data["name"]=os.path.splitext(os.path.basename(beatsFile))[0]
         
-        if (self.data["Verbose"]):
-            print("   Project created: "+self.data["name"])
-            
-        self.data["version"]=Version
-    
-    def LoadBeatPolar(self,polarFile,settings):
-        """Loads beats from polar file
-        Polar files contain rr series, expresed in milliseconds"""
+    def LoadRRMillisec(self,dataMSec,settings):
+        """Loads a vector containing milliseconds"""
         
-        if (self.data["Verbose"]==True):
-            print("** Loading polar file "+polarFile)
-        
-        self.data["RR"]=[]
-        dataFound=False
-        File = open(polarFile,'r')
-        for line in File:
-            if dataFound:
-                data=line.strip()
-                if data:
-                    self.data["RR"].append(float(data))
-            if line.strip() == "[HRData]":
-                dataFound=True
-        File.close()
-        
-        self.data["RR"]=np.array(self.data["RR"])
+        self.data["RR"]=np.array(dataMSec)
         self.data["BeatTime"]=np.cumsum(self.data["RR"])/1000.0
         self.data["niHR"]=60.0/(self.data["RR"]/1000.0)
         
@@ -145,6 +155,28 @@ class DM:
             self.data[k]=float(settings[k])
         if (self.data["Verbose"]):
             print("   Parameters set to default values")
+                    
+    
+    def LoadFilePolar(self,polarFile,settings):
+        """Loads polar file
+        Polar files contain rr series, expresed in milliseconds"""
+        
+        if (self.data["Verbose"]==True):
+            print("** Loading polar file "+polarFile)
+        
+        dataMillisec=[]
+        dataFound=False
+        File = open(polarFile,'r')
+        for line in File:
+            if dataFound:
+                data=line.strip()
+                if data:
+                    dataMillisec.append(float(data))
+            if line.strip() == "[HRData]":
+                dataFound=True
+        File.close()
+        
+        self.LoadRRMillisec(dataMillisec,settings)
             
         self.data["name"]=os.path.splitext(os.path.basename(polarFile))[0]
         
@@ -153,39 +185,27 @@ class DM:
             
         self.data["version"]=Version
         
-    def LoadBeatSuunto(self,suuntoFile,settings):
-        """Loads beats from suunto file
+    def LoadFileSuunto(self,suuntoFile,settings):
+        """Loads suunto file
         suunto files contain rr series, expresed in milliseconds"""
         
         if (self.data["Verbose"]==True):
             print("** Loading suunto file "+suuntoFile)
         
-        self.data["RR"]=[]
+        dataMillisec=[]
         dataFound=False
         File = open(suuntoFile,'r')
         for line in File:
             if dataFound:
                 data=line.strip()
                 if data:
-                    self.data["RR"].append(float(data))
+                    dataMillisec.append(float(data))
             if line.strip() == "[CUSTOM1]":
                 dataFound=True
         File.close()
         
-        self.data["RR"]=np.array(self.data["RR"])
-        self.data["BeatTime"]=np.cumsum(self.data["RR"])/1000.0
-        self.data["niHR"]=60.0/(self.data["RR"]/1000.0)
+        self.LoadRRMillisec(dataMillisec,settings)
         
-        if (self.data["Verbose"]==True):
-            print("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")")
-            print("   RR: "+str(len(self.data["RR"]))+" points")
-            print("   niHR: "+str(len(self.data["niHR"]))+" points")
-        
-        for k in settings.keys():
-            self.data[k]=float(settings[k])
-        if (self.data["Verbose"]):
-            print("   Parameters set to default values")
-            
         self.data["name"]=os.path.splitext(os.path.basename(suuntoFile))[0]
         
         if (self.data["Verbose"]):
@@ -193,9 +213,7 @@ class DM:
             
         self.data["version"]=Version
                      
-            
-                     
-            
+                        
     def LoadEpisodesAscii(self,episodesFile):
         """Reads espisodes from ascii file
             episodesFile -> file containing episodes. Must be in the following format:
@@ -667,7 +685,7 @@ class DM:
         # HR Plot
         WriteSubtitleLine(File,'File details')        
         info=self.GetInfoFile()
-        self.CreatePlotFile("HR",DirName+os.sep+reportSubDir+os.sep+"HR.png",plotHRWidth,plotHRHeight)
+        self.CreatePlotFile("HR",DirName+os.sep+reportSubDir+os.sep+"HR.png",plotHRWidth,plotHRHeight,zoomReset=True)
         
         File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"> <td width="50%"><b>Name: </b><i>'+info["name"].encode('ascii', 'xmlcharrefreplace')+'</i></td><td width="50%"><b>Signal length: </b><i>'+info["length"]+'</i></td></tr></table>\n')
         File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"><td><img src="./'+reportSubDir+'/HR.png"/></td></tr></table>\n')
@@ -707,7 +725,7 @@ class DM:
             if self.HasFrameBasedParams()==False:
                 self.CalculateFrameBasedParams()
             WriteSubtitleLine(File,'Frame-based analysis')
-            self.CreatePlotFile("FB",DirName+os.sep+reportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight)
+            self.CreatePlotFile("FB",DirName+os.sep+reportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight,zoomReset=True)
             File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
     
             File.write('<tr align="center"><td><img src="./'+reportSubDir+'/FB.png"/></td></tr>\n')
@@ -989,7 +1007,7 @@ class DM:
         
        
         
-    def CreatePlotFile(self,plotType,filename,width,height):
+    def CreatePlotFile(self,plotType,filename,width,height,zoomReset=False):
         """Creates and saves a new plot with HR"""
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -997,13 +1015,13 @@ class DM:
         fig.set_size_inches((width/plotDPI,height/plotDPI))
         
         if plotType=="HR":
-            self.CreatePlotHREmbedded(fig)
+            self.CreatePlotHREmbedded(fig,zoomReset)
         if plotType=="HRHistogram":
             self.CreatePlotHRHistogramEmbedded(fig)
         if plotType=="RRHistogram":
             self.CreatePlotRRHistogramEmbedded(fig)
         if plotType=="FB":
-            self.CreatePlotFBEmbedded(fig)
+            self.CreatePlotFBEmbedded(fig,zoomReset)
         canvas = FigureCanvasAgg(fig)
         canvas.print_figure(filename, dpi=plotDPI)
         
@@ -1028,7 +1046,7 @@ class DM:
         matplotlib.pyplot.show()
         
     
-    def CreatePlotHREmbedded(self,fig):
+    def CreatePlotHREmbedded(self,fig,zoomReset=False):
         """Creates an HR Plot embedded in axes
         Valid for windows and stand-alone plots"""
         
@@ -1066,15 +1084,17 @@ class DM:
             leg=self.HRaxes.legend(fancybox=True,shadow=True)
             for t in leg.get_texts():
                 t.set_fontsize('small')
-               
-        self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                
+        if not zoomReset:       
+            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            
         self.HRaxes.grid()
         
         
         
     
         
-    def CreatePlotFBEmbedded(self, fig):
+    def CreatePlotFBEmbedded(self, fig, zoomReset=False):
         """ Redraws the frame-based evolution figure"""
         
         def CreateBandSupblot(axes,x,y,ylabel):
@@ -1184,9 +1204,10 @@ class DM:
                 AddEpisodesToBandSubplot(axBand)
                 
             self.FBaxesbands.append(axBand)
-                
-        for axes in self.FBaxesbands:
-            axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])  
+        
+        if not zoomReset:        
+            for axes in self.FBaxesbands:
+                axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])  
         
         fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16)
         if hasEpisodes:
