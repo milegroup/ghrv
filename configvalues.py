@@ -71,7 +71,7 @@ ReportBGColor='#B3DF5D'
 EpisodesEditionBGColor='#FFD966'
 LogoVertColor='#5C7F19'
 ReportWindowTitleColor='#5C7F19'
-ReportWindowSubTitleColor='navyblue'
+ReportWindowSubTitleColor='#3144CD'
 
 buttonSizeEditNIHR=(150,35)
 buttonSizeFrameBased = buttonSizeEditNIHR

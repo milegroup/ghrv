@@ -31,7 +31,6 @@
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Comprobar la edición de puntos en windows
 # TODO: Error en settings cuando hay acentos en nombre fichero
-# TODO: problema con color navyblue en mac
 
 import wx
 import matplotlib
