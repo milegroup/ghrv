@@ -30,7 +30,6 @@
 # TODO: MacOSX change dialog messages as in http://www.blog.pythonlibrary.org/2010/07/10/the-dialogs-of-wxpython-part-2-of-2/
 # TODO: Comprobar cuando la ventana es más grande que la señal
 # TODO: Comprobar la edición de puntos en windows
-# TODO: Error en settings cuando hay acentos en nombre fichero
 
 import wx
 import matplotlib
@@ -1130,7 +1129,7 @@ class MainWindow(wx.Frame):
         self.MainPanel.Layout()
         
         if DebugMode:
-            dm.LoadDataModel("/home/leandro/Documentos/Programacion/gHRV/data_0_17/caca2.ghrv")
+            dm.LoadProject("/home/leandro/Documentos/Programacion/gHRV/data_0_17/caca2.ghrv")
             self.RefreshMainWindow()
             if dm.HasFrameBasedParams()==False:
                 dm.CalculateFrameBasedParams(showProgress=True)
@@ -1339,7 +1338,10 @@ class MainWindow(wx.Frame):
             dial.Destroy()
             if ext=="txt":
                 try:
-                    dm.LoadFileAscii(fileName,self.settings)
+                    dm.LoadFileAscii(str(unicode(fileName)),self.settings)
+                except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error loading ascii file")
                 except:
                     self.ErrorWindow(messageStr=fileName+" does not seem to be a valid ascii file",
                                      captionStr="Error loading ascii file")
@@ -1347,7 +1349,10 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow()
             if ext=="hrm":
                 try:
-                    dm.LoadFilePolar(fileName,self.settings)
+                    dm.LoadFilePolar(str(unicode(fileName)),self.settings)
+                except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error loading polar file")
                 except:
                     self.ErrorWindow(messageStr=fileName+" does not seem to be a valid polar file",
                                      captionStr="Error loading polar file")
@@ -1355,7 +1360,11 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow()
             if ext=="sdf":
                 try:
-                    dm.LoadFileSuunto(fileName,self.settings)
+                    dm.LoadFileSuunto(str(unicode(fileName)),self.settings)
+                    
+                except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error loading suunto file")
                 except:
                     self.ErrorWindow(messageStr=fileName+" does not seem to be a valid suunto file",
                                      captionStr="Error loading suunto file")
@@ -1374,7 +1383,10 @@ class MainWindow(wx.Frame):
             fileName=dial.GetPath()
             dial.Destroy()
             try:
-                dm.LoadEpisodesAscii(fileName)
+                dm.LoadEpisodesAscii(str(unicode(fileName)))
+            except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error loading episodes file")
             except:
                 self.ErrorWindow(messageStr=fileName+" does not seem to be a valid episodes file",captionStr="Error loading episodes file")
             else:
@@ -1403,7 +1415,10 @@ class MainWindow(wx.Frame):
             dial.Destroy()
                             
             try:
-                dm.LoadDataModel(fileName)
+                dm.LoadProject(str(unicode(fileName)))
+            except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error loading project file")
             except:
                 self.ErrorWindow(messageStr=fileName+" does not seem to be a valid project file",captionStr="Error loading project file")
             else:
@@ -1417,7 +1432,10 @@ class MainWindow(wx.Frame):
         if result == wx.ID_OK:
             fileName=dial.GetPath()
             try:
-                dm.SaveDataModel(fileName)      
+                dm.SaveProject(str(unicode(fileName)))
+            except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error saving project file")
             except:
                 self.ErrorWindow(messageStr="Error saving project to file: "+fileName,captionStr="Error saving project file")
         dial.Destroy()
@@ -1878,7 +1896,12 @@ class ConfigurationWindow(wx.Frame):
                     messageError="In some band limits are inverted"
                     error = True
                     
-        
+        if not error:
+            try:
+                tmp = str(unicode(str(self.ProjName.GetValue())))
+            except:
+                error = True
+                messageError="Illegal characters in project name"
         
         if error:
             self.WindowParent.ErrorWindow(messageStr=messageError)

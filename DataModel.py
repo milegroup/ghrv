@@ -248,7 +248,7 @@ class DM:
             print("   Read "+str(len(self.data["EpisodesType"]))+" episodes from file")
             print("   Read "+str(len(self.data["EpisodesVisible"]))+" types of episodes")
                     
-    def LoadDataModel(self,datamodelFile):
+    def LoadProject(self,datamodelFile):
         """Loads the data model from a zip file"""
         import zipfile, tempfile, shutil
         tempDir = tempfile.mkdtemp(prefix="gHRV")
@@ -317,7 +317,7 @@ class DM:
                 self.data[k]=settings[k]
    
                         
-    def SaveDataModel(self,datamodelFile):
+    def SaveProject(self,datamodelFile):
         """Saves the data model into a zip file"""
         
         import zipfile,shutil,tempfile
@@ -687,7 +687,7 @@ class DM:
         info=self.GetInfoFile()
         self.CreatePlotFile("HR",DirName+os.sep+reportSubDir+os.sep+"HR.png",plotHRWidth,plotHRHeight,zoomReset=True)
         
-        File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"> <td width="50%"><b>Name: </b><i>'+info["name"].encode('ascii', 'xmlcharrefreplace')+'</i></td><td width="50%"><b>Signal length: </b><i>'+info["length"]+'</i></td></tr></table>\n')
+        File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"> <td width="50%"><b>Name: </b><i>'+info["name"]+'</i></td><td width="50%"><b>Signal length: </b><i>'+info["length"]+'</i></td></tr></table>\n')
         File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"><td><img src="./'+reportSubDir+'/HR.png"/></td></tr></table>\n')
         
         File.write("<hr>\n")
