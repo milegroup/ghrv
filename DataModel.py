@@ -1259,6 +1259,18 @@ class DM:
         if self.data["Verbose"]:
             print("** HR Zoom out")
             
+    def PlotFBZoomOut(self):
+        delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.2
+        self.data["PlotFBXMin"]-=delta
+        self.data["PlotFBXMax"]+=delta
+        maxtmp=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+        self.data["PlotFBXMin"]=max(0,self.data["PlotFBXMin"])
+        self.data["PlotFBXMax"]=min(maxtmp,self.data["PlotFBXMax"])
+        for axes in self.FBaxesbands:
+            axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+        if self.data["Verbose"]:
+            print("** FB Zoom out")
+            
     def PlotHRPanRight(self):
         delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
         xvector = self.GetHRDataPlot()[0]

@@ -29,7 +29,6 @@
     
 # TODO: MacOSX change dialog messages as in http://www.blog.pythonlibrary.org/2010/07/10/the-dialogs-of-wxpython-part-2-of-2/
 # TODO: Comprobar cuando la ventana es más grande que la señal
-# TODO: Ver tema de detección de teclas pulsadas en windows (zoom y desplazamientos)
 # TODO: Comprobar la edición de puntos en windows
 
 import wx
@@ -52,7 +51,7 @@ dm=DM(Verbose)
 class FrameBasedEvolutionWindow(wx.Frame):  
     """ Window for temporal evolution of parameters obtained from interpolated HR"""
     
-    sbDefaultText="  Press +, -, 0, left, right for zooming/panning. Press s to save plot"
+    sbDefaultText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
     
     def __init__(self,parent,id,title):
         
@@ -100,31 +99,38 @@ class FrameBasedEvolutionWindow(wx.Frame):
         
         dm.CreatePlotFBEmbedded(self.fig)
         self.canvas.draw()
-        self.canvas.Bind(wx.EVT_CHAR, self.OnKeyPress)
+        self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
         
         self.SetMinSize(mainWindowMinSize)
         self.Show(True)
         self.Layout()
         self.canvas.SetFocus()
         
+    def ErrorWindow(self,messageStr,captionStr="ERROR"):
+        """Generic error window"""
+        dial = wx.MessageDialog(self, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
+        result = dial.ShowModal()
+        dial.Destroy()
+        self.canvas.SetFocus()
+        
     def OnKeyPress(self, event):
         keycode = event.GetKeyCode()
-        if keycode == 43:
+        if keycode == 73:
             dm.PlotFBZoomIn()
             self.canvas.draw()
-        #if keycode == 45:
-        #    dm.PlotHRZoomOut()
-        #    self.canvas.draw()
+        if keycode == 77:
+            dm.PlotFBZoomOut()
+            self.canvas.draw()
         if keycode == 48:
             dm.PlotFBZoomReset()
             self.canvas.draw()
-        if keycode == 316:
+        if keycode == 75:
             dm.PlotFBPanRight()
             self.canvas.draw()
-        if keycode == 314:
+        if keycode == 74:
             dm.PlotFBPanLeft()
             self.canvas.draw()
-        if keycode==115:
+        if keycode==83:
             fileName=""
             filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
             dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName()+"_FB", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
@@ -873,7 +879,7 @@ class MainWindow(wx.Frame):
     configDir = os.path.expanduser('~')+os.sep+'.ghrv'
     configFile = configDir+os.sep+"ghrv.cfg"
     sbDefaultText="  gHRV 0.19 - http://ghrv.milegroup.net"
-    sbPlotHRText="  Press +, -, 0, left, right for zooming/panning. Press s to save plot"
+    sbPlotHRText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
         
     def __init__(self, parent, id, title):
 
@@ -1121,7 +1127,7 @@ class MainWindow(wx.Frame):
         self.sb = self.CreateStatusBar()
         self.sb.SetStatusText(self.sbDefaultText)
         
-        self.canvas.Bind(wx.EVT_CHAR, self.OnKeyPress)
+        self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
         
         self.SetMinSize(mainWindowMinSize)
         self.SetTitle('gHRV')
@@ -1146,22 +1152,22 @@ class MainWindow(wx.Frame):
             event.Skip()
             return
         keycode = event.GetKeyCode()
-        if keycode == 43:
+        if keycode == 73:
             dm.PlotHRZoomIn()
             self.canvas.draw()
-        if keycode == 45:
+        if keycode == 77:
             dm.PlotHRZoomOut()
             self.canvas.draw()
         if keycode == 48:
             dm.PlotHRZoomReset()
             self.canvas.draw()
-        if keycode == 316:
+        if keycode == 75:
             dm.PlotHRPanRight()
             self.canvas.draw()
-        if keycode == 314:
+        if keycode == 74:
             dm.PlotHRPanLeft()
             self.canvas.draw()
-        if keycode==115:
+        if keycode==83:
             fileName=""
             filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
             dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName()+"_HR", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)

@@ -26,7 +26,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-Verbose=True
+Verbose=False
 DebugMode = False
 Version="0.19"
 
