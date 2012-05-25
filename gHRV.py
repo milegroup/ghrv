@@ -133,16 +133,25 @@ class FrameBasedEvolutionWindow(wx.Frame):
             self.canvas.draw()
         if keycode==83:
             fileName=""
-            filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+            if platform != "win32":
+                filetypes = "EPS file (*.eps)|*.eps;*EPS|JPEG file (*.jpg,*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tif,*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+                extensions=["eps","jpeg","jpg","pdf","png","svg","tif","tiff"]
+            else:
+                filetypes = "EPS file (*.eps)|*.eps;*EPS|JPEG file (*.jpg,*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tif,*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+                extensions=["eps","jpeg","jpg","pdf","png","svg","tif","tiff"]
             dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName()+"_FB", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
             result = dial.ShowModal()
             if result == wx.ID_OK:
                 fileName=dial.GetPath()
-                try:
-                    print "File: ",fileName
-                    self.canvas.print_figure(fileName)
-                except:
-                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
+                fileExt = os.path.splitext(fileName)[1][1:].strip()
+                if fileExt not in extensions:
+                    self.ErrorWindow(messageStr="Filetype not supported: "+fileExt,captionStr="Error saving figure    ")
+                else:
+                    try:
+                        print "File: ",fileName
+                        self.canvas.print_figure(fileName)
+                    except:
+                        self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
             dial.Destroy()
         event.Skip()
         self.canvas.SetFocus()  
@@ -1170,16 +1179,26 @@ class MainWindow(wx.Frame):
             self.canvas.draw()
         if keycode==83:
             fileName=""
-            filetypes = "JPEG file (*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+            if platform != "win32":
+                filetypes = "EPS file (*.eps)|*.eps;*EPS|JPEG file (*.jpg,*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tif,*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+                extensions=["eps","jpeg","jpg","pdf","png","svg","tif","tiff"]
+            else:
+                filetypes = "EPS file (*.eps)|*.eps;*EPS|JPEG file (*.jpg,*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tif,*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+                extensions=["eps","jpeg","jpg","pdf","png","svg","tif","tiff"]
+                
             dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName()+"_HR", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
             result = dial.ShowModal()
             if result == wx.ID_OK:
                 fileName=dial.GetPath()
-                try:
-                    print "File: ",fileName
-                    self.canvas.print_figure(fileName)
-                except:
-                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
+                fileExt = os.path.splitext(fileName)[1][1:].strip()
+                if fileExt not in extensions:
+                    self.ErrorWindow(messageStr="Filetype not supported: "+fileExt,captionStr="Error saving figure    ")
+                else:
+                    try:
+                        print "File: ",fileName
+                        self.canvas.print_figure(fileName)
+                    except:
+                        self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
             dial.Destroy()
         event.Skip()
         self.canvas.SetFocus()
