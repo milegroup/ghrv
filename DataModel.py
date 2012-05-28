@@ -212,6 +212,72 @@ class DM:
             print("   Project created: "+self.data["name"])
             
         self.data["version"]=Version
+
+    def LoadBeatWFDB(self,wfdbheaderfile,settings):
+        """Loads wfdb file"""
+        
+        if (self.data["Verbose"]==True):
+            print("** Loading WFDB file "+wfdbheaderfile)
+
+        heaFile = open(wfdbheaderfile,'r')
+        line=heaFile.readline()
+        heaFile.close()
+
+        lineFields = line.split(" ")
+        if len(lineFields)>2:
+            samplingFrequency = float(lineFields[2])
+        else:
+            samplingFrequency = 250.0
+
+        if (self.data["Verbose"]==True):
+            print("   Sampling frequency: "+str(samplingFrequency))
+
+        wfdbdatafile=wfdbheaderfile[:-4]+".qrs"
+
+        if (self.data["Verbose"]==True):
+            print("   Data file: "+wfdbdatafile)
+
+        datafile = open(wfdbdatafile,'rb')
+        accumulator=0.0
+        beats=[]
+
+        while True:
+            value = ord(datafile.read(1))+ord(datafile.read(1))*256
+            code = value >> 10
+            time = value % 1024
+            
+            # print ("Value: "+str(int(value)))
+            # print ("Code: "+str(code))
+            # print ("Time: "+str(time))
+
+            if code==0 and time==0:
+                break
+
+            if code==1:
+                accumulator = accumulator+time
+                # print "Sec: ",accumulator/samplingFrequency
+                beats.append(accumulator/samplingFrequency)
+            else:
+                if code==63:
+                    jump = int(time)/2 + int(time)%2
+                    for i in range(jump):
+                        value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                else:
+                    if code==59 and time==0:
+                        for i in range(2):
+                            value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                    else:
+                        if code!=60 and code!=61 and code!=62 and code!=22 and code!=0:
+                            accumulator = accumulator+time
+
+        self.LoadBeatSec(np.array(beats),settings)
+        
+        self.data["name"]=os.path.splitext(os.path.basename(wfdbheaderfile))[0]
+        
+        if (self.data["Verbose"]):
+            print("   Project created: "+self.data["name"])
+            
+        self.data["version"]=Version
                      
                         
     def LoadEpisodesAscii(self,episodesFile):
@@ -539,7 +605,8 @@ class DM:
         
         if showProgress:
             import wx
-            dlg = wx.ProgressDialog("Calculating parameters","An informative message",maximum = (numframes-1)//10)
+            dlg = wx.ProgressDialog("Calculating parameters","An informative message",maximum = (numframes-1)//10,
+                style=wx.PD_CAN_ABORT | wx.PD_AUTO_HIDE | wx.PD_REMAINING_TIME | wx.PD_ESTIMATED_TIME)
         
         
         if self.data["Verbose"]:
@@ -558,11 +625,15 @@ class DM:
         self.data["HR STD"]=[]
         self.data["pNN50"]=[]
         self.data["rMSSD"]=[]
-                
-        for indexframe in range(numframes):
+
+        KeepGoing = True
+             
+        indexframe = 0   
+        while indexframe<numframes and KeepGoing:
             if showProgress:
                 if indexframe%10 == 0:
-                    dlg.Update(indexframe//10, "Frame number: %s/%s" % (indexframe,numframes))
+                    KeepGoing = dlg.Update(indexframe//10, "Frame number: %s/%s" % (indexframe,numframes))[0]
+                    # print "Keep: "+str(KeepGoing)
             begframe=int(indexframe*shiftsamp)
             endframe=int(begframe+sizesamp) # samples
             frame=signal[begframe:endframe]
@@ -620,23 +691,28 @@ class DM:
             RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
             self.data["pNN50"].append(100.0*len(RRDiffs50)/len(RRDiffs))
             self.data["rMSSD"].append(np.sqrt(np.mean(RRDiffs**2)))
+
+            indexframe += 1
                 
         if showProgress:
             dlg.Destroy()
-            
-        self.data["ULF"]=np.array(self.data["ULF"])
-        self.data["VLF"]=np.array(self.data["VLF"])
-        self.data["LF"]=np.array(self.data["LF"])
-        self.data["HF"]=np.array(self.data["HF"])
-        self.data["LFHF"]=np.array(self.data["LFHF"])
-        self.data["Power"]=np.array(self.data["Power"])
-        self.data["Mean HR"]=np.array(self.data["Mean HR"])
-        self.data["HR STD"]=np.array(self.data["HR STD"])
-        self.data["pNN50"]=np.array(self.data["pNN50"])
-        self.data["rMSSD"]=np.array(self.data["rMSSD"])
-                
+
+        if not KeepGoing:
+            self.ClearFrameBasedParams()
+        else:
+            self.data["ULF"]=np.array(self.data["ULF"])
+            self.data["VLF"]=np.array(self.data["VLF"])
+            self.data["LF"]=np.array(self.data["LF"])
+            self.data["HF"]=np.array(self.data["HF"])
+            self.data["LFHF"]=np.array(self.data["LFHF"])
+            self.data["Power"]=np.array(self.data["Power"])
+            self.data["Mean HR"]=np.array(self.data["Mean HR"])
+            self.data["HR STD"]=np.array(self.data["HR STD"])
+            self.data["pNN50"]=np.array(self.data["pNN50"])
+            self.data["rMSSD"]=np.array(self.data["rMSSD"])
                     
-        
+                        
+            
     def GetHRDataPlot(self):
         if self.HasInterpolatedHR():
             xvector = np.linspace(self.data["BeatTime"][0], self.data["BeatTime"][-1], len(self.data["HR"]))

@@ -150,7 +150,6 @@ class FrameBasedEvolutionWindow(wx.Frame):
                     self.ErrorWindow(messageStr="Filetype not supported: "+fileExt,captionStr="Error saving figure    ")
                 else:
                     try:
-                        print "File: ",fileName
                         self.canvas.print_figure(fileName)
                     except:
                         self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
@@ -1199,7 +1198,6 @@ class MainWindow(wx.Frame):
                     self.ErrorWindow(messageStr="Filetype not supported: "+fileExt,captionStr="Error saving figure    ")
                 else:
                     try:
-                        print "File: ",fileName
                         self.canvas.print_figure(fileName)
                     except:
                         self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
@@ -1299,7 +1297,7 @@ class MainWindow(wx.Frame):
             self.buttonSaveProject.Enable()
             if not self.fbWindowPresent:
                 self.buttonClearProject.Enable()
-            self.buttonOptionsProject.Enable()
+                self.buttonOptionsProject.Enable()
             self.buttonEditEpisodes.Enable()
             if not self.reportWindowPresent:
                 self.buttonReport.Enable()
@@ -1323,7 +1321,8 @@ class MainWindow(wx.Frame):
             
         if dm.HasInterpolatedHR() and not self.fbWindowPresent:
             self.buttonTemporal.Enable()
-      
+
+
             
     def RefreshMainWindow(self):
         """Redraws main window"""
@@ -1359,7 +1358,7 @@ class MainWindow(wx.Frame):
        
 
     def OnLoadBeat(self, event):
-        filetypes = "Supported files (*.txt;*.hrm;*sdf)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|All files (*.*)|*.*"
+        filetypes = "Supported files (*.txt;*.hrm;*sdf;*.hea)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|WFDB header files (*.hea)|*.hea;*.HEA|All files (*.*)|*.*"
         fileName=""
         dial = wx.FileDialog(self, message="Load file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
@@ -1401,6 +1400,20 @@ class MainWindow(wx.Frame):
                                      captionStr="Error loading suunto file")
                 else:
                     self.RefreshMainWindow()
+            if ext=="hea":
+                # dial = wx.MessageDialog(self, "Not yet implemented", "Soon...", wx.OK)
+                # result = dial.ShowModal()
+                # dial.Destroy()
+                try: 
+                    dm.LoadBeatWFDB(str(unicode(fileName)),self.settings)
+                except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error loading WFDB file")
+                except:
+                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid WFDB header file",
+                                     captionStr="Error loading WFDB file")
+                else:
+                    self.RefreshMainWindow()    
         self.canvas.SetFocus()
         
         
@@ -1538,9 +1551,10 @@ class MainWindow(wx.Frame):
     def OnFrameBased(self,event):
         if dm.HasFrameBasedParams()==False:
             dm.CalculateFrameBasedParams(showProgress=True)
-        self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters")
-        self.fbWindowPresent=True
-        self.RefreshMainWindowButtons()
+        if dm.HasFrameBasedParams():
+            self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters")
+            self.fbWindowPresent=True
+            self.RefreshMainWindowButtons()
         
     def OnFrameBasedEnded(self):
         self.fbWindowPresent=False
