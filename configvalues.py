@@ -103,3 +103,8 @@ plotHRHistogramHeight=200.0
 plotFBWidth=740.0
 plotFBHeight=500.0
 
+fileTypesLinMac="EPS file (*.eps)|*.eps;*EPS|JPEG file (*.jpg,*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tif,*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+extensionsLinMac=["eps","jpeg","jpg","pdf","png","svg","tif","tiff"]
+fileTypesWin="EPS file (*.eps)|*.eps;*EPS|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|All files (*.*)|*.*"
+extensionsWin=["eps","pdf","png","svg"]
+
