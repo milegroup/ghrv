@@ -44,7 +44,7 @@ from sys import platform
 from DataModel import DM
 from configvalues import *
 
-#os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
+# os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
 
 dm=DM(Verbose)
  
