@@ -889,7 +889,7 @@ class MainWindow(wx.Frame):
 
     configDir = os.path.expanduser('~')+os.sep+'.ghrv'
     configFile = configDir+os.sep+"ghrv.cfg"
-    sbDefaultText="  gHRV 0.19 - http://ghrv.milegroup.net"
+    sbDefaultText="  gHRV 0.20 - http://ghrv.milegroup.net"
     sbPlotHRText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
         
     def __init__(self, parent, id, title):
@@ -2017,7 +2017,7 @@ class AboutDlg(wx.Frame):
         html=wx.html.HtmlWindow(self, id)
         html.SetPage(
             '<p align="center"><img src="LogoSmall.png"/></p>'
-            '<h3 align="center">gHRV 0.19</h3>'
+            '<h3 align="center">gHRV 0.20</h3>'
             '<p align="center"><b>gHRV: a graphical application for Heart Rate Variability analysis</b></p>'
             '<p align="center">Copyright (C) 2012  Milegroup - Dpt. Informatics - University of Vigo - Spain</p>'
             '<p align="center"><i>http://www.milegroup.net</i></p>'

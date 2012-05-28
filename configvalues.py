@@ -26,9 +26,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-Verbose=True
+Verbose=False
 DebugMode = False
-Version="0.19"
+Version="0.20"
 
 from sys import platform
 borderBig=10
