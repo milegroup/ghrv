@@ -1648,6 +1648,7 @@ class ConfigurationWindow(wx.Frame):
     def __init__(self, parent, id, settings, conftype, settings2=None):
         # conftype: project or general
         # settings2 used for main settings when conftype="project"
+        self.conftype = conftype
         if platform != 'darwin':
             if conftype=="general":
                 wx.Frame.__init__(self, parent, wx.ID_ANY, size=confWindowSize)
@@ -1941,7 +1942,7 @@ class ConfigurationWindow(wx.Frame):
                     messageError="In some band limits are inverted"
                     error = True
                     
-        if not error:
+        if not error and self.conftype=="project":
             try:
                 tmp = str(unicode(str(self.ProjName.GetValue())))
             except:
