@@ -1358,7 +1358,7 @@ class MainWindow(wx.Frame):
        
 
     def OnLoadBeat(self, event):
-        filetypes = "Supported files (*.txt;*.hrm;*sdf;*.hea)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|WFDB header files (*.hea)|*.hea;*.HEA|All files (*.*)|*.*"
+        filetypes = "Supported files (*.txt;*.hrm;*sdf;*.hea)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF;*.hea;*.HEA|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|WFDB header files (*.hea)|*.hea;*.HEA|All files (*.*)|*.*"
         fileName=""
         dial = wx.FileDialog(self, message="Load file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
@@ -1410,7 +1410,7 @@ class MainWindow(wx.Frame):
                     self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading WFDB file")
                 except:
-                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid WFDB header file",
+                    self.ErrorWindow(messageStr="Problem loading WFDB file: .hea and .qrs files are needed",
                                      captionStr="Error loading WFDB file")
                 else:
                     self.RefreshMainWindow()    
