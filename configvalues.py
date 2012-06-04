@@ -76,6 +76,7 @@ ReportWindowSubTitleColor='#3144CD'
 buttonSizeEditNIHR=(150,35)
 buttonSizeFrameBased = buttonSizeEditNIHR
 buttonSizeReportWindow=buttonSizeEditNIHR
+buttonSizeAbout=buttonSizeEditNIHR
 buttonSizeEditEpisodes=(120,35)
 
 textCtrlSize=(60,25)

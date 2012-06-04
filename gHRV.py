@@ -43,6 +43,7 @@ from sys import platform
 
 from DataModel import DM
 from configvalues import *
+from AboutDlg import AboutDlg
 
 # os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
 
