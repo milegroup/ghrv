@@ -27,7 +27,7 @@
 #   ----------------------------------------------------------------------
 
 Verbose=False
-DebugMode = False
+DebugMode = True
 Version="0.20"
 
 from sys import platform
@@ -37,6 +37,9 @@ borderVeryBig=20
 
 mainWindowSize=(1200,650)
 mainWindowMinSize=(1000,600)
+
+signifWindowSize=(800,480)
+signifWindowMinSize=(640,480)
 
 #editNIHRWindowSize=(1024,768)
 #BandsWindowSize=(1024,768)

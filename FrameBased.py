@@ -67,6 +67,11 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.onRefresh, self.refreshButton)
         
         self.vboxRightArea.AddStretchSpacer(prop=1)
+
+        self.signifButton = wx.Button(self.panel, -1, "Significance...", size=buttonSizeFrameBased)
+        self.Bind(wx.EVT_BUTTON, self.OnSignif, id=self.signifButton.GetId())
+        self.signifButton.SetToolTip(wx.ToolTip("Click to perform significance analysis"))
+        self.vboxRightArea.Add(self.signifButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_RIGHT)
         
         self.exportButton = wx.Button(self.panel, -1, "Export txt...", size=buttonSizeFrameBased)
         self.Bind(wx.EVT_BUTTON, self.OnExport, id=self.exportButton.GetId())
@@ -199,9 +204,83 @@ class FrameBasedEvolutionWindow(wx.Frame):
         
     def OnExportEnded(self):
         self.exportButton.Enable()
+
+    def OnSignif(self,event):
+        if not self.dm.DataPlotHasVisibleEpisodes():
+            self.ErrorWindow(messageStr="No visible episodes present",captionStr="Error in significance analysis")
+        else:
+            SignificanceWindow(self,-1,'Significance analysis',self.dm)
+        # exportSettingsWindow=FrameBasedExportSettings(self,-1,"Export options", self.dm)
+        # self.exportButton.Disable()
         
 
-            
+class SignificanceWindow(wx.Frame):
+    """Window for significance analysis"""
+
+    def __init__(self,parent,id,title,dm):
+        wx.Frame.__init__(self, parent, -1, title, size=signifWindowSize)
+
+        self.dm = dm
+        
+        self.Bind(wx.EVT_CLOSE,self.OnEnd)  
+        
+        self.WindowParent=parent
+        sizer=wx.BoxSizer(wx.VERTICAL)
+
+        panel = wx.Panel(self)
+
+        # -------------- Begin of parameter selector
+
+
+        sbParam = wx.StaticBox(panel, label="Parameter")
+        sbParamSizer = wx.StaticBoxSizer(sbParam, wx.VERTICAL)
+        sbParamSizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        sbParamSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        
+        AllBandsOrig,VisibleBandsOrig = self.dm.GetVisibleBands()
+        self.AllBands=list(AllBandsOrig)
+        self.AllBands.remove("Heart rate")
+
+        self.bandsRB=[]
+
+        for band in self.AllBands:
+            if len(self.bandsRB)==0:
+                tmp = wx.RadioButton(panel, label=band, style=wx.RB_GROUP)
+            else:
+                tmp = wx.RadioButton(panel, label=band)
+            self.bandsRB.append(tmp)
+            if len(self.bandsRB)<=5:
+                sbParamSizer1.Add(tmp, wx.EXPAND) 
+            else:       
+                sbParamSizer2.Add(tmp, wx.EXPAND) 
+        
+        # sizer.Add(sbParamSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+        # sizer.Add(sbParamSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+
+        sbParamSizer.Add(sbParamSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+        sbParamSizer.Add(sbParamSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+        sizer.Add(sbParamSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+
+        for eachRB in self.bandsRB:
+            self.Bind(wx.EVT_RADIOBUTTON,self.OnParam,eachRB)
+
+
+        # -------------- End of parameter selector
+
+        panel.SetSizer(sizer)
+
+        self.SetMinSize(signifWindowMinSize)
+        self.Show(True)
+        self.Layout()
+
+    def OnEnd(self,event):
+        self.Destroy()
+
+    def OnParam(self,event):
+        print "Radiobutton ",event.GetEventObject().GetLabel()
+
+
+
 class FrameBasedExportSettings(wx.Frame):
     
     """Export options for frame-based parameters"""

@@ -713,7 +713,7 @@ class MainWindow(wx.Frame):
         sbToolsButtons = wx.StaticBox(self.MainPanel, label="Tools")
         sbToolsButtonsSizer = wx.StaticBoxSizer(sbToolsButtons, wx.VERTICAL)
         
-        self.buttonAnalyze = wx.Button(self.MainPanel, -1, label="Analyze")
+        self.buttonAnalyze = wx.Button(self.MainPanel, -1, label="Interpolate")
         sbToolsButtonsSizer.Add(self.buttonAnalyze, flag=wx.ALL | wx.EXPAND , border=borderSmall)
         self.MainPanel.Bind(wx.EVT_BUTTON, self.OnInterpolateNIHR, id=self.buttonAnalyze.GetId())
         self.buttonAnalyze.SetToolTip(wx.ToolTip("Interpolate heart rate signal"))
