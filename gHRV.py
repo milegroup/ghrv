@@ -806,7 +806,7 @@ class MainWindow(wx.Frame):
         self.MainPanel.Layout()
         
         if DebugMode:
-            dm.LoadProject("/home/leandro/Documentos/Programacion/gHRV/data_0_17/caca2.ghrv")
+            dm.LoadProject("../data_0_17/caca2.ghrv")
             self.RefreshMainWindow()
             if dm.HasFrameBasedParams()==False:
                 dm.CalculateFrameBasedParams(showProgress=True)

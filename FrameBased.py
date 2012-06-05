@@ -33,6 +33,7 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 import os
 from sys import platform
+import numpy as np
 
 
 class FrameBasedEvolutionWindow(wx.Frame):  
@@ -72,6 +73,8 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnSignif, id=self.signifButton.GetId())
         self.signifButton.SetToolTip(wx.ToolTip("Click to perform significance analysis"))
         self.vboxRightArea.Add(self.signifButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_RIGHT)
+        if platform != 'darwin':
+            self.signifButton.SetBackgroundColour(SignifBGColor)
         
         self.exportButton = wx.Button(self.panel, -1, "Export txt...", size=buttonSizeFrameBased)
         self.Bind(wx.EVT_BUTTON, self.OnExport, id=self.exportButton.GetId())
@@ -210,8 +213,11 @@ class FrameBasedEvolutionWindow(wx.Frame):
             self.ErrorWindow(messageStr="No visible episodes present",captionStr="Error in significance analysis")
         else:
             SignificanceWindow(self,-1,'Significance analysis',self.dm)
+            self.signifButton.Disable()
         # exportSettingsWindow=FrameBasedExportSettings(self,-1,"Export options", self.dm)
         # self.exportButton.Disable()
+    def OnSignifEnded(self):
+        self.signifButton.Enable()
         
 
 class SignificanceWindow(wx.Frame):
@@ -237,47 +243,177 @@ class SignificanceWindow(wx.Frame):
         sbParamSizer1 = wx.BoxSizer(wx.HORIZONTAL)
         sbParamSizer2 = wx.BoxSizer(wx.HORIZONTAL)
         
-        AllBandsOrig,VisibleBandsOrig = self.dm.GetVisibleBands()
-        self.AllBands=list(AllBandsOrig)
-        self.AllBands.remove("Heart rate")
+        AllBandsOrig = self.dm.GetVisibleBands()[0]
+        AllBands=list(AllBandsOrig)
+        AllBands.remove("Heart rate")
 
-        self.bandsRB=[]
+        bandsRB=[]
 
-        for band in self.AllBands:
-            if len(self.bandsRB)==0:
+        for band in AllBands:
+            if len(bandsRB)==0:
                 tmp = wx.RadioButton(panel, label=band, style=wx.RB_GROUP)
+                tmp.SetValue(True)
             else:
                 tmp = wx.RadioButton(panel, label=band)
-            self.bandsRB.append(tmp)
-            if len(self.bandsRB)<=5:
+            bandsRB.append(tmp)
+            if len(bandsRB)<=5:
                 sbParamSizer1.Add(tmp, wx.EXPAND) 
             else:       
                 sbParamSizer2.Add(tmp, wx.EXPAND) 
         
-        # sizer.Add(sbParamSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
-        # sizer.Add(sbParamSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
-
         sbParamSizer.Add(sbParamSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
         sbParamSizer.Add(sbParamSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
         sizer.Add(sbParamSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
 
-        for eachRB in self.bandsRB:
+        for eachRB in bandsRB:
             self.Bind(wx.EVT_RADIOBUTTON,self.OnParam,eachRB)
+
+        self.ActiveParam = AllBands[0]
 
 
         # -------------- End of parameter selector
+
+
+
+        # -------------- Begin of tags selector
+
+        sbTags = wx.StaticBox(panel, label="Episodes tags")
+        sbTagsSizer = wx.StaticBoxSizer(sbTags, wx.HORIZONTAL)
+
+        tagsRB = []
+        AllTags = self.dm.GetVisibleEpisodes()[0]
+        for tag in AllTags:
+            if len(tagsRB)==0:
+                tmp = wx.RadioButton(panel, label=tag, style=wx.RB_GROUP)
+                tmp.SetValue(True)
+            else:
+                tmp = wx.RadioButton(panel, label=tag)
+            tagsRB.append(tmp)
+            sbTagsSizer.Add(tmp,wx.EXPAND)
+
+            # if len(bandsRB)<=5:
+            #     sbParamSizer1.Add(tmp, wx.EXPAND) 
+            # else:       
+            #     sbParamSizer2.Add(tmp, wx.EXPAND) 
+        
+
+        sizer.Add(sbTagsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+
+        for eachRB in tagsRB:
+            self.Bind(wx.EVT_RADIOBUTTON,self.OnTag,eachRB)
+
+        self.ActiveTag = AllTags[0]
+        
+        # -------------- End of tags selector
+
+
+        # -------------- Begin of figure
+
+        self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=SignifBGColor)
+        self.fig.subplots_adjust(left=0.05, bottom=0.07, right=0.98, top=0.92, wspace=0.20, hspace=0.15)
+        self.canvas = FigureCanvas(panel, -1, self.fig)
+        
+        self.axes = self.fig.add_subplot(111)
+
+        sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+
+        # -------------- End of figure
+
+        # -------------- Begin of textbox and buttons
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)   
+
+
+        self.textOutput = wx.TextCtrl(panel, id, 'Information', size=(350, 75), style=wx.TE_READONLY|wx.TE_MULTILINE|wx.TE_RICH2)
+        self.textOutput.SetFont(wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL));
+        hbox.Add(self.textOutput, 1, wx.LEFT | wx.TOP | wx.GROW)
+
+        hbox.AddStretchSpacer(prop=1)
+
+        endButton = wx.Button(panel, -1, "Close", size=buttonSizeSignif)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
+        endButton.SetToolTip(wx.ToolTip("Click to close window"))
+        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+                
+        sizer.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
+
+        # -------------- End of textbox and buttons
 
         panel.SetSizer(sizer)
 
         self.SetMinSize(signifWindowMinSize)
         self.Show(True)
         self.Layout()
+        self.Refresh()
 
     def OnEnd(self,event):
+        self.WindowParent.OnSignifEnded()
         self.Destroy()
 
     def OnParam(self,event):
-        print "Radiobutton ",event.GetEventObject().GetLabel()
+        self.ActiveParam = event.GetEventObject().GetLabel()
+        self.Refresh()
+
+    def OnTag(self,event):
+        self.ActiveTag = event.GetEventObject().GetLabel()
+        self.Refresh()
+
+    def Refresh(self):
+        # print "Param: ",self.ActiveParam
+        # print "Tag: ",self.ActiveTag
+        cad ="Parameter: "+self.ActiveParam+"   -   "+"Tag: "+self.ActiveTag
+        ActiveParamTmp = self.ActiveParam
+        if ActiveParamTmp=="LF/HF":
+            ActiveParamTmp="LFHF"
+        total,inside,outside = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTag)
+        cad=cad+"\n"+str(len(total))+" points (in: "+str(len(inside))+", out: "+str(len(outside))+")"
+        # print "Length total: ",len(total)
+        # print "Length inside: ",len(inside)
+        # print "Length outside: ",len(outside)
+
+
+
+
+        totalweight=np.ones_like(total)/len(total)
+        insideweight=np.ones_like(inside)/len(inside)
+        outsideweight=np.ones_like(outside)/len(outside)
+
+        self.axes.clear()
+
+        # self.axes.hist([total,inside,outside], 10, 
+        #                 weights = [totalweight,insideweight,outsideweight],
+        #                 normed=False, histtype='bar',
+        #                 color=['orange', 'cyan', 'red'],
+        #                 label=['Global', 'Inside '+self.ActiveTag, 'Outside '+self.ActiveTag])
+
+        if (len(inside)>signifNumMinValues) and (len(outside)>signifNumMinValues):
+            self.axes.hist([inside,outside], signifNumBins, 
+                            weights = [insideweight,outsideweight],
+                            normed=False, histtype='bar',
+                            color=['red', 'cyan'],
+                            label=['Inside '+self.ActiveTag, 'Outside '+self.ActiveTag])
+            # self.axes.set_xlabel("Time (sec.)")
+            # self.axes.set_ylabel("HR (beats/min.)")
+            self.axes.set_title('Histogram: '+self.ActiveParam)
+
+            self.axes.legend()
+            self.axes.grid()
+            cad=cad+ "\nMean  -  in: %.3f, out: %.3f" % (np.mean(inside),np.mean(outside))
+            from scipy.stats import ttest_ind
+            pvalue=ttest_ind(inside,outside)[1]
+            cad=cad+ "\np-value: %.3g" % pvalue
+        else:
+            cad=cad+" - Insufficient data"
+            self.axes.set_xlim(-1,1)
+            self.axes.set_ylim(-1,1)
+            self.axes.text(0.0, 0.0, "Insufficient data", size=20,
+                            horizontalalignment='center',
+                            verticalalignment='center',
+                            bbox=dict(boxstyle='round',facecolor='red', alpha=0.5))
+            
+            
+        self.textOutput.SetValue(cad)
+        self.canvas.draw()
 
 
 

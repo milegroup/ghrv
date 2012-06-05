@@ -1066,6 +1066,31 @@ class DM:
         """Returns data necessary for frame-based plot"""
         return(self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rMSSD"], self.data["HR"])
         
+    def GetFrameBasedData(self,param,tag):
+        """Returns values of a parameter inside episodes, outside episodes and total"""
+        total = self.data[param]
+        framesCenters=np.array([x*self.data["windowshift"]+self.data["windowsize"]/2.0 for x in range(len(total))])
+
+        tags,starts,durations,tagsVisible = self.GetEpisodes()
+        numEpisodes=len(starts)
+
+        startsvector=[starts[w] for w in range(numEpisodes) if tags[w]==tag]
+        durationsvector=[durations[w] for w in range(numEpisodes) if tags[w]==tag]
+        endsvector=[starts[w]+durations[w] for w in range(numEpisodes) if tags[w]==tag]
+
+        inside=[]
+        outside=[]
+        for index in range(len(total)):
+            isInside=False
+            for indexEp in range(len(startsvector)):
+                if (framesCenters[index] > startsvector[indexEp]) and (framesCenters[index] < endsvector[indexEp]):
+                    isInside = True
+            if isInside:
+                inside.append(total[index])
+            else:
+                outside.append(total[index])
+
+        return total,inside,outside
     
     def CreatePlot(self,plotType):
         

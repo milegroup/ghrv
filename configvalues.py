@@ -38,8 +38,10 @@ borderVeryBig=20
 mainWindowSize=(1200,650)
 mainWindowMinSize=(1000,600)
 
-signifWindowSize=(800,480)
-signifWindowMinSize=(640,480)
+signifWindowSize=(800,600)
+signifWindowMinSize=(640,600)
+signifNumMinValues = 10
+signifNumBins = 10
 
 #editNIHRWindowSize=(1024,768)
 #BandsWindowSize=(1024,768)
@@ -72,6 +74,8 @@ EditBGColor='#FF9F80'
 TemporalBGColor='#80DFFF'
 ReportBGColor='#B3DF5D'
 EpisodesEditionBGColor='#FFD966'
+SignifBGColor='#B7B3B7'
+
 LogoVertColor='#5C7F19'
 ReportWindowTitleColor='#5C7F19'
 ReportWindowSubTitleColor='#3144CD'
@@ -80,6 +84,7 @@ buttonSizeEditNIHR=(150,35)
 buttonSizeFrameBased = buttonSizeEditNIHR
 buttonSizeReportWindow=buttonSizeEditNIHR
 buttonSizeAbout=buttonSizeEditNIHR
+buttonSizeSignif=buttonSizeEditNIHR
 buttonSizeEditEpisodes=(120,35)
 
 textCtrlSize=(60,25)
