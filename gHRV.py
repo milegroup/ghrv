@@ -546,7 +546,7 @@ class MainWindow(wx.Frame):
     configDir = os.path.expanduser('~')+os.sep+'.ghrv'
     configFile = configDir+os.sep+"ghrv.cfg"
     sbDefaultText="  gHRV 0.20 - http://ghrv.milegroup.net"
-    sbPlotHRText="  Keys: +/- (zoom), left/right (move), 0 (reset), s (save plot)"
+    sbPlotHRText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
         
     def __init__(self, parent, id, title):
 
@@ -558,7 +558,7 @@ class MainWindow(wx.Frame):
         
         self.Bind(wx.EVT_CLOSE,self.OnExit)
         
-        self.MainPanel=wx.Window(self)
+        self.MainPanel=wx.Panel(self)
         self.fbWindowPresent=False
         self.configWindowPresent=False
         self.editNIHRWindowPresent=False
@@ -795,10 +795,6 @@ class MainWindow(wx.Frame):
         self.sb.SetStatusText(self.sbDefaultText)
         
         self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
-        if platform == "win32":
-            self.canvas.Bind(wx.EVT_NAVIGATION_KEY, self.OnKeyPress2)
-
-
 
         
         self.SetMinSize(mainWindowMinSize)
@@ -819,21 +815,6 @@ class MainWindow(wx.Frame):
         
         self.canvas.SetFocus()
 
-    def OnKeyPress2(self,event):
-        if not dm.HasHR():
-            event.Skip()
-            return
-        if not event.IsFromTab():
-            if event.GetDirection():
-                # print "Pan right"
-                dm.PlotHRPanRight()
-                self.canvas.draw()
-            else:
-                # print "Pan left"
-                dm.PlotHRPanLeft()
-                self.canvas.draw()
-        event.Skip()
-
 
     
     def OnKeyPress(self, event):
@@ -842,19 +823,19 @@ class MainWindow(wx.Frame):
             return
         keycode = event.GetKeyCode()
         # print (str(keycode))
-        if keycode in [wx.WXK_ADD, wx.WXK_NUMPAD_ADD] or keycode==43:
+        if keycode == 73:
             # print "Zoom in"
             dm.PlotHRZoomIn()
             self.canvas.draw()
-        if keycode in [wx.WXK_SUBTRACT, wx.WXK_NUMPAD_SUBTRACT] or keycode==45:
+        if keycode == 77:
             # print "Zoom out"
             dm.PlotHRZoomOut()
             self.canvas.draw()
-        if keycode in [wx.WXK_NUMPAD_RIGHT, wx.WXK_RIGHT, wx.WXK_WINDOWS_RIGHT]:
+        if keycode == 75:
             # print "Pan right"
             dm.PlotHRPanRight()
             self.canvas.draw()
-        if keycode in [wx.WXK_NUMPAD_LEFT, wx.WXK_LEFT, wx.WXK_WINDOWS_LEFT]:
+        if keycode == 74:
             # print "Pan left"
             dm.PlotHRPanLeft()
             self.canvas.draw()

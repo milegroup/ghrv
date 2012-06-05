@@ -39,7 +39,7 @@ import numpy as np
 class FrameBasedEvolutionWindow(wx.Frame):  
     """ Window for temporal evolution of parameters obtained from interpolated HR"""
     
-    sbDefaultText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
+    sbDefaultText="   Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
     
     def __init__(self,parent,id,title,dm):
 
@@ -109,6 +109,7 @@ class FrameBasedEvolutionWindow(wx.Frame):
         result = dial.ShowModal()
         dial.Destroy()
         self.canvas.SetFocus()
+
         
     def OnKeyPress(self, event):
         keycode = event.GetKeyCode()
