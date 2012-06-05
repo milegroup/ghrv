@@ -27,10 +27,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
     
-# TODO: MacOSX change dialog messages as in http://www.blog.pythonlibrary.org/2010/07/10/the-dialogs-of-wxpython-part-2-of-2/
 # TODO: Comprobar cuando la ventana es más grande que la señal
-# TODO: Comprobar la edición de puntos en windows
-# TODO: Comprobar la grabación de gráficos en distintos formatos en windows. Incluir eps
 
 import wx
 import matplotlib
@@ -549,7 +546,7 @@ class MainWindow(wx.Frame):
     configDir = os.path.expanduser('~')+os.sep+'.ghrv'
     configFile = configDir+os.sep+"ghrv.cfg"
     sbDefaultText="  gHRV 0.20 - http://ghrv.milegroup.net"
-    sbPlotHRText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
+    sbPlotHRText="  Keys: +/- (zoom), left/right (move), 0 (reset), s (save plot)"
         
     def __init__(self, parent, id, title):
 
@@ -561,7 +558,7 @@ class MainWindow(wx.Frame):
         
         self.Bind(wx.EVT_CLOSE,self.OnExit)
         
-        self.MainPanel=wx.Panel(self)
+        self.MainPanel=wx.Window(self)
         self.fbWindowPresent=False
         self.configWindowPresent=False
         self.editNIHRWindowPresent=False
@@ -798,6 +795,11 @@ class MainWindow(wx.Frame):
         self.sb.SetStatusText(self.sbDefaultText)
         
         self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
+        if platform == "win32":
+            self.canvas.Bind(wx.EVT_NAVIGATION_KEY, self.OnKeyPress2)
+
+
+
         
         self.SetMinSize(mainWindowMinSize)
         self.SetTitle('gHRV')
@@ -816,26 +818,48 @@ class MainWindow(wx.Frame):
             
         
         self.canvas.SetFocus()
-        
+
+    def OnKeyPress2(self,event):
+        if not dm.HasHR():
+            event.Skip()
+            return
+        if not event.IsFromTab():
+            if event.GetDirection():
+                # print "Pan right"
+                dm.PlotHRPanRight()
+                self.canvas.draw()
+            else:
+                # print "Pan left"
+                dm.PlotHRPanLeft()
+                self.canvas.draw()
+        event.Skip()
+
+
+    
     def OnKeyPress(self, event):
         if not dm.HasHR():
             event.Skip()
             return
         keycode = event.GetKeyCode()
-        if keycode == 73:
+        # print (str(keycode))
+        if keycode in [wx.WXK_ADD, wx.WXK_NUMPAD_ADD] or keycode==43:
+            # print "Zoom in"
             dm.PlotHRZoomIn()
             self.canvas.draw()
-        if keycode == 77:
+        if keycode in [wx.WXK_SUBTRACT, wx.WXK_NUMPAD_SUBTRACT] or keycode==45:
+            # print "Zoom out"
             dm.PlotHRZoomOut()
+            self.canvas.draw()
+        if keycode in [wx.WXK_NUMPAD_RIGHT, wx.WXK_RIGHT, wx.WXK_WINDOWS_RIGHT]:
+            # print "Pan right"
+            dm.PlotHRPanRight()
+            self.canvas.draw()
+        if keycode in [wx.WXK_NUMPAD_LEFT, wx.WXK_LEFT, wx.WXK_WINDOWS_LEFT]:
+            # print "Pan left"
+            dm.PlotHRPanLeft()
             self.canvas.draw()
         if keycode == 48:
             dm.PlotHRZoomReset()
-            self.canvas.draw()
-        if keycode == 75:
-            dm.PlotHRPanRight()
-            self.canvas.draw()
-        if keycode == 74:
-            dm.PlotHRPanLeft()
             self.canvas.draw()
         if keycode==83:
             fileName=""
