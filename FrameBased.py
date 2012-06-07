@@ -278,32 +278,41 @@ class SignificanceWindow(wx.Frame):
 
         # -------------- Begin of tags selector
 
-        sbTags = wx.StaticBox(panel, label="Episodes tags")
+        sbTags = wx.StaticBox(panel, label="Episodes")
         sbTagsSizer = wx.StaticBoxSizer(sbTags, wx.HORIZONTAL)
 
-        tagsRB = []
-        AllTags = self.dm.GetVisibleEpisodes()[0]
-        for tag in AllTags:
-            if len(tagsRB)==0:
-                tmp = wx.RadioButton(panel, label=tag, style=wx.RB_GROUP)
-                tmp.SetValue(True)
-            else:
-                tmp = wx.RadioButton(panel, label=tag)
-            tagsRB.append(tmp)
-            sbTagsSizer.Add(tmp,wx.EXPAND)
-
-            # if len(bandsRB)<=5:
-            #     sbParamSizer1.Add(tmp, wx.EXPAND) 
-            # else:       
-            #     sbParamSizer2.Add(tmp, wx.EXPAND) 
+        # tagsRB = []
+        self.AllTags = self.dm.GetVisibleEpisodes()[0]
+        self.ActiveTagLeft = self.AllTags[0]
+        self.ActiveTagRight = None
+        self.cbComboLeft=wx.ComboBox(panel,
+            choices=self.AllTags,
+            value=self.ActiveTagLeft,
+            style=wx.CB_DROPDOWN|wx.CB_READONLY
+            )
+        sbTagsSizer.Add(self.cbComboLeft,flag=wx.ALL | wx.EXPAND, border=borderSmall)
+        self.Bind(wx.EVT_COMBOBOX, self.OnComboLeft, id=self.cbComboLeft.GetId())
         
+
+        sbTagsSizer.AddStretchSpacer(prop=1)
+
+        ChoicesRight = ["Outside "+self.ActiveTagLeft]+self.AllTags
+        ChoicesRight.remove(self.ActiveTagLeft)
+
+        self.cbComboRight=wx.ComboBox(panel,
+            choices=ChoicesRight, 
+            value="Outside "+self.ActiveTagLeft, 
+            style=wx.CB_DROPDOWN|wx.CB_READONLY
+            )
+        sbTagsSizer.Add(self.cbComboRight,flag=wx.ALL | wx.EXPAND, border=borderSmall)
+        self.Bind(wx.EVT_COMBOBOX, self.OnComboRight, id=self.cbComboRight.GetId())
+
 
         sizer.Add(sbTagsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
 
-        for eachRB in tagsRB:
-            self.Bind(wx.EVT_RADIOBUTTON,self.OnTag,eachRB)
+        
 
-        self.ActiveTag = AllTags[0]
+        
         
         # -------------- End of tags selector
 
@@ -355,56 +364,89 @@ class SignificanceWindow(wx.Frame):
         self.ActiveParam = event.GetEventObject().GetLabel()
         self.Refresh()
 
+    def OnComboLeft(self,event):
+        self.ActiveTagLeft = self.cbComboLeft.GetValue()
+        self.cbComboRight.Clear()
+        ChoicesRight = ["Outside "+self.ActiveTagLeft]+self.AllTags
+        ChoicesRight.remove(self.ActiveTagLeft)
+        for item in ChoicesRight:
+            self.cbComboRight.Append(item)
+        self.cbComboRight.SetValue("Outside "+self.ActiveTagLeft)
+        self.ActiveTagRight = None
+        self.Refresh()
+
+    def OnComboRight(self,event):
+        self.ActiveTagRight = self.cbComboRight.GetValue()
+        if self.ActiveTagRight[0:7] == "Outside":
+            self.ActiveTagRight=None
+        self.Refresh()
+
     def OnTag(self,event):
-        self.ActiveTag = event.GetEventObject().GetLabel()
+        self.ActiveTagLeft = event.GetEventObject().GetLabel()
         self.Refresh()
 
     def Refresh(self):
-        # print "Param: ",self.ActiveParam
-        # print "Tag: ",self.ActiveTag
-        cad ="Parameter: "+self.ActiveParam+"   -   "+"Tag: "+self.ActiveTag
+        print "Valor left: ", self.ActiveTagLeft
+        print "Valor right: ",self.ActiveTagRight
+        print "Param: ",self.ActiveParam
+
+        cad = self.ActiveParam+":  "
+        if self.ActiveTagRight:
+            cad = cad + self.ActiveTagLeft + " vs. " + self.ActiveTagRight+"\n"
+        else: 
+            cad = cad + self.ActiveTagLeft + " (inside vs. outside)\n"
+
         ActiveParamTmp = self.ActiveParam
         if ActiveParamTmp=="LF/HF":
             ActiveParamTmp="LFHF"
-        total,inside,outside = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTag)
-        cad=cad+"\n"+str(len(total))+" points (in: "+str(len(inside))+", out: "+str(len(outside))+")"
-        # print "Length total: ",len(total)
-        # print "Length inside: ",len(inside)
-        # print "Length outside: ",len(outside)
+        valuesleft = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTagLeft)[1]
+        if not self.ActiveTagRight:
+            valuesright = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTagLeft)[2]
+        else:
+            valuesright = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTagRight)[1]
 
+        cad=cad+"No. points: "
+        if not self.ActiveTagRight:
+            cad = cad + str(len(valuesleft)) +" (inside), "+str(len(valuesright))+" (outside)\n"
+        else:
+            cad = cad + str(len(valuesleft)) +" ("+self.ActiveTagLeft+"), "
+            cad = cad + str(len(valuesright))+" ("+self.ActiveTagRight+")\n"
+        print "Length valuesleft: ",len(valuesleft)
+        print "Length valuesright: ",len(valuesright)
 
-
-
-        totalweight=np.ones_like(total)/len(total)
-        insideweight=np.ones_like(inside)/len(inside)
-        outsideweight=np.ones_like(outside)/len(outside)
+        valuesleftweight=np.ones_like(valuesleft)/len(valuesleft)
+        valuesrightweight=np.ones_like(valuesright)/len(valuesright)
 
         self.axes.clear()
 
-        # self.axes.hist([total,inside,outside], 10, 
-        #                 weights = [totalweight,insideweight,outsideweight],
+        # self.axes.hist([total,valuesleft,valuesright], 10, 
+        #                 weights = [totalweight,valuesleftweight,valuesrightweight],
         #                 normed=False, histtype='bar',
         #                 color=['orange', 'cyan', 'red'],
-        #                 label=['Global', 'Inside '+self.ActiveTag, 'Outside '+self.ActiveTag])
+        #                 label=['Global', 'valuesleft '+self.ActiveTag, 'valuesright '+self.ActiveTag])
 
-        if (len(inside)>signifNumMinValues) and (len(outside)>signifNumMinValues):
-            self.axes.hist([inside,outside], signifNumBins, 
-                            weights = [insideweight,outsideweight],
+        if (len(valuesleft)>signifNumMinValues) and (len(valuesright)>signifNumMinValues):
+            if self.ActiveTagRight:
+                labels= [self.ActiveTagLeft, self.ActiveTagRight]
+            else: 
+                labels= ["Inside " +self.ActiveTagLeft, "Outside " +self.ActiveTagLeft]
+            self.axes.hist([valuesleft,valuesright], signifNumBins, 
+                            weights = [valuesleftweight,valuesrightweight],
                             normed=False, histtype='bar',
                             color=['red', 'cyan'],
-                            label=['Inside '+self.ActiveTag, 'Outside '+self.ActiveTag])
+                            label=labels)
             # self.axes.set_xlabel("Time (sec.)")
             # self.axes.set_ylabel("HR (beats/min.)")
             self.axes.set_title('Histogram: '+self.ActiveParam)
 
             self.axes.legend()
             self.axes.grid()
-            cad=cad+ "\nMean  -  in: %.3f, out: %.3f" % (np.mean(inside),np.mean(outside))
+            cad=cad+ "Mean  -  in: %.3f, out: %.3f\n" % (np.mean(valuesleft),np.mean(valuesright))
             from scipy.stats import ttest_ind
-            pvalue=ttest_ind(inside,outside)[1]
-            cad=cad+ "\np-value: %.3g" % pvalue
+            pvalue=ttest_ind(valuesleft,valuesright)[1]
+            cad=cad+ "p-value: %.3g" % pvalue
         else:
-            cad=cad+" - Insufficient data"
+            cad=cad+"Insufficient data\n"
             self.axes.set_xlim(-1,1)
             self.axes.set_ylim(-1,1)
             self.axes.text(0.0, 0.0, "Insufficient data", size=20,
