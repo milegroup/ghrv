@@ -241,7 +241,6 @@ class SignificanceWindow(wx.Frame):
 
         # -------------- Begin of parameter selector
 
-
         sbParam = wx.StaticBox(panel, label="Parameter")
         sbParamSizer = wx.StaticBoxSizer(sbParam, wx.VERTICAL)
         sbParamSizer1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -273,7 +272,6 @@ class SignificanceWindow(wx.Frame):
             self.Bind(wx.EVT_RADIOBUTTON,self.OnParam,eachRB)
 
         self.ActiveParam = AllBands[0]
-
 
         # -------------- End of parameter selector
 
@@ -313,10 +311,6 @@ class SignificanceWindow(wx.Frame):
 
         sizer.Add(sbTagsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
 
-        
-
-        
-        
         # -------------- End of tags selector
 
 

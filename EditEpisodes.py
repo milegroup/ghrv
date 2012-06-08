@@ -29,9 +29,9 @@
 import wx
 from configvalues import *
 import matplotlib
-matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
+import wx.grid as gridlib
 
 class EditEpisodesWindow(wx.Frame):
     
@@ -41,6 +41,7 @@ class EditEpisodesWindow(wx.Frame):
     def __init__(self,parent,id,title,dm):
         wx.Frame.__init__(self, parent, -1, title, size=mainWindowSize)
         self.dm = dm
+        self.manualEditorPresent=False
         
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         
@@ -110,6 +111,11 @@ class EditEpisodesWindow(wx.Frame):
         
         
         self.vboxEditEpRightColumn.AddStretchSpacer(prop=1)
+
+        self.manualButton = wx.Button(self.panel, -1, "Manual...", size=buttonSizeEditEpisodes)
+        self.Bind(wx.EVT_BUTTON, self.OnManual, id=self.manualButton.GetId())
+        self.manualButton.SetToolTip(wx.ToolTip("Click to edit episodes manually"))
+        self.vboxEditEpRightColumn.Add(self.manualButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_RIGHT)
 
         
         self.endButton = wx.Button(self.panel, -1, "End", size=buttonSizeEditEpisodes)
@@ -191,6 +197,9 @@ class EditEpisodesWindow(wx.Frame):
         self.canvas.draw()
         
     def OnClick(self,event):
+
+        if self.manualEditorPresent:
+            return None
                 
         if event.xdata==None:
             return None
@@ -208,6 +217,8 @@ class EditEpisodesWindow(wx.Frame):
             strMessage="Episode: ({0:.2f},--)".format(self.cxleft)
             self.sb.SetStatusText(strMessage)
             self.endButton.Disable()
+            self.manualButton.Disable()
+            self.cbList.Disable()
                 
         elif self.NumClicks==1:
             self.cxright=event.xdata
@@ -241,23 +252,40 @@ class EditEpisodesWindow(wx.Frame):
             self.dm.AssignEpisodeColor(Tag)
         self.dm.AddEpisode(self.cxleft,self.cxright,Tag)
         self.cbCombo.Disable()
+        self.cbList.Enable()
         self.RefreshStatus()
                 
     def OnClear(self, event):
         self.clearButton.Disable()
         self.cbCombo.Disable()
+        self.cbList.Enable()
         self.RefreshStatus()
         
         
     def OnEnd(self,event):
         self.Destroy()
         self.WindowParent.OnEpisodesEditEnded()            
+
+    def OnManual(self,event):
+        print "Manual edition"
+        ManualEditionWindow(self,-1,'Episodes manual edition',self.dm)
+        self.manualButton.Disable()
+        self.endButton.Disable()
+        self.cbList.Disable()
+        self.manualEditorPresent=True
+
+    def OnManualEnded(self):
+        self.manualButton.Enable()
+        self.endButton.Enable()
+        self.cbList.Enable()
+        self.manualEditorPresent=False
             
     def RefreshStatus(self):
         self.DrawFigure()
         self.canvas.draw()
         self.clearButton.Disable()
         self.endButton.Enable()
+        self.manualButton.Enable()
         self.addButton.Disable()
         strMessage=""
         self.sb.SetStatusText(strMessage)
@@ -272,5 +300,74 @@ class EditEpisodesWindow(wx.Frame):
             self.TagsSelectorPresent = True
         self.cbCombo.SetItems(self.EpTypes)
         self.vboxEditEpRightColumn.Layout()
+
+# ------------------------------------------------
+
+
+
+class ManualEditionWindow(wx.Frame):
+
+    def __init__(self,parent,id,title,dm):
+
+        data = [['OBS_APNEA',1,10],['GEN_HYPO',8,4.5],['OBS_APNEA',67,34.25]]
+        wx.Frame.__init__(self, parent, -1, title)
+
+        self.dm = dm
+
+        self.Bind(wx.EVT_CLOSE,self.OnEnd)  
         
-            
+        self.WindowParent=parent
+
+        panel = wx.Panel(self)
+       
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        myGrid = gridlib.Grid(panel)
+
+        myGrid.CreateGrid(len(data), 4)
+
+        myGrid.SetColLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
+        myGrid.SetRowLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
+        myGrid.SetDefaultCellAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
+
+        myGrid.SetColLabelValue(0, "Tag")
+        myGrid.SetColLabelValue(1, "Init time")
+        myGrid.SetColLabelValue(2, "End time")
+        myGrid.SetColLabelValue(3, "Duration")
+
+        myGrid.SetDefaultColSize(150)
+
+        for row in range(len(data)):
+            for column in range(len(data[row])):
+                myGrid.SetCellValue(row,column,str(data[row][column]))
+            myGrid.SetCellBackgroundColour(row,0,dm.GetEpisodeColor(data[row][0]))
+
+ 
+        sizer.Add(myGrid, flag = wx.EXPAND| wx.ALL, border=borderBig)
+
+        hbox = wx.BoxSizer(wx.VERTICAL)   
+
+        hbox.AddStretchSpacer(prop=1)
+
+        endButton = wx.Button(panel, -1, "Close", size=buttonSizeManualEd)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
+        endButton.SetToolTip(wx.ToolTip("Click to close window"))
+        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+
+                
+        sizer.Add(hbox, 0, flag=wx.ALL| wx.EXPAND, border=borderBig)        
+
+        panel.SetSizer(sizer)
+
+        self.SetSize(manualEdWindowSize)
+
+        self.SetMinSize(manualEdWindowMinSize)
+
+        self.Show(True)
+        self.Layout()
+        self.Refresh()
+
+    def OnEnd(self,event):
+        self.WindowParent.OnManualEnded()
+        self.Destroy()
+

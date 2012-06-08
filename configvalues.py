@@ -61,6 +61,9 @@ confWindowProjectSizeMac=(425,550)
 reportWindowSize=(800,800)
 reportWindowMinSize=(800,700)
 
+manualEdWindowSize=(800,800)
+manualEdWindowMinSize=(600,600)
+
 
 exportSettingsWindowSize=(500,300)
 exportSettingsWindowMinSize=exportSettingsWindowSize
@@ -86,6 +89,7 @@ buttonSizeFrameBased = buttonSizeEditNIHR
 buttonSizeReportWindow=buttonSizeEditNIHR
 buttonSizeAbout=buttonSizeEditNIHR
 buttonSizeSignif=buttonSizeEditNIHR
+buttonSizeManualEd=buttonSizeEditNIHR
 buttonSizeEditEpisodes=(120,35)
 
 textCtrlSize=(60,25)
