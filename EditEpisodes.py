@@ -1,12 +1,46 @@
+# -*- coding:utf-8 -*-
 
+#   ----------------------------------------------------------------------
+#   gHRV: a graphical application for Heart Rate Variability analysis
+#   Copyright (C) 2012  Milegroup - Dpt. Informatics
+#      University of Vigo - Spain
+#      www.milegroup.net
+#
+#   Authors:
+#     - Leandro Rodríguez-Liñares
+#     - Arturo Méndez
+#     - María José Lado
+#     - Xosé Antón Vila
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   ----------------------------------------------------------------------
+
+import wx
+from configvalues import *
+import matplotlib
+matplotlib.use('WXAgg')
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from DataModel import DM
 
 class EditEpisodesWindow(wx.Frame):
     
     """ Window for editing episodes"""
     NumClicks=0
     
-    def __init__(self,parent,id,title):
+    def __init__(self,parent,id,title,dm):
         wx.Frame.__init__(self, parent, -1, title, size=mainWindowSize)
+        self.dm = dm
         
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         
@@ -22,7 +56,7 @@ class EditEpisodesWindow(wx.Frame):
         self.canvas.mpl_connect('button_press_event', self.OnClick)
         
         self.axes = self.fig.add_subplot(111)
-        self.xvector, self.yvector= dm.GetHRDataPlot()
+        self.xvector, self.yvector= self.dm.GetHRDataPlot()
         
         self.ymin=min(self.yvector)
         self.ymax=max(self.yvector)
@@ -37,7 +71,7 @@ class EditEpisodesWindow(wx.Frame):
         
         self.vboxEditEpRightColumn = wx.BoxSizer(wx.VERTICAL)  
         
-        self.EpTypes,self.EpVisibleTypes = dm.GetVisibleEpisodes()
+        self.EpTypes,self.EpVisibleTypes = self.dm.GetVisibleEpisodes()
         
         if len(self.EpTypes)>0:
             self.InsertTagsSelector()
@@ -129,10 +163,10 @@ class EditEpisodesWindow(wx.Frame):
         self.axes.plot(self.xvector,self.yvector,'k-')
         self.axes.set_xlabel("Time (sec.)")
         self.axes.set_ylabel("HR (beats/min.)")
-        self.axes.set_title(dm.GetHeartRatePlotTitle())
+        self.axes.set_title(self.dm.GetHeartRatePlotTitle())
         
-        if dm.DataPlotHasVisibleEpisodes():
-            tags,starts,durations,tagsVisible = dm.GetEpisodes()
+        if self.dm.DataPlotHasVisibleEpisodes():
+            tags,starts,durations,tagsVisible = self.dm.GetEpisodes()
             numEpisodes=len(tags)
 #            print("Number: "+str(numEpisodes))
             i=0
@@ -142,9 +176,9 @@ class EditEpisodesWindow(wx.Frame):
                 endsvector=[starts[w]+durations[w] for w in range(numEpisodes) if tags[w]==tag]
                 for j in range(len(startsvector)):
                     if j==0:
-                        self.axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=dm.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
+                        self.axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.dm.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
                     else:
-                        self.axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=dm.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
+                        self.axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.dm.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
                 i=i+1
             leg=self.axes.legend(fancybox=True,shadow=True)
             for t in leg.get_texts():
@@ -194,7 +228,7 @@ class EditEpisodesWindow(wx.Frame):
             self.cbCombo.Enable()
             
     def OnEpisodesList(self,event):
-        dm.SetVisibleEpisodes(list(self.cbList.GetCheckedStrings()))
+        self.dm.SetVisibleEpisodes(list(self.cbList.GetCheckedStrings()))
         self.DrawFigure()
         self.canvas.draw()
         self.RefreshStatus()
@@ -202,10 +236,10 @@ class EditEpisodesWindow(wx.Frame):
                 
     def OnAdd(self,event):
         Tag=str(self.cbCombo.GetValue())
-        self.EpTypes,self.EpVisibleTypes = dm.GetVisibleEpisodes()
+        self.EpTypes,self.EpVisibleTypes = self.dm.GetVisibleEpisodes()
         if Tag not in self.EpTypes:
-            dm.AssignEpisodeColor(Tag)
-        dm.AddEpisode(self.cxleft,self.cxright,Tag)
+            self.dm.AssignEpisodeColor(Tag)
+        self.dm.AddEpisode(self.cxleft,self.cxright,Tag)
         self.cbCombo.Disable()
         self.RefreshStatus()
                 
@@ -228,7 +262,7 @@ class EditEpisodesWindow(wx.Frame):
         strMessage=""
         self.sb.SetStatusText(strMessage)
         self.NumClicks=0
-        self.EpTypes,self.EpVisibleTypes = dm.GetVisibleEpisodes()
+        self.EpTypes,self.EpVisibleTypes = self.dm.GetVisibleEpisodes()
         if self.TagsSelectorPresent:
             self.cbList.SetItems(self.EpTypes)
             self.cbList.SetCheckedStrings(self.EpVisibleTypes)
