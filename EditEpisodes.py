@@ -267,7 +267,6 @@ class EditEpisodesWindow(wx.Frame):
         self.WindowParent.OnEpisodesEditEnded()            
 
     def OnManual(self,event):
-        print "Manual edition"
         ManualEditionWindow(self,-1,'Episodes manual edition',self.dm)
         self.manualButton.Disable()
         self.endButton.Disable()
@@ -310,7 +309,8 @@ class ManualEditionWindow(wx.Frame):
     def __init__(self,parent,id,title,dm):
 
         data = [['OBS_APNEA',1,10],['GEN_HYPO',8,4.5],['OBS_APNEA',67,34.25]]
-        wx.Frame.__init__(self, parent, -1, title)
+
+        wx.Frame.__init__(self, parent, -1, title, size=manualEdWindowSize)
 
         self.dm = dm
 
@@ -322,44 +322,51 @@ class ManualEditionWindow(wx.Frame):
        
         sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        myGrid = gridlib.Grid(panel)
+        vboxLeft = wx.BoxSizer(wx.VERTICAL)   
 
-        myGrid.CreateGrid(len(data), 4)
+        self.myGrid = gridlib.Grid(panel)
 
-        myGrid.SetColLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
-        myGrid.SetRowLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
-        myGrid.SetDefaultCellAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
 
-        myGrid.SetColLabelValue(0, "Tag")
-        myGrid.SetColLabelValue(1, "Init time")
-        myGrid.SetColLabelValue(2, "End time")
-        myGrid.SetColLabelValue(3, "Duration")
 
-        myGrid.SetDefaultColSize(150)
+        self.myGrid.CreateGrid(len(data), 4)
+
+        self.myGrid.SetColLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
+        self.myGrid.SetRowLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
+        self.myGrid.SetDefaultCellAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
+
+        self.myGrid.SetColLabelValue(0, "Tag")
+        self.myGrid.SetColLabelValue(1, "Init time")
+        self.myGrid.SetColLabelValue(2, "End time")
+        self.myGrid.SetColLabelValue(3, "Duration")
+
+        self.myGrid.SetDefaultColSize(150)
+
+        
 
         for row in range(len(data)):
             for column in range(len(data[row])):
-                myGrid.SetCellValue(row,column,str(data[row][column]))
-            myGrid.SetCellBackgroundColour(row,0,dm.GetEpisodeColor(data[row][0]))
+                self.myGrid.SetCellValue(row,column,str(data[row][column]))
+            self.myGrid.SetCellBackgroundColour(row,0,dm.GetEpisodeColor(data[row][0]))
 
- 
-        sizer.Add(myGrid, flag = wx.EXPAND| wx.ALL, border=borderBig)
+        self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.OnRangeSelect)
 
-        hbox = wx.BoxSizer(wx.VERTICAL)   
+        vboxRight = wx.BoxSizer(wx.VERTICAL)   
 
-        hbox.AddStretchSpacer(prop=1)
+        vboxRight.AddStretchSpacer(prop=1)
 
         endButton = wx.Button(panel, -1, "Close", size=buttonSizeManualEd)
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
         endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+        vboxRight.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
 
-                
-        sizer.Add(hbox, 0, flag=wx.ALL| wx.EXPAND, border=borderBig)        
+
+        sizer.Add(self.myGrid, 0, flag=wx.ALL, border=borderBig)  
+        sizer.AddStretchSpacer(prop=1)      
+        sizer.Add(vboxRight, 0, flag=wx.ALL|wx.EXPAND, border=borderBig)        
 
         panel.SetSizer(sizer)
 
-        self.SetSize(manualEdWindowSize)
+        # self.SetSize(manualEdWindowSize)
 
         self.SetMinSize(manualEdWindowMinSize)
 
@@ -370,4 +377,14 @@ class ManualEditionWindow(wx.Frame):
     def OnEnd(self,event):
         self.WindowParent.OnManualEnded()
         self.Destroy()
+
+    def OnRangeSelect(self,evt):
+        if evt.Selecting():
+            msg = 'Selected'
+        else:
+            msg = 'Deselected'
+        print "OnRangeSelect: %s  top-left %s, bottom-right %s\n" % (msg, evt.GetTopLeftCoords(),evt.GetBottomRightCoords())
+        # self.myGrid.ClearSelection()
+        evt.Skip()
+
 
