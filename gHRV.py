@@ -819,7 +819,7 @@ class MainWindow(wx.Frame):
     
     def OnKeyPress(self, event):
         if not dm.HasHR():
-            event.Skip()
+            # event.Skip()
             return
         keycode = event.GetKeyCode()
         # print (str(keycode))
@@ -866,7 +866,7 @@ class MainWindow(wx.Frame):
                     except:
                         self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
             dial.Destroy()
-        event.Skip()
+        # event.Skip()
         self.canvas.SetFocus()
     
    
