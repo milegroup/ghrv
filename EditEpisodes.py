@@ -335,7 +335,12 @@ class ManualEditionWindow(wx.Frame):
 
         # ------------ Begin of buttons boxsizer
 
-        vboxRight = wx.BoxSizer(wx.VERTICAL)   
+        vboxRight = wx.BoxSizer(wx.VERTICAL)  
+
+        newButton = wx.Button(self.panel, -1, "New", size=buttonSizeManualEd)
+        self.Bind(wx.EVT_BUTTON, self.OnNew, id=newButton.GetId())
+        newButton.SetToolTip(wx.ToolTip("Click to add a new episode"))
+        vboxRight.Add(newButton, 0, border=borderSmall, flag=wx.RIGHT)
 
         self.delButton = wx.Button(self.panel, -1, "Delete", size=buttonSizeManualEd)
         self.Bind(wx.EVT_BUTTON, self.OnDel, id=self.delButton.GetId())
@@ -453,6 +458,11 @@ class ManualEditionWindow(wx.Frame):
         self.EpisodesChanged=True
         self.delButton.Disable()
 
+    def OnNew(self,event):
+        print "Adding and episode"
+        EpTags = list(set([self.Episodes[i][0] for i in range(len(self.Episodes))]))
+        EpisodeEditWindow(self,-1,EpTags)
+
 
     def OnRangeSelect(self,evt):
         if self.myGrid.IsSelection():
@@ -463,5 +473,84 @@ class ManualEditionWindow(wx.Frame):
             # print "No selection"
             self.delButton.Disable()
         evt.Skip()
+
+class EpisodeEditWindow(wx.Frame):
+
+    def __init__(self, parent, id, EpTags):
+        wx.Frame.__init__(self, parent, wx.ID_ANY)
+        self.WindowParent=parent
+        # self.Bind(wx.EVT_CLOSE,self.OnEnd)
+        panel=wx.Panel(self)
+
+        sizer=wx.BoxSizer(wx.VERTICAL)
+
+        # ------------ Begin of tag selector
+
+        sbTag = wx.StaticBox(panel, label="Episode Tag")
+        sbTagSizer = wx.StaticBoxSizer(sbTag, wx.VERTICAL)
+        if len(EpTags)>0:
+            InitValue=EpTags[0]
+        else:
+            InitValue='NEW_TAG'
+
+        self.cbCombo=wx.ComboBox(panel,choices=EpTags, value=InitValue, style=wx.CB_DROPDOWN)
+        sbTagSizer.Add(self.cbCombo,flag=wx.ALL | wx.EXPAND, border=borderSmall)
+
+        sizer.Add(sbTagSizer,flag=wx.ALL | wx.EXPAND, border=borderSmall)
+
+        # ------------ End of tag selector
+
+        # ------------ Begin of params block
+
+        sbParams = wx.StaticBox(panel,label="Episode parameters")
+        paramsSizer=wx.StaticBoxSizer(sbParams,wx.VERTICAL)
+
+        paramsSizer1=wx.BoxSizer(wx.HORIZONTAL)
+        paramsSizer1.Add(wx.StaticText(panel, label="Init time"), 
+                          flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
+        self.InitTime = wx.TextCtrl(panel,-1,size=textCtrlSize)
+        self.InitTime.SetValue('0.00')
+        paramsSizer1.AddStretchSpacer(prop=1)
+        paramsSizer1.Add(self.InitTime, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
+        paramsSizer.Add(paramsSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
+
+        paramsSizer2=wx.BoxSizer(wx.HORIZONTAL)
+        paramsSizer2.Add(wx.StaticText(panel, label="End time"),
+                          flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
+        self.EndTime = wx.TextCtrl(panel,-1,size=textCtrlSize)
+        self.EndTime.SetValue('100.00')
+        paramsSizer2.AddStretchSpacer(prop=1)
+        paramsSizer2.Add(self.EndTime, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
+        paramsSizer.Add(paramsSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
+
+        paramsSizer3=wx.BoxSizer(wx.HORIZONTAL)
+        paramsSizer3.Add(wx.StaticText(panel, label="Duration"),
+                          flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
+        self.Duration = wx.TextCtrl(panel,-1,size=textCtrlSize)
+        self.Duration.SetValue('100.00')
+        paramsSizer3.AddStretchSpacer(prop=1)
+        paramsSizer3.Add(self.Duration, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
+        paramsSizer.Add(paramsSizer3,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
+
+        sizer.Add(paramsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
+
+        # paramsSizer.Add(wx.StaticText(panel, label="Duration"), pos=(2,0),
+        #                   flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
+        # self.Duration = wx.TextCtrl(panel,-1,size=textCtrlSize)
+        # self.Duration.SetValue('100.00')
+        # paramsSizer.Add(self.Duration, pos=(2,2), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
+
+        # paramsSizer.AddGrowableCol(1,proportion=1)
+
+
+        
+
+        # ------------ End of params block
+
+        panel.SetSizer(sizer)
+        
+        self.Show()
+        self.Center()
+
 
 

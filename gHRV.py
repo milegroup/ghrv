@@ -1142,6 +1142,7 @@ class ConfigurationWindow(wx.Frame):
 
 # ----------------- Beginning of sizer for windows parameters
         sbWindow = wx.StaticBox(panel,label="Window parameters")
+        
         sbWindowSizer=wx.StaticBoxSizer(sbWindow,wx.HORIZONTAL)
         
         
