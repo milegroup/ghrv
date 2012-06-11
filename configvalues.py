@@ -61,8 +61,8 @@ confWindowProjectSizeMac=(425,550)
 reportWindowSize=(800,800)
 reportWindowMinSize=(800,700)
 
-manualEdWindowSize=(900,800)
-manualEdWindowMinSize=(900,600)
+manualEdWindowSize=(900,480)
+manualEdWindowMinSize=(900,400)
 
 
 exportSettingsWindowSize=(500,300)

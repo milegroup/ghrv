@@ -74,11 +74,7 @@ class EditEpisodesWindow(wx.Frame):
         
         self.EpTypes,self.EpVisibleTypes = self.dm.GetVisibleEpisodes()
         
-        if len(self.EpTypes)>0:
-            self.InsertTagsSelector()
-            self.TagsSelectorPresent = True
-        else:
-            self.TagsSelectorPresent = False
+        self.InsertTagsSelector()
 
         # Begin of AddEpisode staticbox
         
@@ -218,7 +214,8 @@ class EditEpisodesWindow(wx.Frame):
             self.sb.SetStatusText(strMessage)
             self.endButton.Disable()
             self.manualButton.Disable()
-            self.cbList.Disable()
+            if hasattr(self, 'cbList'):
+                self.cbList.Disable()
                 
         elif self.NumClicks==1:
             self.cxright=event.xdata
@@ -252,13 +249,16 @@ class EditEpisodesWindow(wx.Frame):
             self.dm.AssignEpisodeColor(Tag)
         self.dm.AddEpisode(self.cxleft,self.cxright,Tag)
         self.cbCombo.Disable()
-        self.cbList.Enable()
+        if hasattr(self, 'cbList'):
+            self.cbList.Enable()
         self.RefreshStatus()
+        self.canvas.draw()
                 
     def OnClear(self, event):
         self.clearButton.Disable()
         self.cbCombo.Disable()
-        self.cbList.Enable()
+        if hasattr(self, 'cbList'):
+            self.cbList.Enable()
         self.RefreshStatus()
         
         
@@ -270,14 +270,19 @@ class EditEpisodesWindow(wx.Frame):
         ManualEditionWindow(self,-1,'Episodes manual edition',self.dm)
         self.manualButton.Disable()
         self.endButton.Disable()
-        self.cbList.Disable()
+        if hasattr(self, 'cbList'):
+            self.cbList.Disable()
         self.manualEditorPresent=True
 
     def OnManualEnded(self):
         self.manualButton.Enable()
         self.endButton.Enable()
-        self.cbList.Enable()
+        self.RefreshStatus()
+        if hasattr(self, 'cbList'):
+            self.cbList.Enable()
         self.manualEditorPresent=False
+        
+        self.canvas.draw()
             
     def RefreshStatus(self):
         self.DrawFigure()
@@ -289,14 +294,11 @@ class EditEpisodesWindow(wx.Frame):
         strMessage=""
         self.sb.SetStatusText(strMessage)
         self.NumClicks=0
+
         self.EpTypes,self.EpVisibleTypes = self.dm.GetVisibleEpisodes()
-        if self.TagsSelectorPresent:
-            self.cbList.SetItems(self.EpTypes)
-            self.cbList.SetCheckedStrings(self.EpVisibleTypes)
-            self.vboxEditEpRightColumn.Layout()
-        else:
-            self.InsertTagsSelector()
-            self.TagsSelectorPresent = True
+        self.cbList.SetItems(self.EpTypes)
+        self.cbList.SetCheckedStrings(self.EpVisibleTypes)
+        self.vboxEditEpRightColumn.Layout()
         self.cbCombo.SetItems(self.EpTypes)
         self.vboxEditEpRightColumn.Layout()
 
@@ -308,27 +310,83 @@ class ManualEditionWindow(wx.Frame):
 
     def __init__(self,parent,id,title,dm):
 
-        data = [['OBS_APNEA',1,10],['GEN_HYPO',8,4.5],['OBS_APNEA',67,34.25]]
-
         wx.Frame.__init__(self, parent, -1, title, size=manualEdWindowSize)
 
         self.dm = dm
-
         self.Bind(wx.EVT_CLOSE,self.OnEnd)  
-        
         self.WindowParent=parent
+        self.panel = wx.Panel(self)
+        self.EpisodesChanged=False
 
-        panel = wx.Panel(self)
+        self.__GetEpisodesInfo()
        
         sizer = wx.BoxSizer(wx.HORIZONTAL)
 
+        # ------------ Begin of episodes grid
+
         vboxLeft = wx.BoxSizer(wx.VERTICAL)   
 
-        self.myGrid = gridlib.Grid(panel)
+        
+        self.__CreateGrid()
+
+        self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.OnRangeSelect)
+
+        # ------------ End of episodes grid
+
+        # ------------ Begin of buttons boxsizer
+
+        vboxRight = wx.BoxSizer(wx.VERTICAL)   
+
+        self.delButton = wx.Button(self.panel, -1, "Delete", size=buttonSizeManualEd)
+        self.Bind(wx.EVT_BUTTON, self.OnDel, id=self.delButton.GetId())
+        self.delButton.SetToolTip(wx.ToolTip("Click to delete selected episodes"))
+        vboxRight.Add(self.delButton, 0, border=borderSmall, flag=wx.RIGHT)
+        self.delButton.Disable()
+
+        vboxRight.AddStretchSpacer(prop=1)
+
+        endButton = wx.Button(self.panel, -1, "Close", size=buttonSizeManualEd)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
+        endButton.SetToolTip(wx.ToolTip("Click to close window"))
+        vboxRight.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+
+        # ------------ End of buttons boxsizer
 
 
+        sizer.Add(self.myGrid, 0, flag=wx.ALL, border=borderBig)  
+        sizer.AddStretchSpacer(prop=1)      
+        sizer.Add(vboxRight, 0, flag=wx.ALL|wx.EXPAND, border=borderBig)        
 
-        self.myGrid.CreateGrid(len(data), 4)
+        self.panel.SetSizer(sizer)
+
+        # self.SetSize(manualEdWindowSize)
+
+        self.SetMinSize(manualEdWindowMinSize)
+
+        self.Show(True)
+        self.Layout()
+        self.Refresh()
+
+    def __GetEpisodesInfo(self):
+        EpInfo = self.dm.GetEpisodes()[0:3]
+        self.Episodes = []
+        for index in range(len(EpInfo[0])):
+            self.Episodes.append([
+                EpInfo[0][index],
+                EpInfo[1][index],
+                EpInfo[1][index]+EpInfo[2][index],
+                EpInfo[2][index]
+                ])
+        self.Episodes.sort(key = lambda x: x[1])
+        # print str(self.Episodes)
+
+    def __CreateGrid(self):
+
+        #Estimates brightness of colours. If it is dark, changes text color to white
+
+        self.myGrid = gridlib.Grid(self.panel)
+
+        self.myGrid.CreateGrid(len(self.Episodes), 4, selmode=wx.grid.Grid.wxGridSelectRows)
 
         self.myGrid.SetColLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
         self.myGrid.SetRowLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
@@ -341,50 +399,69 @@ class ManualEditionWindow(wx.Frame):
 
         self.myGrid.SetDefaultColSize(150)
 
-        
 
-        for row in range(len(data)):
-            for column in range(len(data[row])):
-                self.myGrid.SetCellValue(row,column,str(data[row][column]))
-            self.myGrid.SetCellBackgroundColour(row,0,dm.GetEpisodeColor(data[row][0]))
+        for row in range(len(self.Episodes)):
+            for column in range(len(self.Episodes[row])):
+                cellValue = self.Episodes[row][column]
+                if column != 0:
+                    cellValueStr = "%.2f" % cellValue
+                else:
+                    cellValueStr = str(cellValue)
+                self.myGrid.SetCellValue(row,column,cellValueStr)
+                self.myGrid.SetReadOnly(row,column)
+            colorTag = self.dm.GetEpisodeColor(self.Episodes[row][0])
 
-        self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.OnRangeSelect)
+            # print  "Tag: ",self.Episodes[row][0],"   ",str(colorTag)
+            
+            #Estimates brightness of colours. If it is dark, changes text color to white
 
-        vboxRight = wx.BoxSizer(wx.VERTICAL)   
+            colorwx = wx.Colour()
 
-        vboxRight.AddStretchSpacer(prop=1)
+            if type(colorTag) != tuple:
+                colorwx.SetFromName(colorTag)
+                CT=colorwx.Get(includeAlpha=False)
+                colorTagBrightness = int(round(0.299*CT[0] + 0.587*CT[1] + 0.114*CT[2]))
+                
+            else:
+                CT = colorTag
+                colorwx.Set(CT[0]*255,CT[1]*255,CT[2]*255,0)
+                colorTagBrightness = int(round(0.299*CT[0]*255 + 0.587*CT[1]*255 + 0.114*CT[2]*255))
 
-        endButton = wx.Button(panel, -1, "Close", size=buttonSizeManualEd)
-        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
-        endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        vboxRight.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+            self.myGrid.SetCellBackgroundColour(row,0,colorwx)
+            # print "Tag: ",self.Episodes[row][0],"   -   Brightness: ",colorTagBrightness
+            if colorTagBrightness < 100:
+                self.myGrid.SetCellTextColour(row,0,'white')
 
-
-        sizer.Add(self.myGrid, 0, flag=wx.ALL, border=borderBig)  
-        sizer.AddStretchSpacer(prop=1)      
-        sizer.Add(vboxRight, 0, flag=wx.ALL|wx.EXPAND, border=borderBig)        
-
-        panel.SetSizer(sizer)
-
-        # self.SetSize(manualEdWindowSize)
-
-        self.SetMinSize(manualEdWindowMinSize)
-
-        self.Show(True)
-        self.Layout()
-        self.Refresh()
-
+            
     def OnEnd(self,event):
+        if self.EpisodesChanged:
+            self.dm.SetEpisodes(self.Episodes)
         self.WindowParent.OnManualEnded()
         self.Destroy()
 
+    def OnDel(self,event):
+        EpToRemove=[]
+        for row in range(len(self.Episodes)):
+            if self.myGrid.IsInSelection(row,0):
+                EpToRemove.append(row)
+        # print "Going to delete: ",str(EpToRemove)
+        self.Episodes=[self.Episodes[i] for i in range(len(self.Episodes)) if i not in EpToRemove]
+
+        EpToRemove.reverse()
+        for Ep in EpToRemove:
+            self.myGrid.DeleteRows(Ep,1)
+        self.EpisodesChanged=True
+        self.delButton.Disable()
+
+
     def OnRangeSelect(self,evt):
-        if evt.Selecting():
-            msg = 'Selected'
+        if self.myGrid.IsSelection():
+            # print "Selection active"
+            self.delButton.Enable()
+
         else:
-            msg = 'Deselected'
-        print "OnRangeSelect: %s  top-left %s, bottom-right %s\n" % (msg, evt.GetTopLeftCoords(),evt.GetBottomRightCoords())
-        # self.myGrid.ClearSelection()
+            # print "No selection"
+            self.delButton.Disable()
         evt.Skip()
 
 

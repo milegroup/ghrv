@@ -570,6 +570,9 @@ class MainWindow(wx.Frame):
             #     dm.CalculateFrameBasedParams(showProgress=True)
             # self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters",dm)
             # self.fbWindowPresent=True
+            # self.RefreshMainWindowButtons()
+            EditEpisodesWindow(self,-1,'Episodes Edition',dm)
+            self.editEpisodesWindowPresent=True
             self.RefreshMainWindowButtons()
             
         

@@ -508,6 +508,30 @@ class DM:
         self.data["EpisodesDuration"].append(float(end)-float(init))
         if tag not in self.data["EpisodesVisible"]:
             self.data["EpisodesVisible"].append(tag)
+
+    def SetEpisodes(self,Episodes):
+        if (self.data["Verbose"]):
+            print ("** Changing episodes from manual edition")
+
+        if len(Episodes)==0:
+            self.ClearEpisodes()
+            self.ClearColors()
+            if (self.data["Verbose"]):
+                print ("   Episodes information removed")
+            return
+
+        EpVis = list(self.data["EpisodesVisible"])
+        self.__CreatesEpisodesInfo()
+        for Ep in Episodes:
+            self.data["EpisodesType"].append(Ep[0])
+            self.data["EpisodesInitTime"].append(Ep[1])
+            self.data["EpisodesDuration"].append(Ep[3])
+
+        # Removes tags label if all episodes of this label were removed
+        self.data["EpisodesVisible"]=[Tag for Tag in EpVis if Tag in self.data["EpisodesType"]]
+
+        if (self.data["Verbose"]):
+            print("   Number of episodes: "+str(len(Episodes)))
                         
     def ReplaceHRVectors(self,xvector,yvector,rrvector):
         """After EditNIHR the beats (Time, niHR and RR) are replaced"""
