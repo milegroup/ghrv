@@ -325,9 +325,6 @@ class ManualEditionWindow(wx.Frame):
 
         # ------------ Begin of episodes grid
 
-        vboxLeft = wx.BoxSizer(wx.VERTICAL)   
-
-        
         self.__CreateGrid()
 
         self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.OnRangeSelect)
@@ -392,7 +389,7 @@ class ManualEditionWindow(wx.Frame):
 
         self.myGrid = gridlib.Grid(self.panel)
 
-        self.myGrid.CreateGrid(len(self.Episodes), 4, selmode=wx.grid.Grid.wxGridSelectRows)
+        self.myGrid.CreateGrid(len(self.Episodes)+5, 4, selmode=wx.grid.Grid.wxGridSelectRows)
 
         self.myGrid.SetColLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
         self.myGrid.SetRowLabelAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTER)
@@ -415,28 +412,34 @@ class ManualEditionWindow(wx.Frame):
                     cellValueStr = str(cellValue)
                 self.myGrid.SetCellValue(row,column,cellValueStr)
                 self.myGrid.SetReadOnly(row,column)
+
             colorTag = self.dm.GetEpisodeColor(self.Episodes[row][0])
+            colors = self.GetColors(colorTag)
+            self.myGrid.SetCellBackgroundColour(row,0,colors["bg"])
+            self.myGrid.SetCellTextColour(row,0,colors["fg"])
 
-            # print  "Tag: ",self.Episodes[row][0],"   ",str(colorTag)
+    def GetColors(self, colorTag):
+
+        bg = wx.Colour()
+
+        if type(colorTag) != tuple:
+            bg.SetFromName(colorTag)
+            CT=bg.Get(includeAlpha=False)
+            colorTagBrightness = int(round(0.299*CT[0] + 0.587*CT[1] + 0.114*CT[2]))
             
-            #Estimates brightness of colours. If it is dark, changes text color to white
+        else:
+            CT = colorTag
+            bg.Set(CT[0]*255,CT[1]*255,CT[2]*255,0)
+            colorTagBrightness = int(round(0.299*CT[0]*255 + 0.587*CT[1]*255 + 0.114*CT[2]*255))
 
-            colorwx = wx.Colour()
+        #Estimates brightness of colours. If it is dark, changes text color to white
 
-            if type(colorTag) != tuple:
-                colorwx.SetFromName(colorTag)
-                CT=colorwx.Get(includeAlpha=False)
-                colorTagBrightness = int(round(0.299*CT[0] + 0.587*CT[1] + 0.114*CT[2]))
-                
-            else:
-                CT = colorTag
-                colorwx.Set(CT[0]*255,CT[1]*255,CT[2]*255,0)
-                colorTagBrightness = int(round(0.299*CT[0]*255 + 0.587*CT[1]*255 + 0.114*CT[2]*255))
+        if colorTagBrightness < 100:
+            fg="white"
+        else:
+            fg="black"
 
-            self.myGrid.SetCellBackgroundColour(row,0,colorwx)
-            # print "Tag: ",self.Episodes[row][0],"   -   Brightness: ",colorTagBrightness
-            if colorTagBrightness < 100:
-                self.myGrid.SetCellTextColour(row,0,'white')
+        return {"fg":fg,"bg":bg}
 
             
     def OnEnd(self,event):
@@ -462,7 +465,43 @@ class ManualEditionWindow(wx.Frame):
     def OnNew(self,event):
         # print "Adding and episode"
         EpTags = list(set([self.Episodes[i][0] for i in range(len(self.Episodes))]))
-        EpisodeEditWindow(self,-1,EpTags)
+        EpisodeEditWindow(self,-1,EpTags,self.dm)
+
+    def OnNewEnded(self,values):
+        # print "Adding: ",str(values)
+        EpToInsert = [values["tag"],values["InitTime"],values["EndTime"],values["Duration"]]
+        position=0
+        for index in range(len(self.Episodes)):
+            # print "Values: ",values["InitTime"]
+            # print "Self: ",self.Episodes[index][1]
+            if values["InitTime"]>self.Episodes[index][1]:
+                position=index+1
+            # print "Position: ",position
+
+        self.myGrid.InsertRows(pos=position,numRows=1)
+        self.myGrid.SetCellValue(position,0,values["tag"])
+        self.myGrid.SetReadOnly(position,0)
+        self.myGrid.SetCellValue(position,1,"%.2f" % values["InitTime"])
+        self.myGrid.SetReadOnly(position,1)
+        self.myGrid.SetCellValue(position,2,"%.2f" % values["EndTime"])
+        self.myGrid.SetReadOnly(position,2)
+        self.myGrid.SetCellValue(position,3,"%.2f" % values["Duration"])
+        self.myGrid.SetReadOnly(position,3)
+
+        colorTag = self.dm.GetEpisodeColor(values["tag"])
+        colors = self.GetColors(colorTag)
+        self.myGrid.SetCellBackgroundColour(position,0,colors["bg"])
+        self.myGrid.SetCellTextColour(position,0,colors["fg"])
+
+
+        self.Episodes.append(EpToInsert)
+        self.Episodes.sort(key = lambda x: x[1])
+
+        lastRow=self.myGrid.GetNumberRows()-1
+        if self.myGrid.GetCellValue(lastRow,0)=="":
+            self.myGrid.DeleteRows(lastRow,1)
+
+        self.EpisodesChanged=True
 
 
     def OnRangeSelect(self,evt):
@@ -475,9 +514,10 @@ class ManualEditionWindow(wx.Frame):
             self.delButton.Disable()
         evt.Skip()
 
+
 class EpisodeEditWindow(wx.Frame):
 
-    def __init__(self, parent, id, EpTags):
+    def __init__(self, parent, id, EpTags,dm):
         if platform != 'darwin':
             wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSize)
         else:
@@ -487,6 +527,8 @@ class EpisodeEditWindow(wx.Frame):
         panel=wx.Panel(self)
 
         self.values={'tag':'','InitTime':0,'EndTime':0,'Duration':0}
+        self.EpTags=EpTags
+        self.dm = dm
 
         sizer=wx.BoxSizer(wx.VERTICAL)
 
@@ -494,12 +536,12 @@ class EpisodeEditWindow(wx.Frame):
 
         sbTag = wx.StaticBox(panel, label="Episode Tag")
         sbTagSizer = wx.StaticBoxSizer(sbTag, wx.VERTICAL)
-        if len(EpTags)>0:
-            InitValue=EpTags[0]
+        if len(self.EpTags)>0:
+            InitValue=self.EpTags[0]
         else:
             InitValue='NEW_TAG'
 
-        self.cbCombo=wx.ComboBox(panel,choices=EpTags, value=InitValue, style=wx.CB_DROPDOWN)
+        self.cbCombo=wx.ComboBox(panel,choices=self.EpTags, value=InitValue, style=wx.CB_DROPDOWN)
         sbTagSizer.Add(self.cbCombo,flag=wx.ALL | wx.EXPAND, border=borderSmall)
 
         sizer.Add(sbTagSizer,flag=wx.ALL | wx.EXPAND, border=borderSmall)
@@ -524,19 +566,11 @@ class EpisodeEditWindow(wx.Frame):
         paramsSizer2.Add(wx.StaticText(panel, label="End time"),
                           flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
         self.EndTime = wx.TextCtrl(panel,-1,size=textCtrlSizeBig)
-        self.EndTime.Bind(wx.EVT_KILL_FOCUS, self.OnValuesChanged)
+        self.EndTime.Bind(wx.EVT_KILL_FOCUS, self.OnEndChanged)
         paramsSizer2.AddStretchSpacer(prop=1)
         paramsSizer2.Add(self.EndTime, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
         paramsSizer.Add(paramsSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
 
-        paramsSizer3=wx.BoxSizer(wx.HORIZONTAL)
-        paramsSizer3.Add(wx.StaticText(panel, label="Duration"),
-                          flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
-        self.Duration = wx.TextCtrl(panel,-1,size=textCtrlSizeBig)
-        self.Duration.Bind(wx.EVT_KILL_FOCUS, self.OnValuesChanged)
-        paramsSizer3.AddStretchSpacer(prop=1)
-        paramsSizer3.Add(self.Duration, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
-        paramsSizer.Add(paramsSizer3,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
 
         self.RefreshValues()
 
@@ -575,7 +609,24 @@ class EpisodeEditWindow(wx.Frame):
         self.Center()
 
     def OnAdd(self,event):
-        return
+        self.values["tag"]=str(self.cbCombo.GetValue())
+        try:
+            Init = float(self.InitTime.GetValue())
+            End = float(self.EndTime.GetValue())
+        except:
+            self.InitTime.SetValue("%.2f" % self.values["InitTime"])
+            self.EndTime.SetValue("%.2f" % self.values["EndTime"])
+            return
+        self.values["InitTime"]=Init
+        self.values["EndTime"]=End
+        self.values["Duration"]=End-Init
+        # print "Going to add: ", str(self.values)
+        if self.values["tag"] not in self.EpTags:
+            self.dm.AssignEpisodeColor(self.values["tag"])
+            self.EpTags.append(self.values["tag"])
+        self.dm.AddEpisode(self.values["InitTime"],self.values["EndTime"],self.values["tag"])
+        self.WindowParent.OnNewEnded(self.values)
+        self.Destroy()
 
     def OnInitChanged(self,event):
         try: 
@@ -584,22 +635,20 @@ class EpisodeEditWindow(wx.Frame):
             self.InitTime.SetValue("%.2f" % self.values["InitTime"])
             return
         self.values["InitTime"]=Init
-        self.values["Duration"]=self.values["EndTime"]-self.values["InitTime"]
         self.RefreshValues()
-        
+
+    def OnEndChanged(self,event):
+        try: 
+            End = float(self.EndTime.GetValue())
+        except:
+            self.EndTime.SetValue("%.2f" % self.values["EndTime"])
+            return
+        self.values["EndTime"]=End
+        self.RefreshValues()
 
     def RefreshValues(self):
         self.InitTime.SetValue("%.2f" % self.values["InitTime"])
         self.EndTime.SetValue("%.2f" % self.values['EndTime'])
-        self.Duration.SetValue("%.2f" % self.values["Duration"])
-        
-
-    def OnValuesChanged(self,event):
-        End = self.EndTime.GetValue()
-        Dur = self.Duration.GetValue()
-
-
-        return
 
     def OnEnd(self,event):
         self.Destroy()

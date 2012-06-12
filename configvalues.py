@@ -66,8 +66,8 @@ manualEdWindowMinSize=(900,400)
 
 addEpWinSize=(250,290)
 addEpWinMinSize=(320,290)
-addEpWinSizeMac=(290,330)
-addEpWinMinSizeMac=(250,320)
+addEpWinSizeMac=(290,280)
+addEpWinMinSizeMac=(250,280)
 
 
 exportSettingsWindowSize=(500,300)
@@ -98,7 +98,7 @@ buttonSizeManualEd=(120,35)
 buttonSizeEditEpisodes=(120,35)
 
 textCtrlSize=(60,25)
-textCtrlSizeBig=(100,25)
+textCtrlSizeBig=(80,25)
 
 
 verticalFactorPBPlot=0.9
