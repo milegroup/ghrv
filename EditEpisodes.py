@@ -57,6 +57,7 @@ class EditEpisodesWindow(wx.Frame):
         self.canvas.mpl_connect('button_press_event', self.OnClick)
         
         self.axes = self.fig.add_subplot(111)
+        self.fig.subplots_adjust(left=0.07, bottom=0.07, right=0.98, top=0.94, wspace=0.20, hspace=0.15)
         self.xvector, self.yvector= self.dm.GetHRDataPlot()
         
         self.ymin=min(self.yvector)
@@ -459,7 +460,7 @@ class ManualEditionWindow(wx.Frame):
         self.delButton.Disable()
 
     def OnNew(self,event):
-        print "Adding and episode"
+        # print "Adding and episode"
         EpTags = list(set([self.Episodes[i][0] for i in range(len(self.Episodes))]))
         EpisodeEditWindow(self,-1,EpTags)
 
@@ -477,10 +478,15 @@ class ManualEditionWindow(wx.Frame):
 class EpisodeEditWindow(wx.Frame):
 
     def __init__(self, parent, id, EpTags):
-        wx.Frame.__init__(self, parent, wx.ID_ANY)
+        if platform != 'darwin':
+            wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSize)
+        else:
+            wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSizeMac)
         self.WindowParent=parent
         # self.Bind(wx.EVT_CLOSE,self.OnEnd)
         panel=wx.Panel(self)
+
+        self.values={'tag':'','InitTime':0,'EndTime':0,'Duration':0}
 
         sizer=wx.BoxSizer(wx.VERTICAL)
 
@@ -508,8 +514,8 @@ class EpisodeEditWindow(wx.Frame):
         paramsSizer1=wx.BoxSizer(wx.HORIZONTAL)
         paramsSizer1.Add(wx.StaticText(panel, label="Init time"), 
                           flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
-        self.InitTime = wx.TextCtrl(panel,-1,size=textCtrlSize)
-        self.InitTime.SetValue('0.00')
+        self.InitTime = wx.TextCtrl(panel,-1,size=textCtrlSizeBig)
+        self.InitTime.Bind(wx.EVT_KILL_FOCUS, self.OnInitChanged)
         paramsSizer1.AddStretchSpacer(prop=1)
         paramsSizer1.Add(self.InitTime, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
         paramsSizer.Add(paramsSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
@@ -517,8 +523,8 @@ class EpisodeEditWindow(wx.Frame):
         paramsSizer2=wx.BoxSizer(wx.HORIZONTAL)
         paramsSizer2.Add(wx.StaticText(panel, label="End time"),
                           flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
-        self.EndTime = wx.TextCtrl(panel,-1,size=textCtrlSize)
-        self.EndTime.SetValue('100.00')
+        self.EndTime = wx.TextCtrl(panel,-1,size=textCtrlSizeBig)
+        self.EndTime.Bind(wx.EVT_KILL_FOCUS, self.OnValuesChanged)
         paramsSizer2.AddStretchSpacer(prop=1)
         paramsSizer2.Add(self.EndTime, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
         paramsSizer.Add(paramsSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
@@ -526,31 +532,77 @@ class EpisodeEditWindow(wx.Frame):
         paramsSizer3=wx.BoxSizer(wx.HORIZONTAL)
         paramsSizer3.Add(wx.StaticText(panel, label="Duration"),
                           flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
-        self.Duration = wx.TextCtrl(panel,-1,size=textCtrlSize)
-        self.Duration.SetValue('100.00')
+        self.Duration = wx.TextCtrl(panel,-1,size=textCtrlSizeBig)
+        self.Duration.Bind(wx.EVT_KILL_FOCUS, self.OnValuesChanged)
         paramsSizer3.AddStretchSpacer(prop=1)
         paramsSizer3.Add(self.Duration, flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
         paramsSizer.Add(paramsSizer3,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
 
+        self.RefreshValues()
+
         sizer.Add(paramsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=borderSmall)
-
-        # paramsSizer.Add(wx.StaticText(panel, label="Duration"), pos=(2,0),
-        #                   flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL, border=borderVeryBig)
-        # self.Duration = wx.TextCtrl(panel,-1,size=textCtrlSize)
-        # self.Duration.SetValue('100.00')
-        # paramsSizer.Add(self.Duration, pos=(2,2), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
-
-        # paramsSizer.AddGrowableCol(1,proportion=1)
-
-
-        
 
         # ------------ End of params block
 
+        # ------------ Begin of sizer for buttons
+
+        buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        buttonCancel = wx.Button(panel, -1, label="Cancel")
+        buttonSizer.Add(buttonCancel, flag=wx.ALL, border=borderSmall)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=buttonCancel.GetId())
+        buttonCancel.SetToolTip(wx.ToolTip("Click to cancel"))
+
+        buttonSizer.AddStretchSpacer(prop=1)
+
+        buttonAdd = wx.Button(panel, -1, label="Ok")
+        buttonSizer.Add(buttonAdd, flag=wx.ALL, border=borderSmall)
+        self.Bind(wx.EVT_BUTTON, self.OnAdd, id=buttonAdd.GetId())
+        buttonAdd.SetToolTip(wx.ToolTip("Click to add episode"))
+
+        sizer.Add(buttonSizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
+
+        # ------------ End of sizer for buttons
+
         panel.SetSizer(sizer)
+
+        if platform != 'darwin':
+            self.SetMinSize(addEpWinMinSize)
+        else:
+            self.SetMinSize(addEpWinMinSizeMac)
         
         self.Show()
         self.Center()
+
+    def OnAdd(self,event):
+        return
+
+    def OnInitChanged(self,event):
+        try: 
+            Init = float(self.InitTime.GetValue())
+        except:
+            self.InitTime.SetValue("%.2f" % self.values["InitTime"])
+            return
+        self.values["InitTime"]=Init
+        self.values["Duration"]=self.values["EndTime"]-self.values["InitTime"]
+        self.RefreshValues()
+        
+
+    def RefreshValues(self):
+        self.InitTime.SetValue("%.2f" % self.values["InitTime"])
+        self.EndTime.SetValue("%.2f" % self.values['EndTime'])
+        self.Duration.SetValue("%.2f" % self.values["Duration"])
+        
+
+    def OnValuesChanged(self,event):
+        End = self.EndTime.GetValue()
+        Dur = self.Duration.GetValue()
+
+
+        return
+
+    def OnEnd(self,event):
+        self.Destroy()
 
 
 
