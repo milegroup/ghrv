@@ -64,8 +64,8 @@ reportWindowMinSize=(800,700)
 manualEdWindowSize=(900,480)
 manualEdWindowMinSize=(900,400)
 
-addEpWinSize=(250,290)
-addEpWinMinSize=(320,290)
+addEpWinSize=(250,235)
+addEpWinMinSize=(320,235)
 addEpWinSizeMac=(290,280)
 addEpWinMinSizeMac=(250,280)
 
