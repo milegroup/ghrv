@@ -338,12 +338,12 @@ class ManualEditionWindow(wx.Frame):
         newButton = wx.Button(self.panel, -1, "New", size=buttonSizeManualEd)
         self.Bind(wx.EVT_BUTTON, self.OnNew, id=newButton.GetId())
         newButton.SetToolTip(wx.ToolTip("Click to add a new episode"))
-        vboxRight.Add(newButton, 0, border=borderSmall, flag=wx.RIGHT)
+        vboxRight.Add(newButton, 0, border=borderSmall, flag=wx.ALL)
 
         self.delButton = wx.Button(self.panel, -1, "Delete", size=buttonSizeManualEd)
         self.Bind(wx.EVT_BUTTON, self.OnDel, id=self.delButton.GetId())
         self.delButton.SetToolTip(wx.ToolTip("Click to delete selected episodes"))
-        vboxRight.Add(self.delButton, 0, border=borderSmall, flag=wx.RIGHT)
+        vboxRight.Add(self.delButton, 0, border=borderSmall, flag=wx.ALL)
         self.delButton.Disable()
 
         vboxRight.AddStretchSpacer(prop=1)
@@ -351,7 +351,7 @@ class ManualEditionWindow(wx.Frame):
         endButton = wx.Button(self.panel, -1, "Close", size=buttonSizeManualEd)
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
         endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        vboxRight.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+        vboxRight.Add(endButton, 0, border=borderSmall, flag=wx.ALL)
 
         # ------------ End of buttons boxsizer
 
@@ -371,16 +371,17 @@ class ManualEditionWindow(wx.Frame):
         self.Refresh()
 
     def __GetEpisodesInfo(self):
-        EpInfo = self.dm.GetEpisodes()[0:3]
         self.Episodes = []
-        for index in range(len(EpInfo[0])):
-            self.Episodes.append([
-                EpInfo[0][index],
-                EpInfo[1][index],
-                EpInfo[1][index]+EpInfo[2][index],
-                EpInfo[2][index]
-                ])
-        self.Episodes.sort(key = lambda x: x[1])
+        if self.dm.HasEpisodes():
+            EpInfo = self.dm.GetEpisodes()[0:3]
+            for index in range(len(EpInfo[0])):
+                self.Episodes.append([
+                    EpInfo[0][index],
+                    EpInfo[1][index],
+                    EpInfo[1][index]+EpInfo[2][index],
+                    EpInfo[2][index]
+                    ])
+            self.Episodes.sort(key = lambda x: x[1])
         # print str(self.Episodes)
 
     def __CreateGrid(self):
@@ -444,7 +445,12 @@ class ManualEditionWindow(wx.Frame):
             
     def OnEnd(self,event):
         if self.EpisodesChanged:
-            self.dm.SetEpisodes(self.Episodes)
+            if len(self.Episodes)==0:
+                self.dm.ClearEpisodes()
+                self.dm.ClearColors()
+            else:
+                self.dm.SetEpisodes(self.Episodes)
+
         self.WindowParent.OnManualEnded()
         self.Destroy()
 
@@ -454,18 +460,30 @@ class ManualEditionWindow(wx.Frame):
             if self.myGrid.IsInSelection(row,0):
                 EpToRemove.append(row)
         # print "Going to delete: ",str(EpToRemove)
+
         self.Episodes=[self.Episodes[i] for i in range(len(self.Episodes)) if i not in EpToRemove]
 
         EpToRemove.reverse()
         for Ep in EpToRemove:
             self.myGrid.DeleteRows(Ep,1)
+
         self.EpisodesChanged=True
         self.delButton.Disable()
 
     def OnNew(self,event):
         # print "Adding and episode"
         EpTags = list(set([self.Episodes[i][0] for i in range(len(self.Episodes))]))
-        EpisodeEditWindow(self,-1,EpTags,self.dm)
+        EpSelected=[]
+        for row in range(len(self.Episodes)):
+            if self.myGrid.IsInSelection(row,0):
+                EpSelected.append(row)
+        if len(EpSelected)==1:
+            index = EpSelected[0]
+            EpSelectedInfo = {"tag":self.Episodes[index][0],"InitTime":self.Episodes[index][1],"EndTime":self.Episodes[index][2]}
+        else:
+            EpSelectedInfo = None
+        print "Selected: ",len(EpSelected)
+        EpisodeEditWindow(self,-1,EpTags,self.dm,EpSelectedInfo)
 
     def OnNewEnded(self,values):
         # print "Adding: ",str(values)
@@ -517,7 +535,7 @@ class ManualEditionWindow(wx.Frame):
 
 class EpisodeEditWindow(wx.Frame):
 
-    def __init__(self, parent, id, EpTags,dm):
+    def __init__(self, parent, id, EpTags,dm,EpSelectedInfo):
         if platform != 'darwin':
             wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSize)
         else:
@@ -526,7 +544,11 @@ class EpisodeEditWindow(wx.Frame):
         # self.Bind(wx.EVT_CLOSE,self.OnEnd)
         panel=wx.Panel(self)
 
-        self.values={'tag':'','InitTime':0,'EndTime':0,'Duration':0}
+        if EpSelectedInfo == None:
+            self.values={'tag':'','InitTime':0,'EndTime':0,'Duration':0}
+        else:
+            self.values={'tag':EpSelectedInfo["tag"],'InitTime':EpSelectedInfo["InitTime"],'EndTime':EpSelectedInfo["EndTime"],'Duration':0}
+
         self.EpTags=EpTags
         self.dm = dm
 
@@ -537,7 +559,10 @@ class EpisodeEditWindow(wx.Frame):
         sbTag = wx.StaticBox(panel, label="Episode Tag")
         sbTagSizer = wx.StaticBoxSizer(sbTag, wx.VERTICAL)
         if len(self.EpTags)>0:
-            InitValue=self.EpTags[0]
+            if EpSelectedInfo==None:
+                InitValue=self.EpTags[0]
+            else:
+                InitValue = self.values["tag"]
         else:
             InitValue='NEW_TAG'
 
