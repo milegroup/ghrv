@@ -26,6 +26,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
+# TODO: problema si añado episodio y luego cancelo
+
+
 import wx
 from configvalues import *
 import matplotlib
@@ -278,6 +281,10 @@ class EditEpisodesWindow(wx.Frame):
     def OnManualEnded(self):
         self.manualButton.Enable()
         self.endButton.Enable()
+        self.dm.PurgeVisibleEpisodes()
+        # Eps=self.dm.GetVisibleEpisodes()
+        # print "Tags: ",str(Eps[0])
+        # print "Vis: ",str(Eps[1])
         self.RefreshStatus()
         if hasattr(self, 'cbList'):
             self.cbList.Enable()
@@ -303,11 +310,14 @@ class EditEpisodesWindow(wx.Frame):
         self.cbCombo.SetItems(self.EpTypes)
         self.vboxEditEpRightColumn.Layout()
 
+
 # ------------------------------------------------
 
 
 
 class ManualEditionWindow(wx.Frame):
+
+    """ Window with grid to edit episodes manually"""
 
     def __init__(self,parent,id,title,dm):
 
@@ -335,10 +345,16 @@ class ManualEditionWindow(wx.Frame):
 
         vboxRight = wx.BoxSizer(wx.VERTICAL)  
 
-        newButton = wx.Button(self.panel, -1, "New", size=buttonSizeManualEd)
-        self.Bind(wx.EVT_BUTTON, self.OnNew, id=newButton.GetId())
-        newButton.SetToolTip(wx.ToolTip("Click to add a new episode"))
-        vboxRight.Add(newButton, 0, border=borderSmall, flag=wx.ALL)
+        self.newButton = wx.Button(self.panel, -1, "New", size=buttonSizeManualEd)
+        self.Bind(wx.EVT_BUTTON, self.OnNew, id=self.newButton.GetId())
+        self.newButton.SetToolTip(wx.ToolTip("Click to add a new episode"))
+        vboxRight.Add(self.newButton, 0, border=borderSmall, flag=wx.ALL)
+
+        self.editButton = wx.Button(self.panel, -1, "Edit", size=buttonSizeManualEd)
+        self.Bind(wx.EVT_BUTTON, self.OnEdit, id=self.editButton.GetId())
+        self.editButton.SetToolTip(wx.ToolTip("Click to edit selected episode"))
+        vboxRight.Add(self.editButton, 0, border=borderSmall, flag=wx.ALL)
+        self.editButton.Disable()
 
         self.delButton = wx.Button(self.panel, -1, "Delete", size=buttonSizeManualEd)
         self.Bind(wx.EVT_BUTTON, self.OnDel, id=self.delButton.GetId())
@@ -348,10 +364,10 @@ class ManualEditionWindow(wx.Frame):
 
         vboxRight.AddStretchSpacer(prop=1)
 
-        endButton = wx.Button(self.panel, -1, "Close", size=buttonSizeManualEd)
-        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
-        endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        vboxRight.Add(endButton, 0, border=borderSmall, flag=wx.ALL)
+        self.endButton = wx.Button(self.panel, -1, "End", size=buttonSizeManualEd)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=self.endButton.GetId())
+        self.endButton.SetToolTip(wx.ToolTip("Click to close window"))
+        vboxRight.Add(self.endButton, 0, border=borderSmall, flag=wx.ALL)
 
         # ------------ End of buttons boxsizer
 
@@ -445,20 +461,28 @@ class ManualEditionWindow(wx.Frame):
             
     def OnEnd(self,event):
         if self.EpisodesChanged:
-            if len(self.Episodes)==0:
-                self.dm.ClearEpisodes()
-                self.dm.ClearColors()
-            else:
-                self.dm.SetEpisodes(self.Episodes)
-
-        self.WindowParent.OnManualEnded()
-        self.Destroy()
+            strMessage="Episodes have been changed"
+            strMessage += "\nApply changes?"
+            dial = wx.MessageDialog(self, strMessage, "Confirm changes", wx.CANCEL | wx.YES_NO | wx.ICON_QUESTION)
+            result = dial.ShowModal()
+            dial.Destroy()
+            if result == wx.ID_YES: 
+                if len(self.Episodes)==0:
+                    self.dm.ClearEpisodes()
+                    self.dm.ClearColors()
+                else:
+                    self.dm.SetEpisodes(self.Episodes)
+                self.WindowParent.OnManualEnded()
+                self.Destroy()
+            elif result == wx.ID_NO:
+                self.WindowParent.OnManualEnded()
+                self.Destroy()
+        else:   
+            self.WindowParent.OnManualEnded()
+            self.Destroy()
 
     def OnDel(self,event):
-        EpToRemove=[]
-        for row in range(len(self.Episodes)):
-            if self.myGrid.IsInSelection(row,0):
-                EpToRemove.append(row)
+        EpToRemove=self.GetEpisodesSelected()
         # print "Going to delete: ",str(EpToRemove)
 
         self.Episodes=[self.Episodes[i] for i in range(len(self.Episodes)) if i not in EpToRemove]
@@ -468,79 +492,165 @@ class ManualEditionWindow(wx.Frame):
             self.myGrid.DeleteRows(Ep,1)
 
         self.EpisodesChanged=True
-        self.delButton.Disable()
+        self.RefreshButtons()
 
     def OnNew(self,event):
+        self.DisableButtons()
         # print "Adding and episode"
         EpTags = list(set([self.Episodes[i][0] for i in range(len(self.Episodes))]))
-        EpSelected=[]
-        for row in range(len(self.Episodes)):
-            if self.myGrid.IsInSelection(row,0):
-                EpSelected.append(row)
+        EpSelected=self.GetEpisodesSelected()
         if len(EpSelected)==1:
             index = EpSelected[0]
             EpSelectedInfo = {"tag":self.Episodes[index][0],"InitTime":self.Episodes[index][1],"EndTime":self.Episodes[index][2]}
         else:
             EpSelectedInfo = None
-        print "Selected: ",len(EpSelected)
-        EpisodeEditWindow(self,-1,EpTags,self.dm,EpSelectedInfo)
+        # print "Selected: ",len(EpSelected)
+        EpisodeEditWindow(self,-1,"New episode", EpTags,EpSelectedInfo)
 
-    def OnNewEnded(self,values):
+    
+    def OnNewEditEnded(self,values,EpToEdit=None):
+
+        ErrorMsg=None
+
+        if values["InitTime"]<0 or values["EndTime"]<0:
+            ErrorMsg = "Limits of episode must be positive numbers"
+
+        if not ErrorMsg:
+            if values["InitTime"]>values["EndTime"]:
+                ErrorMsg = "Limits of episode are inverted"
+
+        if not ErrorMsg:
+            if values["EndTime"]>self.dm.GetHRDataPlot()[0][-1]:
+                ErrorMsg = "Limits of episode are beyond the HR signal"
+
+        if ErrorMsg:
+            self.ErrorWindow(ErrorMsg)
+            return
+
+
         # print "Adding: ",str(values)
         EpToInsert = [values["tag"],values["InitTime"],values["EndTime"],values["Duration"]]
-        position=0
-        for index in range(len(self.Episodes)):
-            # print "Values: ",values["InitTime"]
-            # print "Self: ",self.Episodes[index][1]
-            if values["InitTime"]>self.Episodes[index][1]:
-                position=index+1
-            # print "Position: ",position
 
-        self.myGrid.InsertRows(pos=position,numRows=1)
-        self.myGrid.SetCellValue(position,0,values["tag"])
-        self.myGrid.SetReadOnly(position,0)
-        self.myGrid.SetCellValue(position,1,"%.2f" % values["InitTime"])
-        self.myGrid.SetReadOnly(position,1)
-        self.myGrid.SetCellValue(position,2,"%.2f" % values["EndTime"])
-        self.myGrid.SetReadOnly(position,2)
-        self.myGrid.SetCellValue(position,3,"%.2f" % values["Duration"])
-        self.myGrid.SetReadOnly(position,3)
+        EpTags = list(set([self.Episodes[i][0] for i in range(len(self.Episodes))]))
+        if values["tag"] not in EpTags:
+            self.dm.AssignEpisodeColor(values["tag"])
+            self.dm.AddToVisibleEpisodes(values["tag"])
 
-        colorTag = self.dm.GetEpisodeColor(values["tag"])
-        colors = self.GetColors(colorTag)
-        self.myGrid.SetCellBackgroundColour(position,0,colors["bg"])
-        self.myGrid.SetCellTextColour(position,0,colors["fg"])
+        if EpToEdit == None:
+            position=0
+            for index in range(len(self.Episodes)):
+                # print "Values: ",values["InitTime"]
+                # print "Self: ",self.Episodes[index][1]
+                if values["InitTime"]>self.Episodes[index][1]:
+                    position=index+1
+                # print "Position: ",position
+
+            self.myGrid.InsertRows(pos=position,numRows=1)
+            self.myGrid.SetCellValue(position,0,values["tag"])
+            self.myGrid.SetReadOnly(position,0)
+            self.myGrid.SetCellValue(position,1,"%.2f" % values["InitTime"])
+            self.myGrid.SetReadOnly(position,1)
+            self.myGrid.SetCellValue(position,2,"%.2f" % values["EndTime"])
+            self.myGrid.SetReadOnly(position,2)
+            self.myGrid.SetCellValue(position,3,"%.2f" % values["Duration"])
+            self.myGrid.SetReadOnly(position,3)
+
+            colorTag = self.dm.GetEpisodeColor(values["tag"])
+            colors = self.GetColors(colorTag)
+            self.myGrid.SetCellBackgroundColour(position,0,colors["bg"])
+            self.myGrid.SetCellTextColour(position,0,colors["fg"])
 
 
-        self.Episodes.append(EpToInsert)
-        self.Episodes.sort(key = lambda x: x[1])
+            self.Episodes.append(EpToInsert)
+            self.Episodes.sort(key = lambda x: x[1])
 
-        lastRow=self.myGrid.GetNumberRows()-1
-        if self.myGrid.GetCellValue(lastRow,0)=="":
-            self.myGrid.DeleteRows(lastRow,1)
+            lastRow=self.myGrid.GetNumberRows()-1
+            if self.myGrid.GetCellValue(lastRow,0)=="":
+                self.myGrid.DeleteRows(lastRow,1)
+
+        else:
+            position=EpToEdit
+            self.myGrid.SetCellValue(position,0,values["tag"])
+            self.myGrid.SetCellValue(position,1,"%.2f" % values["InitTime"])
+            self.myGrid.SetCellValue(position,2,"%.2f" % values["EndTime"])
+            self.myGrid.SetCellValue(position,3,"%.2f" % values["Duration"])
+
+            colorTag = self.dm.GetEpisodeColor(values["tag"])
+            colors = self.GetColors(colorTag)
+            self.myGrid.SetCellBackgroundColour(position,0,colors["bg"])
+            self.myGrid.SetCellTextColour(position,0,colors["fg"])
+
+            self.Episodes[position][0]=values["tag"]
+            self.Episodes[position][1]=values["InitTime"]
+            self.Episodes[position][2]=values["EndTime"]
+            self.Episodes[position][3]=values["Duration"]
+                
 
         self.EpisodesChanged=True
+        self.RefreshButtons()
+
+    def OnEdit(self,event):
+        self.DisableButtons()
+        # print "Going to edit"
+        EpTags = list(set([self.Episodes[i][0] for i in range(len(self.Episodes))]))
+
+        EpSelected=self.GetEpisodesSelected()
+        
+        index = EpSelected[0]
+        EpSelectedInfo = {"tag":self.Episodes[index][0],"InitTime":self.Episodes[index][1],"EndTime":self.Episodes[index][2]}
+        # print "Selected: ",len(EpSelected)
+        EpisodeEditWindow(self,-1,"Modify episode",EpTags,EpSelectedInfo,EpToEdit=index)
 
 
     def OnRangeSelect(self,evt):
-        if self.myGrid.IsSelection():
-            # print "Selection active"
+        self.RefreshButtons()
+        evt.Skip()
+
+    def RefreshButtons(self):
+        self.DisableButtons()
+        self.endButton.Enable()
+        self.newButton.Enable()
+        EpSelected=self.GetEpisodesSelected()
+        if len(EpSelected)==1:
+            self.editButton.Enable()
+        if len(EpSelected)>=1:
             self.delButton.Enable()
 
-        else:
-            # print "No selection"
-            self.delButton.Disable()
-        evt.Skip()
+
+    def DisableButtons(self):
+        self.newButton.Disable()
+        self.editButton.Disable()
+        self.delButton.Disable()
+        self.endButton.Disable()
+
+
+    def GetEpisodesSelected(self):
+        EpSelected=[]
+        for row in range(len(self.Episodes)):
+            if self.myGrid.IsInSelection(row,0):
+                EpSelected.append(row)
+        return EpSelected
+
+
+
+    def ErrorWindow(self,messageStr,captionStr="ERROR"):
+        """Generic error window"""
+        dial = wx.MessageDialog(self, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
+        result = dial.ShowModal()
+        dial.Destroy()
 
 
 class EpisodeEditWindow(wx.Frame):
 
-    def __init__(self, parent, id, EpTags,dm,EpSelectedInfo):
+    """Window to add or edit an episode"""
+
+    def __init__(self, parent, id, title, EpTags, EpSelectedInfo, EpToEdit=None):
         if platform != 'darwin':
-            wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSize)
+            wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSize, title=title)
         else:
-            wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSizeMac)
+            wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSizeMac, title=title)
         self.WindowParent=parent
+        self.EpToEdit = EpToEdit
         # self.Bind(wx.EVT_CLOSE,self.OnEnd)
         panel=wx.Panel(self)
 
@@ -550,7 +660,6 @@ class EpisodeEditWindow(wx.Frame):
             self.values={'tag':EpSelectedInfo["tag"],'InitTime':EpSelectedInfo["InitTime"],'EndTime':EpSelectedInfo["EndTime"],'Duration':0}
 
         self.EpTags=EpTags
-        self.dm = dm
 
         sizer=wx.BoxSizer(wx.VERTICAL)
 
@@ -614,10 +723,10 @@ class EpisodeEditWindow(wx.Frame):
 
         buttonSizer.AddStretchSpacer(prop=1)
 
-        buttonAdd = wx.Button(panel, -1, label="Ok")
-        buttonSizer.Add(buttonAdd, flag=wx.ALL, border=borderSmall)
-        self.Bind(wx.EVT_BUTTON, self.OnAdd, id=buttonAdd.GetId())
-        buttonAdd.SetToolTip(wx.ToolTip("Click to add episode"))
+        buttonOk = wx.Button(panel, -1, label="Ok")
+        buttonSizer.Add(buttonOk, flag=wx.ALL, border=borderSmall)
+        self.Bind(wx.EVT_BUTTON, self.OnOk, id=buttonOk.GetId())
+        buttonOk.SetToolTip(wx.ToolTip("Click to confirm"))
 
         sizer.Add(buttonSizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
 
@@ -633,7 +742,7 @@ class EpisodeEditWindow(wx.Frame):
         self.Show()
         self.Center()
 
-    def OnAdd(self,event):
+    def OnOk(self,event):
         self.values["tag"]=str(self.cbCombo.GetValue())
         try:
             Init = float(self.InitTime.GetValue())
@@ -647,10 +756,9 @@ class EpisodeEditWindow(wx.Frame):
         self.values["Duration"]=End-Init
         # print "Going to add: ", str(self.values)
         if self.values["tag"] not in self.EpTags:
-            self.dm.AssignEpisodeColor(self.values["tag"])
             self.EpTags.append(self.values["tag"])
-        self.dm.AddEpisode(self.values["InitTime"],self.values["EndTime"],self.values["tag"])
-        self.WindowParent.OnNewEnded(self.values)
+
+        self.WindowParent.OnNewEditEnded(self.values,self.EpToEdit)
         self.Destroy()
 
     def OnInitChanged(self,event):
@@ -676,6 +784,7 @@ class EpisodeEditWindow(wx.Frame):
         self.EndTime.SetValue("%.2f" % self.values['EndTime'])
 
     def OnEnd(self,event):
+        self.WindowParent.RefreshButtons()
         self.Destroy()
 
 

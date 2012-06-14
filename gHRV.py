@@ -210,11 +210,12 @@ class EditNIHRWindow(wx.Frame):
             result = dial.ShowModal()
             dial.Destroy()
             if result == wx.ID_YES:
-                self.Destroy()
                 dm.ReplaceHRVectors(self.xvector, self.yvector, self.rrvector)
                 self.WindowParent.OnNIHREditEnded()
+                self.Destroy()
             elif result == wx.ID_NO:
-                self.Close()
+                self.WindowParent.OnNIHREditEnded()
+                self.Destroy()
         else:
             self.WindowParent.OnNIHREditEnded()
             self.Destroy()

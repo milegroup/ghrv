@@ -1059,6 +1059,24 @@ class DM:
     def SetVisibleEpisodes(self,ListOfEp):
         """Updates the list of visible episodes"""
         self.data["EpisodesVisible"]=ListOfEp
+
+    def AddToVisibleEpisodes(self,tag):
+        """Appends a tag to visible episodes list"""
+        EpVis = self.GetVisibleEpisodes()[1]
+        EpVis.append(tag)
+        self.SetVisibleEpisodes(EpVis)
+
+    def PurgeVisibleEpisodes(self):
+        """Removes from visible episodes tags without episodes"""
+        Eps = self.GetVisibleEpisodes()[0]
+        Vis = self.GetVisibleEpisodes()[1]
+        for tag in Vis:
+            if tag not in Eps:
+                Vis.remove(tag)
+        self.SetVisibleEpisodes(Vis)
+        # print "Eps: ",self.GetVisibleEpisodes()[0]
+        # print "Vis: ",self.GetVisibleEpisodes()[1]
+
                 
     def GetEpisodesTags(self):
         """Gets the list of tags of all the episodes (both visible and hidden)"""
