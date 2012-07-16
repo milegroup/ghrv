@@ -28,7 +28,7 @@
 
 Verbose=False
 DebugMode = False
-Version="0.20"
+Version="0.21"
 
 from sys import platform
 borderBig=10
