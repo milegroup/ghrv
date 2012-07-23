@@ -785,7 +785,7 @@ class MainWindow(wx.Frame):
                     self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading WFDB file")
                 except:
-                    self.ErrorWindow(messageStr="Problem loading WFDB file: .hea and .qrs files are needed",
+                    self.ErrorWindow(messageStr="Problem loading WFDB file:\n .hea and annotation files are needed",
                                      captionStr="Error loading WFDB file")
                 else:
                     self.RefreshMainWindow()    

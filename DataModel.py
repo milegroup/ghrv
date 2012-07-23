@@ -215,6 +215,8 @@ class DM:
 
     def LoadBeatWFDB(self,wfdbheaderfile,settings):
         """Loads wfdb file"""
+
+        import glob
         
         if (self.data["Verbose"]==True):
             print("** Loading WFDB file "+wfdbheaderfile)
@@ -232,43 +234,63 @@ class DM:
         if (self.data["Verbose"]==True):
             print("   Sampling frequency: "+str(samplingFrequency))
 
-        wfdbdatafile=wfdbheaderfile[:-4]+".qrs"
+        filesfound = glob.glob(wfdbheaderfile[:-4]+".*")
+        extensionsfound=[]
+        for filefound in filesfound:
+            extensionsfound.append(filefound[-3:])
+        extensionsfound.remove('hea')
+        if 'qrs' in extensionsfound:
+            extensionsfound.remove('qrs')
+            extensionsfound.insert(0,'qrs')
+            # 'qrs' in first place
 
-        if (self.data["Verbose"]==True):
-            print("   Data file: "+wfdbdatafile)
+        # print "Extensions: ",str(extensionsfound)
+        for extension in extensionsfound:
 
-        datafile = open(wfdbdatafile,'rb')
-        accumulator=0.0
-        beats=[]
+            wfdbdatafile=wfdbheaderfile[:-4]+"."+extension
 
-        while True:
-            value = ord(datafile.read(1))+ord(datafile.read(1))*256
-            code = value >> 10
-            time = value % 1024
-            
-            # print ("Value: "+str(int(value)))
-            # print ("Code: "+str(code))
-            # print ("Time: "+str(time))
+            if (self.data["Verbose"]==True):
+                print("   Trying data file: "+wfdbdatafile)
 
-            if code==0 and time==0:
-                break
+            try:
 
-            if code==1:
-                accumulator = accumulator+time
-                # print "Sec: ",accumulator/samplingFrequency
-                beats.append(accumulator/samplingFrequency)
-            else:
-                if code==63:
-                    jump = int(time)/2 + int(time)%2
-                    for i in range(jump):
-                        value = ord(datafile.read(1))+ord(datafile.read(1))*256
-                else:
-                    if code==59 and time==0:
-                        for i in range(2):
-                            value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                datafile = open(wfdbdatafile,'rb')
+                accumulator=0.0
+                beats=[]
+
+                while True:
+                    value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                    code = value >> 10
+                    time = value % 1024
+                    
+                    # print ("Value: "+str(int(value)))
+                    # print ("Code: "+str(code))
+                    # print ("Time: "+str(time))
+
+                    if code==0 and time==0:
+                        break
+
+                    if code==1:
+                        accumulator = accumulator+time
+                        # print "Sec: ",accumulator/samplingFrequency
+                        beats.append(accumulator/samplingFrequency)
                     else:
-                        if code!=60 and code!=61 and code!=62 and code!=22 and code!=0:
-                            accumulator = accumulator+time
+                        if code==63:
+                            jump = int(time)/2 + int(time)%2
+                            for i in range(jump):
+                                value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                        else:
+                            if code==59 and time==0:
+                                for i in range(2):
+                                    value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                            else:
+                                if code!=60 and code!=61 and code!=62 and code!=22 and code!=0:
+                                    accumulator = accumulator+time
+            except:
+                if (self.data["Verbose"]==True):
+                    print("   File "+wfdbdatafile+" didn't work")
+            else:
+                break
 
         self.LoadBeatSec(np.array(beats),settings)
         
@@ -768,7 +790,7 @@ class DM:
         # -----------------
         
         # print "Creating: ",DirName+os.sep+ReportSubDir
-        
+
         os.mkdir(DirName+os.sep+ReportSubDir)
         
         if (self.data["Verbose"]==True):

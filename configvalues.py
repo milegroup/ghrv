@@ -26,8 +26,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-Verbose=False
-DebugMode = True
+Verbose=True
+DebugMode = False
 Version="0.21"
 
 from sys import platform
