@@ -38,11 +38,10 @@ class ReportWindow(wx.Frame):
     def __init__(self,parent,id,title,filename, dm):
 
         self.dm = dm
+        self.fileNameTmp=filename
         
         wx.Frame.__init__(self, parent, -1, title, size=reportWindowSize)
-        
-        #print "Going to show:"+filename
-        
+                
         self.panel = wx.Panel(self)
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         self.WindowParent=parent
@@ -53,7 +52,7 @@ class ReportWindow(wx.Frame):
         htmlwin = wx.html.HtmlWindow(self.panel, -1, style=wx.NO_BORDER)
         #htmlwin.SetBackgroundColour(wx.RED)
         htmlwin.SetStandardFonts()
-        htmlwin.LoadFile(filename)
+        htmlwin.LoadFile(self.fileNameTmp)
 
         vbox.Add(htmlwin, 1, wx.LEFT | wx.TOP | wx.GROW)
         
@@ -63,10 +62,15 @@ class ReportWindow(wx.Frame):
         
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         
-        self.pdfButton = wx.Button(self.panel, -1, "Save as PDF...", size=buttonSizeReportWindow)
-        self.Bind(wx.EVT_BUTTON, self.OnPDF, id=self.pdfButton.GetId())
-        self.pdfButton.SetToolTip(wx.ToolTip("Click to generate pdf report"))
-        hbox.Add(self.pdfButton, 0, border=borderSmall, flag=wx.ALIGN_LEFT)
+        self.saveButton = wx.Button(self.panel, -1, "Save as HTML...", size=buttonSizeReportWindow)
+        self.Bind(wx.EVT_BUTTON, self.OnSave, id=self.saveButton.GetId())
+        self.saveButton.SetToolTip(wx.ToolTip("Click to generate html report"))
+        hbox.Add(self.saveButton, 0, border=borderSmall, flag=wx.ALIGN_LEFT | wx.ALL)
+
+        self.browserButton = wx.Button(self.panel, -1, "Open in browser", size=buttonSizeReportWindow)
+        self.Bind(wx.EVT_BUTTON, self.OnBrowser, id=self.browserButton.GetId())
+        self.browserButton.SetToolTip(wx.ToolTip("Click to open report in system's browser"))
+        hbox.Add(self.browserButton, 0, border=borderSmall, flag=wx.ALIGN_LEFT | wx.ALL)
         
         hbox.AddStretchSpacer(1)
         
@@ -74,7 +78,7 @@ class ReportWindow(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=self.endButton.GetId())
         self.endButton.SetToolTip(wx.ToolTip("Click to close window"))
         
-        hbox.Add(self.endButton, 0, border=borderSmall, flag=wx.ALIGN_RIGHT)
+        hbox.Add(self.endButton, 0, border=borderSmall, flag=wx.ALIGN_RIGHT | wx.ALL)
 
         vbox.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
 
@@ -89,9 +93,54 @@ class ReportWindow(wx.Frame):
         self.WindowParent.OnReportEnded()
         self.Destroy()
         
-    def OnPDF(self,event):
-        # self.dm.CreateReport("/home/leandro","report.pdf", type="pdf")
-        dial = wx.MessageDialog(self, "Not yet implemented", "Soon...", wx.OK)
+    def OnSave(self,event):
+        import os,shutil
+        correctSaving=False
+        filetypes = "HTML files (*.html, *.htm)|*.html;*.htm;*.HTML;*.HTM|" "All files (*.*)|*.*"
+        fileName=""
+        dial = wx.FileDialog(self, message="Save project as...",
+            wildcard = filetypes, defaultFile=self.dm.GetName()+".html", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        result = dial.ShowModal()
+        if result == wx.ID_OK:
+            fileName=dial.GetPath()
+            fileExt = os.path.splitext(fileName)[1][1:].strip()      
+            fileCanonicalName=os.path.splitext(fileName)[0].split(os.sep)[-1]
+            filePath = os.path.split(fileName)[0]
+            subDirImgs= fileCanonicalName+'_imgs'
+
+            if os.path.exists(filePath+os.sep+subDirImgs):
+                shutil.rmtree(filePath+os.sep+subDirImgs)
+
+            # print "Filename: ",fileName
+            # print "File extension: ",fileExt
+            # print "Canonical filename: ",fileCanonicalName
+            # print "File path: ", filePath
+
+            try:
+                self.dm.CreateReport(filePath,fileCanonicalName+".html",subDirImgs)
+            except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error saving report")
+            except:
+                self.ErrorWindow(messageStr="Error saving report to file: "+fileName,captionStr="Error saving report")    
+
+            else:
+                correctSaving = True 
+        dial.Destroy()
+
+        if correctSaving == True:
+            dial = wx.MessageDialog(self, "Report saved:\n"+fileName, "Report created ok", wx.OK)
+            result = dial.ShowModal()
+            dial.Destroy()
+
+    def OnBrowser(self,event):
+        import webbrowser
+        # print "I'm going to open: ", self.fileNameTmp
+        webbrowser.open(self.fileNameTmp)
+
+    def ErrorWindow(self,messageStr,captionStr="ERROR"):
+        """Generic error window"""
+        dial = wx.MessageDialog(self, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
         result = dial.ShowModal()
         dial.Destroy()
         

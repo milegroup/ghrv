@@ -516,7 +516,7 @@ class MainWindow(wx.Frame):
             import tempfile
             reportName="report.html"
             reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
-            dm.CreateReport(reportDir,reportName)
+            dm.CreateReport(reportDir,reportName,'report_files')
             ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
             self.reportWindowPresent=True
             self.RefreshMainWindowButtons()
@@ -656,7 +656,7 @@ class MainWindow(wx.Frame):
         
         self.DisableAllButtons() # by default all disabled
         
-        if self.configWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent:
+        if self.configWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent:
             return
         
         self.buttonConfig.Enable()
@@ -738,7 +738,8 @@ class MainWindow(wx.Frame):
         result = dial.ShowModal()
         if result == wx.ID_OK:
             fileName=dial.GetPath()
-            ext=fileName[-3:].lower()            
+            # ext=fileName[-3:].lower()  
+            ext = os.path.splitext(fileName)[1][1:].strip()          
             dial.Destroy()
             if ext=="txt":
                 try:
@@ -910,7 +911,7 @@ class MainWindow(wx.Frame):
         import tempfile
         reportName="report.html"
         reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
-        dm.CreateReport(reportDir,reportName)
+        dm.CreateReport(reportDir,reportName,'report_files')
         ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
         self.reportWindowPresent=True
         self.RefreshMainWindowButtons()

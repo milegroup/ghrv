@@ -750,7 +750,7 @@ class DM:
         return self.data["name"]
         
         
-    def CreateReport(self,DirName,ReportName):
+    def CreateReport(self,DirName, ReportName, ReportSubDir):
         
         def WriteTitleLine(fileHandler):
             fileHandler.write('<table cellspacing="5" border="0" width="'+str(HTMLPageWidth)+'" bgcolor="'+ReportWindowTitleColor+'">\n<tr><td align="left" ><b><font color="white" size="+1">gHRV analysis report</font></b></td></tr></table>\n')
@@ -767,9 +767,9 @@ class DM:
             
         # -----------------
         
+        # print "Creating: ",DirName+os.sep+ReportSubDir
         
-        reportSubDir='report_files'
-        os.mkdir(DirName+os.sep+reportSubDir)
+        os.mkdir(DirName+os.sep+ReportSubDir)
         
         if (self.data["Verbose"]==True):
             print("** Creating report in directory "+DirName)
@@ -785,10 +785,10 @@ class DM:
         # HR Plot
         WriteSubtitleLine(File,'File details')        
         info=self.GetInfoFile()
-        self.CreatePlotFile("HR",DirName+os.sep+reportSubDir+os.sep+"HR.png",plotHRWidth,plotHRHeight,zoomReset=True)
+        self.CreatePlotFile("HR",DirName+os.sep+ReportSubDir+os.sep+"HR.png",plotHRWidth,plotHRHeight,zoomReset=True)
         
         File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"> <td width="50%"><b>Name: </b><i>'+info["name"]+'</i></td><td width="50%"><b>Signal length: </b><i>'+info["length"]+'</i></td></tr></table>\n')
-        File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"><td><img src="./'+reportSubDir+'/HR.png"/></td></tr></table>\n')
+        File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'"><tr align="center"><td><img src="./'+ReportSubDir+'/HR.png"/></td></tr></table>\n')
         
         File.write("<hr>\n")
         
@@ -796,9 +796,9 @@ class DM:
         # Histogram and time-based parameters
         WriteSubtitleLine(File,'Global analysis (time-domain parameters)')          
         info=self.GetInfoTime()
-        self.CreatePlotFile("HRHistogram",DirName+os.sep+reportSubDir+os.sep+"HRHistogram.png",plotHRHistogramWidth,plotHRHistogramHeight)
+        self.CreatePlotFile("HRHistogram",DirName+os.sep+ReportSubDir+os.sep+"HRHistogram.png",plotHRHistogramWidth,plotHRHistogramHeight)
         File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
-        File.write('<tr align="center"><td><img src="./'+reportSubDir+'/HRHistogram.png"/></td><td align="left">\n')
+        File.write('<tr align="center"><td><img src="./'+ReportSubDir+'/HRHistogram.png"/></td><td align="left">\n')
         File.write('<font size="-1">\n<table align="left">')
         File.write('<tr><td><b>No. of beats: </b><i>'+info["beats"]+'</i></td></tr>')
         File.write('<tr><td><b>Mean HR: </b><i>'+info["meanhr"]+'</i></td></tr>')
@@ -825,10 +825,10 @@ class DM:
             if self.HasFrameBasedParams()==False:
                 self.CalculateFrameBasedParams(showProgress=True)
             WriteSubtitleLine(File,'Frame-based analysis')
-            self.CreatePlotFile("FB",DirName+os.sep+reportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight,zoomReset=True)
+            self.CreatePlotFile("FB",DirName+os.sep+ReportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight,zoomReset=True)
             File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
     
-            File.write('<tr align="center"><td><img src="./'+reportSubDir+'/FB.png"/></td></tr>\n')
+            File.write('<tr align="center"><td><img src="./'+ReportSubDir+'/FB.png"/></td></tr>\n')
             File.write('</table>\n')
             
             
