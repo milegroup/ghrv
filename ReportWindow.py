@@ -35,7 +35,9 @@ class ReportWindow(wx.Frame):
     
     import wx.html
     
-    def __init__(self,parent,id,title,filename):
+    def __init__(self,parent,id,title,filename, dm):
+
+        self.dm = dm
         
         wx.Frame.__init__(self, parent, -1, title, size=reportWindowSize)
         
@@ -88,6 +90,7 @@ class ReportWindow(wx.Frame):
         self.Destroy()
         
     def OnPDF(self,event):
+        # self.dm.CreateReport("/home/leandro","report.pdf", type="pdf")
         dial = wx.MessageDialog(self, "Not yet implemented", "Soon...", wx.OK)
         result = dial.ShowModal()
         dial.Destroy()

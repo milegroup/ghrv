@@ -43,6 +43,7 @@ from configvalues import *
 from AboutDlg import AboutDlg
 from FrameBased import *
 from EditEpisodes import EditEpisodesWindow
+from ReportWindow import *
 
 # os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
 
@@ -237,69 +238,7 @@ class EditNIHRWindow(wx.Frame):
  
             
         
-class ReportWindow(wx.Frame):  
-    """ Window for Report"""
-    
-    import wx.html
-    
-    def __init__(self,parent,id,title,filename):
-        
-        wx.Frame.__init__(self, parent, -1, title, size=reportWindowSize)
-        
-        #print "Going to show:"+filename
-        
-        self.panel = wx.Panel(self)
-        self.Bind(wx.EVT_CLOSE,self.OnEnd)
-        self.WindowParent=parent
 
-        vbox = wx.BoxSizer(wx.VERTICAL)
-        
-
-        htmlwin = wx.html.HtmlWindow(self.panel, -1, style=wx.NO_BORDER)
-        #htmlwin.SetBackgroundColour(wx.RED)
-        htmlwin.SetStandardFonts()
-        htmlwin.LoadFile(filename)
-
-        vbox.Add(htmlwin, 1, wx.LEFT | wx.TOP | wx.GROW)
-        
-        
-        
-        # Box sizer for buttons
-        
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
-        
-        self.pdfButton = wx.Button(self.panel, -1, "Save as PDF...", size=buttonSizeReportWindow)
-        self.Bind(wx.EVT_BUTTON, self.OnPDF, id=self.pdfButton.GetId())
-        self.pdfButton.SetToolTip(wx.ToolTip("Click to generate pdf report"))
-        hbox.Add(self.pdfButton, 0, border=borderSmall, flag=wx.ALIGN_LEFT)
-        
-        hbox.AddStretchSpacer(1)
-        
-        self.endButton = wx.Button(self.panel, -1, "End", size=buttonSizeReportWindow)
-        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=self.endButton.GetId())
-        self.endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        
-        hbox.Add(self.endButton, 0, border=borderSmall, flag=wx.ALIGN_RIGHT)
-
-        vbox.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
-
-        self.panel.SetSizer(vbox)
-        self.Centre()
-        self.Show(True)
-        
-       
-        self.SetMinSize(reportWindowMinSize)
-        
-    def OnEnd(self,event):
-        self.WindowParent.OnReportEnded()
-        self.Destroy()
-        
-    def OnPDF(self,event):
-        dial = wx.MessageDialog(self, "Not yet implemented", "Soon...", wx.OK)
-        result = dial.ShowModal()
-        dial.Destroy()
-        
-       
         
 class MainWindow(wx.Frame):
     """ Main window application"""
@@ -572,9 +511,16 @@ class MainWindow(wx.Frame):
             # self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters",dm)
             # self.fbWindowPresent=True
             # self.RefreshMainWindowButtons()
-            EditEpisodesWindow(self,-1,'Episodes Edition',dm)
-            self.editEpisodesWindowPresent=True
+            # EditEpisodesWindow(self,-1,'Episodes Edition',dm)
+            # self.editEpisodesWindowPresent=True
+            import tempfile
+            reportName="report.html"
+            reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
+            dm.CreateReport(reportDir,reportName)
+            ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
+            self.reportWindowPresent=True
             self.RefreshMainWindowButtons()
+
             
         
         self.canvas.SetFocus()
@@ -965,7 +911,7 @@ class MainWindow(wx.Frame):
         reportName="report.html"
         reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
         dm.CreateReport(reportDir,reportName)
-        ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName)
+        ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
         self.reportWindowPresent=True
         self.RefreshMainWindowButtons()
 
