@@ -504,7 +504,7 @@ class MainWindow(wx.Frame):
         self.MainPanel.Layout()
         
         if DebugMode:
-            dm.LoadProject("../data_0_17/caca2.ghrv")
+            dm.LoadFileAscii("./beats.txt", self.settings)
             self.RefreshMainWindow()
             # if dm.HasFrameBasedParams()==False:
             #     dm.CalculateFrameBasedParams(showProgress=True)
@@ -513,13 +513,13 @@ class MainWindow(wx.Frame):
             # self.RefreshMainWindowButtons()
             # EditEpisodesWindow(self,-1,'Episodes Edition',dm)
             # self.editEpisodesWindowPresent=True
-            import tempfile
-            reportName="report.html"
-            reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
-            dm.CreateReport(reportDir,reportName,'report_files')
-            ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
-            self.reportWindowPresent=True
-            self.RefreshMainWindowButtons()
+            # import tempfile
+            # reportName="report.html"
+            # reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
+            # dm.CreateReport(reportDir,reportName,'report_files')
+            # ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
+            # self.reportWindowPresent=True
+            # self.RefreshMainWindowButtons()
 
             
         

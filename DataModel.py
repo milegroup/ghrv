@@ -756,7 +756,130 @@ class DM:
             self.data["HR STD"]=np.array(self.data["HR STD"])
             self.data["pNN50"]=np.array(self.data["pNN50"])
             self.data["rMSSD"]=np.array(self.data["rMSSD"])
-                    
+
+
+    def CalculateNonLinearAnalysis(self, N=1000):
+
+        def BuildTakensVector(Data,m,tau):
+            # DataInt = range(1001)
+            N = len(Data)
+            jump = tau
+            maxjump=(m-1)*jump
+            jumpsvect=range(0,maxjump+1,jump)
+            # print("jumpsvect: "+str(jumpsvect))
+            numjumps=len(jumpsvect)
+            numelem=N-maxjump
+            # print("Building matrix "+str(numelem)+"x"+str(numjumps))
+            DataExp = np.zeros(shape=(numelem,numjumps))
+            for i in range(numelem):
+                for j in range(numjumps):
+                    DataExp[i,j]=Data[jumpsvect[j]+i]
+
+            # print("DataExp first row: "+str(DataExp[0]))
+            # print("DataExp last row: "+str(DataExp[-1]))
+
+            return DataExp
+            # --------------------
+
+
+        def AvgIntegralCorrelation(Data,m,tau,r):
+
+            from scipy.spatial.distance import cdist
+
+            DataExp = BuildTakensVector(Data, m, tau)
+            numelem=DataExp.shape[0]
+            # print("Number of rows: "+str(numelem))
+            mutualDistance=cdist(DataExp,DataExp,'chebyshev')
+
+            Cmr=np.zeros(numelem)
+
+            for i in range(numelem):
+                vector=mutualDistance[i]
+                Cmr[i]=float((vector <=r).sum())/numelem
+
+            Phi=(np.log(Cmr)).sum()/len(Cmr)
+
+            if self.data["Verbose"]:
+                print("      m="+str(m))
+                print("      Integral correlation: "+str(Cmr.sum()))
+                print("      Average integral correlation: "+str(Phi))
+
+            return Phi
+            # --------------------
+
+
+        def CalculateApEn(Data,m=2,tau=1,r=0.2):
+
+            r=r*np.std(Data,ddof=1)
+
+            # print("r: "+str(r))
+
+            Phi1 = AvgIntegralCorrelation(Data,m,tau,r)
+            Phi2 = AvgIntegralCorrelation(Data,m+1,tau,r)
+
+            return Phi1-Phi2
+            # --------------------
+
+
+        def CalculateFracDim(Data, m=10, tau=3, Cra=0.005, Crb=0.75):
+
+            from scipy.spatial.distance import pdist
+            from scipy.stats.mstats import mquantiles
+
+            DataExp=BuildTakensVector(Data,m,tau)
+            # print("Number of rows: "+str(DataExp.shape[0]))
+            # print("Number of columns: "+str(DataExp.shape[1]))
+
+            mutualDistance=pdist(DataExp,'chebyshev')
+
+            numelem=len(mutualDistance)
+            # print("numelem: "+str(numelem))
+            
+            rr=mquantiles(mutualDistance,prob=[Cra,Crb])
+            ra=rr[0]
+            rb=rr[1]
+
+            Cmra= float(((mutualDistance <= ra).sum()))/numelem
+            Cmrb= float(((mutualDistance <= rb).sum()))/numelem
+
+            if self.data["Verbose"]:
+                print("      ra: "+str(ra))
+                print("      rb: "+str(rb))
+                print("      Cmra: "+str(100.0*Cmra)+"%")
+                print("      Cmrb: "+str(100.0*Cmrb)+"%")
+
+            FracDim = (np.log(Cmrb)-np.log(Cmra))/(np.log(rb)-np.log(ra))
+
+            return FracDim
+            # --------------------
+
+
+        if self.data["Verbose"]:
+            print("** Calculating non-linear parameters")
+
+        npoints=len(self.data["HR"])
+
+        # print ("Number of points: "+str(npoints))
+        if npoints > N:
+            DataInt=self.data["HR"][(npoints/2-N/2)-1:(npoints/2+N/2)]
+        else:
+            DataInt=self.data["HR"]
+
+        # dd=np.linspace(start=0, stop=100, num=1000)
+        # DataInt=np.sin(dd)
+
+        if self.data["Verbose"]:
+            print("   Calculating approximate entropy")
+        ApEn = CalculateApEn(DataInt)
+        if self.data["Verbose"]:
+            print("   Approximate entropy: "+str(ApEn))
+
+        if self.data["Verbose"]:
+            print("   Calculating fractal dimension")
+        FracDim = CalculateFracDim(DataInt)
+        if self.data["Verbose"]:
+            print("  Fractal dimension: "+str(FracDim))
+        
                         
             
     def GetHRDataPlot(self):
@@ -1478,7 +1601,3 @@ class DM:
             print("** FB Pan left")
         
         
-   
-        
-        
-                
