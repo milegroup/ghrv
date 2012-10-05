@@ -857,13 +857,13 @@ class DM:
         if self.data["Verbose"]:
             print("** Calculating non-linear parameters")
 
-        npoints=len(self.data["HR"])
+        npoints=len(self.data["niHR"])
 
         # print ("Number of points: "+str(npoints))
         if npoints > N:
-            DataInt=self.data["HR"][(npoints/2-N/2)-1:(npoints/2+N/2)]
+            DataInt=self.data["niHR"][(npoints/2-N/2)-1:(npoints/2+N/2)]
         else:
-            DataInt=self.data["HR"]
+            DataInt=self.data["niHR"]
 
         # dd=np.linspace(start=0, stop=100, num=1000)
         # DataInt=np.sin(dd)
