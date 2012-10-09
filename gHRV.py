@@ -418,7 +418,7 @@ class MainWindow(wx.Frame):
         self.buttonAnalyze.Disable()
         
         
-        self.buttonTemporal = wx.Button(self.MainPanel, -1, label="Frame-based evolution...")
+        self.buttonTemporal = wx.Button(self.MainPanel, -1, label="Frame-based evolution")
         sbToolsButtonsSizer.Add(self.buttonTemporal, flag=wx.ALL | wx.EXPAND, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnFrameBased, id=self.buttonTemporal.GetId())
         self.buttonTemporal.SetToolTip(wx.ToolTip("Temporal evolution of parameters"))
@@ -433,6 +433,14 @@ class MainWindow(wx.Frame):
         if platform != 'darwin':
             self.buttonReport.SetBackgroundColour(ReportBGColor)
         self.buttonReport.Disable()
+
+        self.buttonPoincare = wx.Button(self.MainPanel, -1, label="Poincaré plot")
+        sbToolsButtonsSizer.Add(self.buttonPoincare, flag=wx.ALL | wx.EXPAND, border=borderSmall)
+        # self.Bind(wx.EVT_BUTTON, self.OnReport, id=self.buttonReport.GetId())
+        self.buttonPoincare.SetToolTip(wx.ToolTip("Poincaré plot tool"))
+        if platform != 'darwin':
+            self.buttonPoincare.SetBackgroundColour(PoincareBGColor)
+        self.buttonPoincare.Disable()
         
         vboxLeft.Add(sbToolsButtonsSizer,flag=wx.TOP | wx.EXPAND, border=borderVeryBig)
         

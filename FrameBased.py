@@ -75,6 +75,11 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.vboxRightArea.Add(self.signifButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_RIGHT)
         if platform != 'darwin':
             self.signifButton.SetBackgroundColour(SignifBGColor)
+        if self.dm.DataPlotHasVisibleEpisodes():
+            self.signifButton.Enable()
+        else:
+            self.signifButton.Disable()
+
         
         self.exportButton = wx.Button(self.panel, -1, "Export txt...", size=buttonSizeFrameBased)
         self.Bind(wx.EVT_BUTTON, self.OnExport, id=self.exportButton.GetId())
@@ -196,6 +201,11 @@ class FrameBasedEvolutionWindow(wx.Frame):
     def Refresh(self):
         self.dm.CreatePlotFBEmbedded(self.fig)
         self.canvas.draw()
+
+        if self.dm.DataPlotHasVisibleEpisodes():
+            self.signifButton.Enable()
+        else:
+            self.signifButton.Disable()
     
         
     def OnEnd(self,event):
@@ -210,13 +220,10 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.exportButton.Enable()
 
     def OnSignif(self,event):
-        if not self.dm.DataPlotHasVisibleEpisodes():
-            self.ErrorWindow(messageStr="No visible episodes present",captionStr="Error in significance analysis")
-        else:
-            SignificanceWindow(self,-1,'Significance analysis',self.dm)
-            self.signifButton.Disable()
-            self.WindowParent.signifWindowPresent=True
-            self.WindowParent.RefreshMainWindowButtons()
+        SignificanceWindow(self,-1,'Significance analysis',self.dm)
+        self.signifButton.Disable()
+        self.WindowParent.signifWindowPresent=True
+        self.WindowParent.RefreshMainWindowButtons()
         # exportSettingsWindow=FrameBasedExportSettings(self,-1,"Export options", self.dm)
         # self.exportButton.Disable()
     def OnSignifEnded(self):
