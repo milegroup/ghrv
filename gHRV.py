@@ -265,6 +265,7 @@ class MainWindow(wx.Frame):
         self.editEpisodesWindowPresent=False
         self.aboutWindowPresent=False
         self.reportWindowPresent=False
+        self.signifWindowPresent=False
         
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         
@@ -656,7 +657,7 @@ class MainWindow(wx.Frame):
         
         self.DisableAllButtons() # by default all disabled
         
-        if self.configWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent:
+        if self.configWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent:
             return
         
         self.buttonConfig.Enable()

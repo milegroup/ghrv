@@ -215,10 +215,14 @@ class FrameBasedEvolutionWindow(wx.Frame):
         else:
             SignificanceWindow(self,-1,'Significance analysis',self.dm)
             self.signifButton.Disable()
+            self.WindowParent.signifWindowPresent=True
+            self.WindowParent.RefreshMainWindowButtons()
         # exportSettingsWindow=FrameBasedExportSettings(self,-1,"Export options", self.dm)
         # self.exportButton.Disable()
     def OnSignifEnded(self):
         self.signifButton.Enable()
+        self.WindowParent.signifWindowPresent=False
+        self.WindowParent.RefreshMainWindowButtons()
         
 
 class SignificanceWindow(wx.Frame):
