@@ -70,7 +70,7 @@ addEpWinSizeMac=(290,280)
 addEpWinMinSizeMac=(250,280)
 
 
-exportSettingsWindowSize=(500,300)
+exportSettingsWindowSize=(500,350)
 exportSettingsWindowMinSize=exportSettingsWindowSize
 
 exportSettingsWindowSizeMac=(500,350)
@@ -103,7 +103,7 @@ textCtrlSizeBig=(80,25)
 
 verticalFactorPBPlot=0.9
 
-factorySettings={'interpfreq':'4.0','windowsize':'120.0','windowshift':'10.0','ulfmin':'0.0','ulfmax':'0.03','vlfmin':'0.03','vlfmax':'0.05','lfmin':'0.05','lfmax':'0.15','hfmin':'0.15','hfmax':'0.4'}
+factorySettings={'interpfreq':'4.0','windowsize':'120.0','windowshift':'60.0','ulfmin':'0.0','ulfmax':'0.03','vlfmin':'0.03','vlfmax':'0.05','lfmin':'0.05','lfmax':'0.15','hfmin':'0.15','hfmax':'0.4'}
 
 HTMLHead='''<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <html>

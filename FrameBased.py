@@ -259,9 +259,9 @@ class SignificanceWindow(wx.Frame):
             else:
                 tmp = wx.RadioButton(panel, label=band)
             bandsRB.append(tmp)
-            if len(bandsRB)<=5:
+            if len(bandsRB)<=6:
                 sbParamSizer1.Add(tmp, wx.EXPAND) 
-            else:       
+            else:      
                 sbParamSizer2.Add(tmp, wx.EXPAND) 
         
         sbParamSizer.Add(sbParamSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
@@ -331,7 +331,7 @@ class SignificanceWindow(wx.Frame):
         hbox = wx.BoxSizer(wx.HORIZONTAL)   
 
 
-        self.textOutput = wx.TextCtrl(panel, id, 'Information', size=(350, 75), style=wx.TE_READONLY|wx.TE_MULTILINE|wx.TE_RICH2)
+        self.textOutput = wx.TextCtrl(panel, id, 'Information', size=(400, 75), style=wx.TE_READONLY|wx.TE_MULTILINE|wx.TE_RICH2)
         self.textOutput.SetFont(wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL));
         hbox.Add(self.textOutput, 1, wx.LEFT | wx.TOP | wx.GROW)
 
@@ -577,6 +577,7 @@ class FrameBasedExportSettings(wx.Frame):
         sbBandsSizer = wx.StaticBoxSizer(sbBands, wx.VERTICAL)
         sbBandsSizer1 = wx.BoxSizer(wx.HORIZONTAL)
         sbBandsSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        sbBandsSizer3 = wx.BoxSizer(wx.HORIZONTAL)
         
         AllBandsOrig,VisibleBandsOrig = self.dm.GetVisibleBands()
         self.AllBands=list(AllBandsOrig)
@@ -587,18 +588,24 @@ class FrameBasedExportSettings(wx.Frame):
         
         self.cbDict={}
         bandsInSizer1=0
+        bandsInSizer2=0
         for Band in self.AllBands:
             self.cbDict[Band]=wx.CheckBox(panel,-1,Band,size=wx.DefaultSize)
             if bandsInSizer1 < 5:
                 sbBandsSizer1.Add(self.cbDict[Band], wx.EXPAND)
                 bandsInSizer1 += 1
             else:
-                sbBandsSizer2.Add(self.cbDict[Band], wx.EXPAND)
+                if bandsInSizer2 < 5:
+                    sbBandsSizer2.Add(self.cbDict[Band], wx.EXPAND)
+                    bandsInSizer2 += 1
+                else:
+                    sbBandsSizer3.Add(self.cbDict[Band], wx.EXPAND)
             if Band in VisibleBands:
                 self.cbDict[Band].SetValue(True)
     
         sbBandsSizer.Add(sbBandsSizer1,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
         sbBandsSizer.Add(sbBandsSizer2,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+        sbBandsSizer.Add(sbBandsSizer3,flag=wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
         sizer.Add(sbBandsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
         
         

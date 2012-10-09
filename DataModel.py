@@ -63,7 +63,7 @@ class DM:
         self.data["DictColors"]={}
         
     def ClearBands(self):
-        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Power","Mean HR","HR STD","pNN50","rMSSD","Heart rate"]
+        self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Power","Mean HR","HR STD","pNN50","rMSSD","ApEn","FracDim","Heart rate"]
         self.data["VisibleBands"]=["LF/HF","ULF","VLF","LF","HF","Heart rate"]
         self.data["FixedBands"]=["Heart rate"]
         
@@ -671,6 +671,11 @@ class DM:
         self.data["HR STD"]=[]
         self.data["pNN50"]=[]
         self.data["rMSSD"]=[]
+        self.data["ApEn"]=[]
+        self.data["FracDim"]=[]
+
+
+
 
         KeepGoing = True
              
@@ -730,13 +735,17 @@ class DM:
             
             BeatsFrame = [x for x in self.data["BeatTime"] if x>=begtime and x<=endtime]
             frameRR = 1000.0*np.diff(BeatsFrame)
-            #print "Window has ",len(BeatsFrame), " beats"
-            #print "frameHR - ",len(frameHR)
-            #print "frameRR - ",len(frameRR)
+            # print "Window has ",len(BeatsFrame), " beats"
+            # print "frameHR - ",len(frameHR)
+            # print "frameRR - ",len(frameRR)
             RRDiffs=np.diff(frameRR)
             RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
             self.data["pNN50"].append(100.0*len(RRDiffs50)/len(RRDiffs))
             self.data["rMSSD"].append(np.sqrt(np.mean(RRDiffs**2)))
+
+            ApEn,FracDim=self.CalculateNonLinearAnalysis(BeatsFrame)
+            self.data["ApEn"].append(ApEn)
+            self.data["FracDim"].append(FracDim)
 
             indexframe += 1
                 
@@ -756,9 +765,11 @@ class DM:
             self.data["HR STD"]=np.array(self.data["HR STD"])
             self.data["pNN50"]=np.array(self.data["pNN50"])
             self.data["rMSSD"]=np.array(self.data["rMSSD"])
+            self.data["ApEn"]=np.array(self.data["ApEn"])
+            self.data["FracDim"]=np.array(self.data["FracDim"])
 
 
-    def CalculateNonLinearAnalysis(self, N=1000):
+    def CalculateNonLinearAnalysis(self,Data=None, N=1000):
 
         def BuildTakensVector(Data,m,tau):
             # DataInt = range(1001)
@@ -799,10 +810,10 @@ class DM:
 
             Phi=(np.log(Cmr)).sum()/len(Cmr)
 
-            if self.data["Verbose"]:
-                print("      m="+str(m))
-                print("      Integral correlation: "+str(Cmr.sum()))
-                print("      Average integral correlation: "+str(Phi))
+            # if self.data["Verbose"]:
+            #     print("      m="+str(m))
+            #     print("      Integral correlation: "+str(Cmr.sum()))
+            #     print("      Average integral correlation: "+str(Phi))
 
             return Phi
             # --------------------
@@ -842,11 +853,11 @@ class DM:
             Cmra= float(((mutualDistance <= ra).sum()))/numelem
             Cmrb= float(((mutualDistance <= rb).sum()))/numelem
 
-            if self.data["Verbose"]:
-                print("      ra: "+str(ra))
-                print("      rb: "+str(rb))
-                print("      Cmra: "+str(100.0*Cmra)+"%")
-                print("      Cmrb: "+str(100.0*Cmrb)+"%")
+            # if self.data["Verbose"]:
+            #     print("      ra: "+str(ra))
+            #     print("      rb: "+str(rb))
+            #     print("      Cmra: "+str(100.0*Cmra)+"%")
+            #     print("      Cmrb: "+str(100.0*Cmrb)+"%")
 
             FracDim = (np.log(Cmrb)-np.log(Cmra))/(np.log(rb)-np.log(ra))
 
@@ -854,31 +865,33 @@ class DM:
             # --------------------
 
 
-        if self.data["Verbose"]:
-            print("** Calculating non-linear parameters")
+        # if self.data["Verbose"]:
+        #     print("** Calculating non-linear parameters")
 
-        npoints=len(self.data["niHR"])
+        npoints=len(Data)
 
         # print ("Number of points: "+str(npoints))
         if npoints > N:
-            DataInt=self.data["niHR"][(npoints/2-N/2)-1:(npoints/2+N/2)]
+            DataInt=Data[(npoints/2-N/2)-1:(npoints/2+N/2)]
         else:
-            DataInt=self.data["niHR"]
+            DataInt=Data
 
         # dd=np.linspace(start=0, stop=100, num=1000)
         # DataInt=np.sin(dd)
 
-        if self.data["Verbose"]:
-            print("   Calculating approximate entropy")
+        # if self.data["Verbose"]:
+        #     print("   Calculating approximate entropy")
         ApEn = CalculateApEn(DataInt)
-        if self.data["Verbose"]:
-            print("   Approximate entropy: "+str(ApEn))
+        # if self.data["Verbose"]:
+        #     print("   Approximate entropy: "+str(ApEn))
 
-        if self.data["Verbose"]:
-            print("   Calculating fractal dimension")
+        # if self.data["Verbose"]:
+        #     print("   Calculating fractal dimension")
         FracDim = CalculateFracDim(DataInt)
-        if self.data["Verbose"]:
-            print("  Fractal dimension: "+str(FracDim))
+        # if self.data["Verbose"]:
+        #     print("  Fractal dimension: "+str(FracDim))
+
+        return ApEn,FracDim
         
                         
             
@@ -1251,7 +1264,9 @@ class DM:
             
     def GetFrameBasedDataPlot(self):
         """Returns data necessary for frame-based plot"""
-        return(self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"], self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"], self.data["rMSSD"], self.data["HR"])
+        return(self.data["LFHF"], self.data["ULF"], self.data["VLF"], self.data["LF"], self.data["HF"],
+            self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"],
+            self.data["rMSSD"], self.data["ApEn"], self.data["FracDim"], self.data["HR"])
         
     def GetFrameBasedData(self,param,tag):
         """Returns values of a parameter inside episodes, outside episodes and total"""
@@ -1388,7 +1403,7 @@ class DM:
         def CreateBandSupblot(axes,x,y,ylabel):
             axes.plot(x,y,'-k')        
             axes.set_ylabel(ylabel)
-            if ylabel not in ["Mean HR","HR STD","Heart rate"]:
+            if ylabel not in ["Mean HR","HR STD","ApEn","Heart rate"]:
                 axes.set_ylim(bottom=0)
             axes.tick_params(axis='x',labelbottom='off')
             axes.set_xlim(xvectortimemin,xvectortimemax)
@@ -1425,7 +1440,7 @@ class DM:
             self.data["PlotFBXMax"]=xvectortimemax
        
 
-        lfhfvector,ulfvector,vlfvector, lfvector, hfvector, powervector,meanhrvector, hrstdvector, pnn50vector, rmssdvector, hrvector = self.GetFrameBasedDataPlot()
+        lfhfvector, ulfvector, vlfvector, lfvector, hfvector, powervector, meanhrvector, hrstdvector, pnn50vector, rmssdvector, apenvector, fracdimvector, hrvector = self.GetFrameBasedDataPlot()
         xvectorframe=np.array([x*self.data["windowshift"]+self.data["windowsize"]/2.0 for x in range(len(ulfvector))])
         
         self.AllBands, self.VisibleBands=self.GetVisibleBands()
@@ -1484,9 +1499,13 @@ class DM:
             if Band == "HR STD":
                 CreateBandSupblot(axBand, xvectorframe, hrstdvector, 'HR STD')
             if Band == "pNN50":
-                CreateBandSupblot(axBand, xvectorframe, pnn50vector, 'pNN50')
+                CreateBandSupblot(axBand, xvectorframe, pnn50vector, 'pNN50')   
             if Band == "rMSSD":
-                CreateBandSupblot(axBand, xvectorframe, rmssdvector, 'rMSSD')        
+                CreateBandSupblot(axBand, xvectorframe, rmssdvector, 'rMSSD')   
+            if Band == "ApEn":
+                CreateBandSupblot(axBand, xvectorframe, apenvector, 'ApEn')  
+            if Band == "FracDim":
+                CreateBandSupblot(axBand, xvectorframe, fracdimvector, 'FracDim')       
     
             if hasEpisodes :
                 AddEpisodesToBandSubplot(axBand)
