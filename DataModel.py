@@ -96,10 +96,12 @@ class DM:
         if len(asciiDataNeg)>0:  # The file contains an RR series
             asciiDataBig = [x for x in asciiData if x>100]
             if len(asciiDataBig)>0:
-                print("   File contains RR data in milliseconds")
+                if (self.data["Verbose"]==True):
+                    print("   File contains RR data in milliseconds")
                 self.LoadRRMillisec(asciiData,settings)
             else:
-                print("   File contains RR data in seconds")
+                if (self.data["Verbose"]==True):
+                    print("   File contains RR data in seconds")
                 self.LoadRRMillisec(asciiData*1000.0,settings)
         else:
             if (self.data["Verbose"]==True):
