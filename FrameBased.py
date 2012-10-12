@@ -351,7 +351,7 @@ class SignificanceWindow(wx.Frame):
         endButton = wx.Button(panel, -1, "Close", size=buttonSizeSignif)
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
         endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT|wx.ALIGN_BOTTOM)
                 
         sizer.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
 

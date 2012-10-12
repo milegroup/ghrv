@@ -32,24 +32,25 @@
 import wx
 from configvalues import *
 import matplotlib
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
 
 class PoincarePlotWindow(wx.Frame):
 
     def __init__(self,parent,id,title,dm):
 
-        wx.Frame.__init__(self, parent, -1, title, size=signifWindowSize)
+        wx.Frame.__init__(self, parent, -1, title, size=poincareWindowSize)
 
-        self.signifNumBins=signifNumBins
+        self.poincareDelta = 1
         self.dm = dm
         
         self.Bind(wx.EVT_CLOSE,self.OnEnd)  
         
         self.WindowParent=parent
 
-        # sizer=wx.BoxSizer(wx.VERTICAL)
+        sizer=wx.BoxSizer(wx.VERTICAL)
 
-        # panel = wx.Panel(self)
+        panel = wx.Panel(self)
 
         # # -------------- Begin of parameter selector
 
@@ -126,41 +127,41 @@ class PoincarePlotWindow(wx.Frame):
         # # -------------- End of tags selector
 
 
-        # # -------------- Begin of figure
+        # -------------- Begin of figure
 
-        # self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=SignifBGColor)
+        self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=PoincareBGColor)
         # self.fig.subplots_adjust(left=0.05, bottom=0.18, right=0.98, top=0.92, wspace=0.20, hspace=0.15)
-        # self.canvas = FigureCanvas(panel, -1, self.fig)
+        self.canvas = FigureCanvas(panel, -1, self.fig)
         
-        # self.axes = self.fig.add_subplot(111)
+        self.axes = self.fig.add_subplot(111)
 
-        # sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
 
-        # # -------------- End of figure
+        # -------------- End of figure
 
         # # -------------- Begin of textbox and buttons
 
-        # hbox = wx.BoxSizer(wx.HORIZONTAL)   
+        hbox = wx.BoxSizer(wx.HORIZONTAL)   
 
 
         # self.textOutput = wx.TextCtrl(panel, id, 'Information', size=(400, 75), style=wx.TE_READONLY|wx.TE_MULTILINE|wx.TE_RICH2)
         # self.textOutput.SetFont(wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL));
         # hbox.Add(self.textOutput, 1, wx.LEFT | wx.TOP | wx.GROW)
 
-        # hbox.AddStretchSpacer(prop=1)
+        hbox.AddStretchSpacer(prop=1)
 
-        # endButton = wx.Button(panel, -1, "Close", size=buttonSizeSignif)
-        # self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
-        # endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        # hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+        endButton = wx.Button(panel, -1, "Close", size=buttonSizeSignif)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
+        endButton.SetToolTip(wx.ToolTip("Click to close window"))
+        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
                 
-        # sizer.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
+        sizer.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
 
         # # -------------- End of textbox and buttons
 
-        # panel.SetSizer(sizer)
+        panel.SetSizer(sizer)
 
-        # self.SetMinSize(signifWindowMinSize)
+        self.SetMinSize(poincareWindowMinSize)
 
         # self.sb = self.CreateStatusBar()
         # self.sb.SetStatusText(self.sbSignifText)
@@ -170,7 +171,7 @@ class PoincarePlotWindow(wx.Frame):
         self.Show(True)
         self.Layout()
         self.Refresh()
-        # self.canvas.SetFocus()
+        self.canvas.SetFocus()
 
     # def OnKeyPress(self,event):
     #     if not self.EnoughData:
@@ -257,7 +258,7 @@ class PoincarePlotWindow(wx.Frame):
     #     self.ActiveTagLeft = event.GetEventObject().GetLabel()
     #     self.Refresh()
 
-    # def Refresh(self):
+    def Refresh(self):
     #     # print "Valor left: ", self.ActiveTagLeft
     #     # print "Valor right: ",self.ActiveTagRight
     #     # print "Param: ",self.ActiveParam
@@ -289,7 +290,8 @@ class PoincarePlotWindow(wx.Frame):
     #     valuesleftweight=np.ones_like(valuesleft)/len(valuesleft)
     #     valuesrightweight=np.ones_like(valuesright)/len(valuesright)
 
-    #     self.axes.clear()
+        self.axes.clear()
+        self.axes.plot([1,3],[4,5])
 
     #     if (len(valuesleft)>signifNumMinValues) and (len(valuesright)>signifNumMinValues):
     #         self.EnoughData=True
@@ -331,7 +333,7 @@ class PoincarePlotWindow(wx.Frame):
     #                         bbox=dict(boxstyle='round',facecolor='red', alpha=0.5))
             
     #     self.textOutput.SetValue(cad)
-    #     self.canvas.draw()
+        self.canvas.draw()
 
     # def GetPValue(self,a,b,alpha):
     #     import scipy

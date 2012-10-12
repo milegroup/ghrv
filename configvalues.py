@@ -44,6 +44,9 @@ signifNumMinValues = 10
 signifNumBins = 10
 signifAlpha = 0.01
 
+poincareWindowSize=(800,700)
+poincareWindowMinSize=(640,700)
+
 #editNIHRWindowSize=(1024,768)
 #BandsWindowSize=(1024,768)
 aboutWindowSize=(800,700)

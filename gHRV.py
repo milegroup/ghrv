@@ -895,13 +895,11 @@ class MainWindow(wx.Frame):
             self.fbWindow.Refresh()
 
     def OnPoincare(self,event):
-        print "Poincare\n"
         PoincarePlotWindow(self,-1,'Poincaré plot',dm)
         self.poincareWindowPresent=True
         self.RefreshMainWindowButtons()
 
     def OnPoincareEnded(self):
-        print "Poincare ended"
         self.poincareWindowPresent=False
         self.RefreshMainWindowButtons()
 
