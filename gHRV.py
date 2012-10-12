@@ -43,6 +43,7 @@ from configvalues import *
 from AboutDlg import AboutDlg
 from FrameBased import *
 from EditEpisodes import EditEpisodesWindow
+from PoincarePlot import PoincarePlotWindow
 from ReportWindow import *
 
 # os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
@@ -266,6 +267,7 @@ class MainWindow(wx.Frame):
         self.aboutWindowPresent=False
         self.reportWindowPresent=False
         self.signifWindowPresent=False
+        self.poincareWindowPresent=False
         
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         
@@ -436,7 +438,7 @@ class MainWindow(wx.Frame):
 
         self.buttonPoincare = wx.Button(self.MainPanel, -1, label="Poincaré plot")
         sbToolsButtonsSizer.Add(self.buttonPoincare, flag=wx.ALL | wx.EXPAND, border=borderSmall)
-        # self.Bind(wx.EVT_BUTTON, self.OnReport, id=self.buttonReport.GetId())
+        self.Bind(wx.EVT_BUTTON, self.OnPoincare, id=self.buttonPoincare.GetId())
         self.buttonPoincare.SetToolTip(wx.ToolTip("Poincaré plot tool"))
         if platform != 'darwin':
             self.buttonPoincare.SetBackgroundColour(PoincareBGColor)
@@ -656,6 +658,7 @@ class MainWindow(wx.Frame):
         self.buttonEditEpisodes.Disable()
         self.buttonClearEpisodes.Disable()
         self.buttonTemporal.Disable()
+        self.buttonPoincare.Disable()
         self.buttonConfig.Disable()
         self.buttonAbout.Disable()
         self.buttonReport.Disable()
@@ -665,7 +668,7 @@ class MainWindow(wx.Frame):
         
         self.DisableAllButtons() # by default all disabled
         
-        if self.configWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent:
+        if self.configWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent or self.poincareWindowPresent:
             return
         
         self.buttonConfig.Enable()
@@ -682,6 +685,7 @@ class MainWindow(wx.Frame):
                 self.buttonClearProject.Enable()
                 self.buttonOptionsProject.Enable()
             self.buttonEditEpisodes.Enable()
+            self.buttonPoincare.Enable()
             if not self.reportWindowPresent:
                 self.buttonReport.Enable()
         else:
@@ -889,7 +893,18 @@ class MainWindow(wx.Frame):
         self.RefreshMainWindow()
         if self.fbWindowPresent:
             self.fbWindow.Refresh()
-    
+
+    def OnPoincare(self,event):
+        print "Poincare\n"
+        PoincarePlotWindow(self,-1,'Poincaré plot',dm)
+        self.poincareWindowPresent=True
+        self.RefreshMainWindowButtons()
+
+    def OnPoincareEnded(self):
+        print "Poincare ended"
+        self.poincareWindowPresent=False
+        self.RefreshMainWindowButtons()
+
     def OnEpisodesClear(self,event):
         dm.ClearEpisodes()
         dm.ClearColors()
