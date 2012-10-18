@@ -26,14 +26,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-# TODO: problema si añado episodio y luego cancelo
-
 
 import wx
 from configvalues import *
 import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
+import numpy as np
 
 class PoincarePlotWindow(wx.Frame):
 
@@ -259,6 +258,8 @@ class PoincarePlotWindow(wx.Frame):
     #     self.Refresh()
 
     def Refresh(self):
+        from matplotlib.patches import Ellipse
+        
     #     # print "Valor left: ", self.ActiveTagLeft
     #     # print "Valor right: ",self.ActiveTagRight
     #     # print "Param: ",self.ActiveParam
@@ -291,7 +292,40 @@ class PoincarePlotWindow(wx.Frame):
     #     valuesrightweight=np.ones_like(valuesright)/len(valuesright)
 
         self.axes.clear()
-        self.axes.plot([1,3],[4,5])
+        xvector,yvector = self.dm.GetPoincareDataPlot()
+        maxval=max(max(xvector),max(yvector))
+        maxcoord=maxval*1.1
+        minval=min(min(xvector),min(yvector))
+        mincoord=minval*0.9
+
+        self.axes.plot(xvector,yvector,'.r')
+        self.axes.arrow(minval*0.95,minval*0.95,(maxval*1.05-minval*0.95),(maxval*1.05-minval*0.95),
+            lw=1, head_width=(maxcoord-mincoord)/100,
+            head_length=(maxcoord-mincoord)/50,
+            length_includes_head=True, fc='k', zorder=3)
+
+        maxcoord=max(max(xvector),max(yvector))*1.1
+        mincoord=min(min(xvector),min(yvector))*0.9
+        self.axes.set_xlim(mincoord,maxcoord)
+        self.axes.set_ylim(mincoord,maxcoord)
+        self.axes.set_xlabel("$RR_i (msec.)$")
+        self.axes.set_ylabel("$RR_{i+1} (msec.)$")
+        self.axes.set_title(self.dm.GetPoincarePlotTitle())
+
+        sd1 = np.std((xvector-yvector)/np.sqrt(2.0),ddof=1)
+        sd2 = np.std((xvector+yvector)/np.sqrt(2.0),ddof=1)
+
+        ell=Ellipse(xy=(np.mean(xvector),np.mean(yvector)),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
+        self.axes.add_artist(ell)
+        # ell.set_alpha(0.7)
+        ell.set(zorder=2)
+
+        if self.dm.data["Verbose"]==True:
+            print (u"** Creating Poincaré Plot")
+            print("   SD1: "+str(sd1))
+            print("   SD2: "+str(sd2))
+        
+        self.axes.grid()
 
     #     if (len(valuesleft)>signifNumMinValues) and (len(valuesright)>signifNumMinValues):
     #         self.EnoughData=True

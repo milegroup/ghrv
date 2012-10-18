@@ -733,7 +733,7 @@ class DM:
             
             frameHR = self.data["HR"][begframe:endframe]
             self.data["Mean HR"].append(np.mean(frameHR))
-            self.data["HR STD"].append(np.std(frameHR))            
+            self.data["HR STD"].append(np.std(frameHR,ddof=1))            
             
             BeatsFrame = [x for x in self.data["BeatTime"] if x>=begtime and x<=endtime]
             frameRR = 1000.0*np.diff(BeatsFrame)
@@ -904,6 +904,11 @@ class DM:
         else: 
             xvector = self.data["BeatTime"]
             yvector = self.data["niHR"]
+        return (xvector,yvector)
+
+    def GetPoincareDataPlot(self):
+        xvector=self.data["RR"][:-1]
+        yvector=self.data["RR"][1:]
         return (xvector,yvector)
         
     def GetName(self):
@@ -1259,6 +1264,9 @@ class DM:
             return (self.data["name"] + " - Interpolated HR")
         else:
             return(self.data["name"] + " - Non interpolated HR")
+
+    def GetPoincarePlotTitle(self):
+        return (self.data["name"] + u" - Poincaré Plot")
         
     def SetVisibleBands(self,ListOfBands):
         """Changes the list of bands visible in plot"""
