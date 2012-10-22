@@ -75,7 +75,7 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.vboxRightArea.Add(self.signifButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_RIGHT)
         if platform != 'darwin':
             self.signifButton.SetBackgroundColour(SignifBGColor)
-        if self.dm.DataPlotHasVisibleEpisodes():
+        if self.dm.HasVisibleEpisodes():
             self.signifButton.Enable()
         else:
             self.signifButton.Disable()
@@ -202,7 +202,7 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.dm.CreatePlotFBEmbedded(self.fig)
         self.canvas.draw()
 
-        if self.dm.DataPlotHasVisibleEpisodes():
+        if self.dm.HasVisibleEpisodes():
             self.signifButton.Enable()
         else:
             self.signifButton.Disable()

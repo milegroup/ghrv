@@ -41,10 +41,13 @@ class PoincarePlotWindow(wx.Frame):
 
     def __init__(self,parent,id,title,dm):
 
-        wx.Frame.__init__(self, parent, -1, title, size=poincareWindowSize)
+        # wx.Frame.__init__(self, parent, -1, title, size=poincareWindowSize)
 
-        self.poincareDelta = 1
+        wx.Frame.__init__(self, parent, -1, title)
+
         self.dm = dm
+
+        self.HasTwoPlots=False
         
         self.Bind(wx.EVT_CLOSE,self.OnEnd)  
         
@@ -54,6 +57,51 @@ class PoincarePlotWindow(wx.Frame):
 
         panel = wx.Panel(self)
 
+        if dm.HasVisibleEpisodes():
+            print "Episodes present"
+
+            # -------------- Begin of tags selector
+
+            sbTags = wx.StaticBox(panel, label="Episodes")
+            sbTagsSizer = wx.StaticBoxSizer(sbTags, wx.HORIZONTAL)
+
+            self.AllTags = self.dm.GetVisibleEpisodes()[0]
+
+            # tagsRB = []
+            ChoicesLeft = self.GetChoicesLeft()
+            self.ActiveTagLeft = ChoicesLeft[0]
+            self.ActiveTagRight = "None"
+            self.cbComboLeft=wx.ComboBox(panel,
+                choices=ChoicesLeft,
+                value=self.ActiveTagLeft,
+                style=wx.CB_DROPDOWN|wx.CB_READONLY
+                )
+            sbTagsSizer.Add(self.cbComboLeft,flag=wx.ALL | wx.EXPAND, border=borderSmall)
+            self.Bind(wx.EVT_COMBOBOX, self.OnComboLeft, id=self.cbComboLeft.GetId())
+            
+
+            sbTagsSizer.AddStretchSpacer(prop=1)
+
+            ChoicesRight=self.GetChoicesRight()
+
+            # ChoicesRight = ["None"]+self.AllTags
+            # ChoicesRight.remove(self.ActiveTagLeft)
+
+            self.cbComboRight=wx.ComboBox(panel,
+                choices=ChoicesRight, 
+                value=self.ActiveTagRight, 
+                style=wx.CB_DROPDOWN|wx.CB_READONLY
+                )
+            sbTagsSizer.Add(self.cbComboRight,flag=wx.ALL | wx.EXPAND, border=borderSmall)
+            self.Bind(wx.EVT_COMBOBOX, self.OnComboRight, id=self.cbComboRight.GetId())
+
+
+            sizer.Add(sbTagsSizer,flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT,border=borderBig)
+
+            # -------------- End of tags selector
+
+
+
 
 
         # -------------- Begin of figure
@@ -62,8 +110,6 @@ class PoincarePlotWindow(wx.Frame):
         # self.fig.subplots_adjust(left=0.05, bottom=0.18, right=0.98, top=0.92, wspace=0.20, hspace=0.15)
         self.canvas = FigureCanvas(panel, -1, self.fig)
         
-        self.axes = self.fig.add_subplot(111, aspect='equal')
-
         sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
 
         # -------------- End of figure
@@ -130,76 +176,143 @@ class PoincarePlotWindow(wx.Frame):
 
         event.Skip()
 
+
+    def OnComboLeft(self,event):
+        self.ActiveTagLeft = self.cbComboLeft.GetValue()
+        self.cbComboRight.Clear()
+        ch = self.GetChoicesRight()
+        for item in ch:
+            self.cbComboRight.Append(item)
+        self.Refresh()
+
+    def GetChoicesLeft(self):
+        Choices = ["Global"]
+        for Tag in self.AllTags:
+            Choices += [Tag]
+            Choices += ["Outside "+Tag]
+        return Choices
+
+    def GetChoicesRight(self):
+        Choices = ["None"]
+        for Tag in self.AllTags:
+            Choices += [Tag]
+            Choices += ["Outside "+Tag]
+        if self.ActiveTagLeft != "Global":
+            Choices.remove(self.ActiveTagLeft)
+        return Choices
+
+    def OnComboRight(self,event):
+        self.ActiveTagRight = self.cbComboRight.GetValue()
+        if self.ActiveTagRight=="None":
+            self.HasTwoPlots=False
+        else:
+            self.HasTwoPlots=True
+        self.Refresh()
+        
+
     def OnEnd(self,event):
         self.WindowParent.OnPoincareEnded()
         self.Destroy()
 
+
     def Refresh(self):
-        from matplotlib.patches import Ellipse
+
+        def RefreshSubplot(axes, xdata, ydata, titlestr=None, pos="left"):
+
+            if pos=="left":
+                color=".r"
+            else:
+                color=".c"
+
+            meanx=np.mean(xdata)
+            meany=np.mean(ydata)
+
+            sd1 = np.std((xdata-ydata)/np.sqrt(2.0),ddof=1)
+            sd2 = np.std((xdata+ydata)/np.sqrt(2.0),ddof=1)
+
+            from matplotlib.patches import Ellipse
+
+            axes.plot(xdata,ydata,color)
+
+            coordarrow1 =np.sqrt(sd2*sd2/2)
+            coordarrow2 =np.sqrt(sd1*sd1/2)
+
+            axes.arrow(meanx,meany,coordarrow1,coordarrow1,
+                lw=1, head_width=(maxcoord-mincoord)/100,
+                head_length=(maxcoord-mincoord)/50,
+                length_includes_head=True, fc='k', zorder=3)
+
+            axes.arrow(meanx, meany, -coordarrow2, coordarrow2,
+                lw=1, head_width=(maxcoord-mincoord)/100,
+                head_length=(maxcoord-mincoord)/50,
+                length_includes_head=True, fc='k', zorder=4)
+
+            axes.set_xlim(mincoord,maxcoord)
+            axes.set_ylim(mincoord,maxcoord)
+            axes.set_xlabel("$RR_i (msec.)$")
+            if pos=="left":
+                axes.set_ylabel("$RR_{i+1} (msec.)$")
+
+            if not self.HasTwoPlots:
+                if self.ActiveTagLeft=="Global":
+                    axes.set_title(self.dm.GetPoincarePlotTitle())
+                else:
+                    axes.set_title(self.ActiveTagLeft)
+
+            else:
+                axes.set_title(titlestr)
+                self.fig.suptitle(self.dm.GetPoincarePlotTitle())
+
+            
+
+            if self.dm.data["Verbose"]==True:
+                if titlestr:
+                    print ("** Creating Poincare Plot  -  " + titlestr)
+                else:
+                    print ("** Creating Poincare Plot")
+                print("   SD1: {0:.3f}".format(sd1))
+                print("   SD2: {0:.3f}".format(sd2))
         
+            ell=Ellipse(xy=(meanx,meany),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
+            axes.add_artist(ell)
+            # ell.set_alpha(0.7)
+            ell.set(zorder=2)
 
-        self.axes.clear()
-        xvector,yvector = self.dm.GetPoincareDataPlot()
+            axes.grid(True)
 
-        maxval=max(max(xvector),max(yvector))
+
+        self.fig.clear()
+
+        if not self.HasTwoPlots:
+            axes = self.fig.add_subplot(111, aspect='equal')
+            xvector,yvector = self.dm.GetPoincareDataPlot(tag=self.ActiveTagLeft)
+            maxval=max(max(xvector),max(yvector))
+            minval=min(min(xvector),min(yvector))
+        else:
+            axes1 = self.fig.add_subplot(121, aspect='equal')
+            axes2 = self.fig.add_subplot(122, aspect='equal')
+            xvector1,yvector1 = self.dm.GetPoincareDataPlot(tag=self.ActiveTagLeft)
+            xvector2,yvector2 = self.dm.GetPoincareDataPlot(tag=self.ActiveTagRight)
+            minval=min(min(xvector1),min(yvector1),min(xvector2),min(yvector2))
+            maxval=max(max(xvector1),max(yvector1),max(xvector2),max(yvector2))
+
+
+        
         maxplot=maxval*1.05
         maxcoord=maxval*1.1
 
-        minval=min(min(xvector),min(yvector))
         minplot=minval*0.95
         mincoord=minval*0.9
 
-        meanx=np.mean(xvector)
-        meany=np.mean(yvector)
 
-        self.axes.plot(xvector,yvector,'.r')
-
-        self.axes.arrow(minplot,minplot,(maxplot-minplot),(maxplot-minplot),
-            lw=1, head_width=(maxcoord-mincoord)/100,
-            head_length=(maxcoord-mincoord)/50,
-            length_includes_head=True, fc='k', zorder=3)
-
-        if (meanx<(min(xvector)+max(xvector))/2):
-            self.axes.arrow(
-                2*meanx-minplot,
-                minplot,
-                2*minplot-2*meanx,
-                2*meany-2*minplot,
-                lw=1, head_width=(maxcoord-mincoord)/100,
-                head_length=(maxcoord-mincoord)/50,
-                length_includes_head=True, fc='k', zorder=4)
+        if not self.HasTwoPlots:
+            RefreshSubplot(axes, xvector, yvector)
         else:
-            self.axes.arrow(
-                maxplot,
-                2*meany-maxplot,
-                -2*maxplot+2*meanx,
-                2*maxplot-2*meany,
-                lw=1, head_width=(maxcoord-mincoord)/100,
-                head_length=(maxcoord-mincoord)/50,
-                length_includes_head=True, fc='k', zorder=4)
-
-        self.axes.set_xlim(mincoord,maxcoord)
-        self.axes.set_ylim(mincoord,maxcoord)
-        self.axes.set_xlabel("$RR_i (msec.)$")
-        self.axes.set_ylabel("$RR_{i+1} (msec.)$")
-        self.axes.set_title(self.dm.GetPoincarePlotTitle())
-
-        sd1 = np.std((xvector-yvector)/np.sqrt(2.0),ddof=1)
-        sd2 = np.std((xvector+yvector)/np.sqrt(2.0),ddof=1)
-
-        ell=Ellipse(xy=(np.mean(xvector),np.mean(yvector)),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
-        self.axes.add_artist(ell)
-        # ell.set_alpha(0.7)
-        ell.set(zorder=2)
-
-        if self.dm.data["Verbose"]==True:
-            print (u"** Creating Poincaré Plot")
-            print("   SD1: {0:.3f}".format(sd1))
-            print("   SD2: {0:.3f}".format(sd2))
-        
-        self.axes.grid()
-
+            RefreshSubplot(axes1, xvector1, yvector1, titlestr=self.ActiveTagLeft)
+            RefreshSubplot(axes2, xvector2, yvector2, titlestr=self.ActiveTagRight, pos="right")
   
         self.canvas.draw()
+
+
 
     

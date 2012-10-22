@@ -516,7 +516,18 @@ class MainWindow(wx.Frame):
         
         if DebugMode:
             dm.LoadFileAscii("./beats.txt", self.settings)
+            
+            dm.FilterNIHR()
+
+            dm.LoadEpisodesAscii("./beats_ep.txt")
+            EpisodesTags=dm.GetEpisodesTags()
+            for Tag in EpisodesTags:
+                dm.AssignEpisodeColor(Tag)
             self.RefreshMainWindow()
+            PoincarePlotWindow(self,-1,'Poincaré plot',dm)
+            self.poincareWindowPresent=True
+            self.RefreshMainWindowButtons()
+
             # if dm.HasFrameBasedParams()==False:
             #     dm.CalculateFrameBasedParams(showProgress=True)
             # self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters",dm)

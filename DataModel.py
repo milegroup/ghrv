@@ -906,10 +906,38 @@ class DM:
             yvector = self.data["niHR"]
         return (xvector,yvector)
 
-    def GetPoincareDataPlot(self):
-        xvector=self.data["RR"][:-1]
-        yvector=self.data["RR"][1:]
-        return (xvector,yvector)
+    def GetPoincareDataPlot(self,tag):
+        if tag=="Global":
+            data=self.data["RR"]
+            return (data[:-1],data[1:])
+
+        outsideTag=False
+        pointsInTag=np.zeros(len(self.data["RR"]))
+        if tag[0:7] == "Outside":
+            outsideTag=True
+            tag = tag[8:]
+        tags,starts,durations,tagsVisible = self.GetEpisodes()
+        numEpisodes=len(starts)
+        startsvector=[starts[w] for w in range(numEpisodes) if tags[w]==tag]
+        durationsvector=[durations[w] for w in range(numEpisodes) if tags[w]==tag]
+        endsvector=[starts[w]+durations[w] for w in range(numEpisodes) if tags[w]==tag]
+
+        for indexEp in range(len(startsvector)):
+            pointsInTag[[x for x in range(len(self.data["RR"])) if self.data["BeatTime"][x] > startsvector[indexEp] and self.data["BeatTime"][x] < endsvector[indexEp]]] = 1
+
+        inside=self.data["RR"][[x for x in range(len(self.data["RR"])) if pointsInTag[x]==1]]
+        outside=self.data["RR"][[x for x in range(len(self.data["RR"])) if pointsInTag[x]==0]]
+        # print "Inside: ",len(inside)
+        # print "Outside: ",len(outside)
+        # print "Total: ",len(self.data["RR"])
+
+        if outsideTag:
+            data = outside
+        else:
+            data = inside
+
+        return (data[:-1],data[1:])
+        
         
     def GetName(self):
         return self.data["name"]
@@ -1172,7 +1200,7 @@ class DM:
         """Data for edit non interpolated Heart Rate"""
         return (self.data["BeatTime"], self.data["niHR"], self.data["RR"])
     
-    def DataPlotHasVisibleEpisodes(self):
+    def HasVisibleEpisodes(self):
         """Checks if there are visible episodes in the data model"""
         if not self.data.has_key("EpisodesType"):
             return(False)
@@ -1380,7 +1408,7 @@ class DM:
         self.HRaxes.set_title(self.GetHeartRatePlotTitle())
             
         
-        if self.DataPlotHasVisibleEpisodes():
+        if self.HasVisibleEpisodes():
             tags,starts,durations,tagsVisible = self.GetEpisodes()
             numEpisodes=len(starts)
             i=0
@@ -1455,7 +1483,7 @@ class DM:
         
         self.AllBands, self.VisibleBands=self.GetVisibleBands()
         
-        hasEpisodes=self.DataPlotHasVisibleEpisodes()
+        hasEpisodes=self.HasVisibleEpisodes()
         if hasEpisodes:
             tags,starts,durations,tagsVisible = self.GetEpisodes()
             starts=np.array(starts)

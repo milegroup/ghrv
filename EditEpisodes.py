@@ -171,7 +171,7 @@ class EditEpisodesWindow(wx.Frame):
         self.axes.set_ylabel("HR (beats/min.)")
         self.axes.set_title(self.dm.GetHeartRatePlotTitle())
         
-        if self.dm.DataPlotHasVisibleEpisodes():
+        if self.dm.HasVisibleEpisodes():
             tags,starts,durations,tagsVisible = self.dm.GetEpisodes()
             numEpisodes=len(tags)
 #            print("Number: "+str(numEpisodes))
