@@ -51,7 +51,6 @@ from ReportWindow import *
 dm=DM(Verbose)
  
 
-
 class EditNIHRWindow(wx.Frame):  
     """ Window for outliers removal in non interpolated HR"""
     NumClicks=0
