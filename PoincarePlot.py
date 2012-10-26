@@ -118,12 +118,16 @@ class PoincarePlotWindow(wx.Frame):
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)   
 
-        hbox.AddStretchSpacer(prop=1)
+        self.textOutput = wx.TextCtrl(panel, id, 'Information', size=(400, 50), style=wx.TE_READONLY|wx.TE_MULTILINE|wx.TE_RICH2)
+        self.textOutput.SetFont(wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL));
+        hbox.Add(self.textOutput, 1, wx.LEFT | wx.TOP | wx.GROW)
+
+        # hbox.AddStretchSpacer(prop=1)
 
         endButton = wx.Button(panel, -1, "Close", size=buttonSizeSignif)
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
         endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT)
+        hbox.Add(endButton, 0, border=borderBig, flag=wx.LEFT | wx.ALIGN_BOTTOM)
                 
         sizer.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
 
@@ -217,6 +221,9 @@ class PoincarePlotWindow(wx.Frame):
 
     def Refresh(self):
 
+        
+
+
         def RefreshSubplot(axes, xdata, ydata, titlestr=None, pos="left"):
 
             if pos=="left":
@@ -229,6 +236,17 @@ class PoincarePlotWindow(wx.Frame):
 
             sd1 = np.std((xdata-ydata)/np.sqrt(2.0),ddof=1)
             sd2 = np.std((xdata+ydata)/np.sqrt(2.0),ddof=1)
+
+            cad =""
+
+            if self.HasTwoPlots:
+                cad += " "+titlestr+" - "
+                cad += "SD1: %.2f ms. - SD2: %.2f ms." % (sd1,sd2)
+                if pos=="left":
+                    cad += "\n"
+            else:
+                cad += " SD1: %.2f ms. - SD2: %.2f ms." % (sd1,sd2)
+            
 
             from matplotlib.patches import Ellipse
 
@@ -280,8 +298,12 @@ class PoincarePlotWindow(wx.Frame):
 
             axes.grid(True)
 
+            return cad
+
 
         self.fig.clear()
+
+        cad =""
 
         if not self.HasTwoPlots:
             axes = self.fig.add_subplot(111, aspect='equal')
@@ -306,10 +328,12 @@ class PoincarePlotWindow(wx.Frame):
 
 
         if not self.HasTwoPlots:
-            RefreshSubplot(axes, xvector, yvector)
+            cad += RefreshSubplot(axes, xvector, yvector)
         else:
-            RefreshSubplot(axes1, xvector1, yvector1, titlestr=self.ActiveTagLeft)
-            RefreshSubplot(axes2, xvector2, yvector2, titlestr=self.ActiveTagRight, pos="right")
+            cad +=RefreshSubplot(axes1, xvector1, yvector1, titlestr=self.ActiveTagLeft)
+            cad +=RefreshSubplot(axes2, xvector2, yvector2, titlestr=self.ActiveTagRight, pos="right")
+
+        self.textOutput.SetValue(cad)
   
         self.canvas.draw()
 

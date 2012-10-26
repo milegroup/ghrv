@@ -150,12 +150,10 @@ class SignificanceWindow(wx.Frame):
         self.textOutput.SetFont(wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL));
         hbox.Add(self.textOutput, 1, wx.LEFT | wx.TOP | wx.GROW)
 
-        hbox.AddStretchSpacer(prop=1)
-
         endButton = wx.Button(panel, -1, "Close", size=buttonSizeSignif)
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=endButton.GetId())
         endButton.SetToolTip(wx.ToolTip("Click to close window"))
-        hbox.Add(endButton, 0, border=borderSmall, flag=wx.RIGHT|wx.ALIGN_BOTTOM)
+        hbox.Add(endButton, 0, border=borderBig, flag=wx.LEFT|wx.ALIGN_BOTTOM)
                 
         sizer.Add(hbox, 0, flag=wx.EXPAND|wx.ALL, border=borderBig)
 
