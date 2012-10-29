@@ -966,6 +966,10 @@ class DM:
         
         if (self.data["Verbose"]==True):
             print("** Creating report in directory "+DirName)
+
+        if self.HasInterpolatedHR():
+            if self.HasFrameBasedParams()==False:
+                self.CalculateFrameBasedParams(showProgress=True)
             
         FileName = DirName + os.sep + ReportName
         File = open(FileName,'w')
@@ -1012,11 +1016,34 @@ class DM:
         File.write('</td></tr>\n')
         File.write('</table>\n')
         File.write("<hr>\n")
+
+        # Non-linear analysis
+        WriteSubtitleLine(File,'Non-linear analysis')
+        info=self.GetInfoNonLinear()
+        self.CreatePlotFile("Poincare",DirName+os.sep+ReportSubDir+os.sep+"Poincare.png",plotPoincareWidth,plotPoincareHeight)
+        File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
+        File.write('<tr align="center">')
+        File.write('<td><img src="./'+ReportSubDir+'/Poincare.png"/></td>\n')
+        File.write('<td align="left"><font size="-1"><table>\n')
+        File.write('<tr><td><b>Poincar&eacute; Plot: </b></td></tr>')
+        File.write('<tr><td><b>&nbsp;&nbsp;&nbsp;&nbsp;SD1: </b><i>'+info["SD1"]+'</i></td></tr>')
+        File.write('<tr><td><b>&nbsp;&nbsp;&nbsp;&nbsp;SD2: </b><i>'+info["SD2"]+'</i></td></tr>')
+        File.write('</table>\n</font>\n')
+        File.write('</td>\n')
+
+        if self.HasFrameBasedParams():
+            File.write('<td align="left"><font size="-1"><table>\n')
+            File.write('<tr><td><b>&nbsp;&nbsp;&nbsp;&nbsp;ApEn: </b><i>'+info["ApEn"]+'</i></td></tr>')
+            File.write('<tr><td><b>&nbsp;&nbsp;&nbsp;&nbsp;FracDim: </b><i>'+info["FracDim"]+'</i></td></tr>')
+            File.write('</table>\n</font>\n')
+            File.write('</td>\n')
+        
+        File.write('</tr>\n')
+        File.write('</table>\n')
+        File.write("<hr>\n")
         
         # Frame-based parameters
         if self.HasInterpolatedHR():
-            if self.HasFrameBasedParams()==False:
-                self.CalculateFrameBasedParams(showProgress=True)
             WriteSubtitleLine(File,'Frame-based analysis')
             self.CreatePlotFile("FB",DirName+os.sep+ReportSubDir+os.sep+"FB.png",plotFBWidth,plotFBHeight,zoomReset=True)
             File.write('<table cellspacing="0" border="0" width="'+str(HTMLPageWidth)+'">\n')
@@ -1081,12 +1108,10 @@ class DM:
             
             File.write('</table></font>\n')
             File.write('<br><br>\n')
-            
-            
            
             File.write("<hr>\n")
             
-        
+
         
         File.write(HTMLTail)
         File.close()
@@ -1193,6 +1218,18 @@ class DM:
         info["tinn"] = "{0:.2f} msec.".format(area/maxhist)
         info["hrvi"] = "{0:.2f}".format(float(len(self.data["RR"]))/maxhist)
    
+        return info
+
+    def GetInfoNonLinear(self):
+        info={}
+        xdata,ydata = self.GetPoincareDataPlot(tag="Global")
+        sd1 = np.std((xdata-ydata)/np.sqrt(2.0),ddof=1)
+        sd2 = np.std((xdata+ydata)/np.sqrt(2.0),ddof=1)
+        info["SD1"] = "{0:.2G} msec.".format(sd1)
+        info["SD2"] = "{0:.2G} msec.".format(sd2)
+        if self.HasFrameBasedParams():
+            info["ApEn"]= "{0:.2G} &plusmn; {1:.2G}".format(np.mean(self.data["ApEn"]),np.std(self.data['ApEn'],ddof=1))
+            info["FracDim"]= "{0:.2G} &plusmn; {1:.2G}".format(np.mean(self.data["FracDim"]),np.std(self.data['FracDim'],ddof=1))
         return info
         
         
@@ -1349,7 +1386,7 @@ class DM:
        
         
     def CreatePlotFile(self,plotType,filename,width,height,zoomReset=False):
-        """Creates and saves a new plot with HR"""
+        """Creates and saves a new plot"""
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
         fig = Figure()
@@ -1363,8 +1400,49 @@ class DM:
             self.CreatePlotRRHistogramEmbedded(fig)
         if plotType=="FB":
             self.CreatePlotFBEmbedded(fig,zoomReset)
+        if plotType=="Poincare":
+            self.CreatePlotPoincareEmbedded(fig)
         canvas = FigureCanvasAgg(fig)
         canvas.print_figure(filename, dpi=plotDPI)
+
+    def CreatePlotPoincareEmbedded(self,fig):
+        from matplotlib.patches import Ellipse
+
+        axes = fig.add_subplot(1,1,1, aspect='equal')
+        xvector,yvector = self.GetPoincareDataPlot(tag="Global")
+        mincoord=0.9*min(min(xvector),min(yvector))
+        maxcoord=1.1*max(max(xvector),max(yvector))
+        meanx=np.mean(xvector)
+        meany=np.mean(yvector)
+        sd1 = np.std((xvector-yvector)/np.sqrt(2.0),ddof=1)
+        sd2 = np.std((xvector+yvector)/np.sqrt(2.0),ddof=1)
+
+        axes.plot(xvector,yvector,".r")
+        axes.set_xlabel("RR[i] (msec.)")
+        axes.set_ylabel("RR[i+1] (msec.)")
+        axes.set_title(u"Poincaré Plot")
+        axes.set_xlim(mincoord,maxcoord)
+        axes.set_ylim(mincoord,maxcoord)
+
+        coordarrow1 =np.sqrt(sd2*sd2/2)
+        coordarrow2 =np.sqrt(sd1*sd1/2)
+        axes.arrow(meanx,meany,coordarrow1,coordarrow1,
+            lw=1, head_width=(maxcoord-mincoord)/100,
+            head_length=(maxcoord-mincoord)/50,
+            length_includes_head=True, fc='k', zorder=3)
+        axes.arrow(meanx, meany, -coordarrow2, coordarrow2,
+            lw=1, head_width=(maxcoord-mincoord)/100,
+            head_length=(maxcoord-mincoord)/50,
+            length_includes_head=True, fc='k', zorder=4)
+
+        ell=Ellipse(xy=(meanx,meany),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
+        axes.add_artist(ell)
+        # ell.set_alpha(0.7)
+        ell.set(zorder=2)
+
+        axes.grid(True)
+
+        matplotlib.pyplot.show()
         
         
     def CreatePlotHRHistogramEmbedded(self,fig):

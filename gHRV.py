@@ -523,9 +523,9 @@ class MainWindow(wx.Frame):
             for Tag in EpisodesTags:
                 dm.AssignEpisodeColor(Tag)
             self.RefreshMainWindow()
-            PoincarePlotWindow(self,-1,'Poincaré plot',dm)
-            self.poincareWindowPresent=True
-            self.RefreshMainWindowButtons()
+            # PoincarePlotWindow(self,-1,'Poincaré plot',dm)
+            # self.poincareWindowPresent=True
+            # self.RefreshMainWindowButtons()
 
             # if dm.HasFrameBasedParams()==False:
             #     dm.CalculateFrameBasedParams(showProgress=True)
@@ -534,13 +534,13 @@ class MainWindow(wx.Frame):
             # self.RefreshMainWindowButtons()
             # EditEpisodesWindow(self,-1,'Episodes Edition',dm)
             # self.editEpisodesWindowPresent=True
-            # import tempfile
-            # reportName="report.html"
-            # reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
-            # dm.CreateReport(reportDir,reportName,'report_files')
-            # ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
-            # self.reportWindowPresent=True
-            # self.RefreshMainWindowButtons()
+            import tempfile
+            reportName="report.html"
+            reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
+            dm.CreateReport(reportDir,reportName,'report_files')
+            ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
+            self.reportWindowPresent=True
+            self.RefreshMainWindowButtons()
 
             
         

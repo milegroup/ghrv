@@ -124,6 +124,8 @@ plotHRWidth=740.0
 plotHRHeight=300.0
 plotHRHistogramWidth=260.0
 plotHRHistogramHeight=200.0
+plotPoincareWidth=300.0
+plotPoincareHeight=300.0
 plotFBWidth=740.0
 plotFBHeight=500.0
 
