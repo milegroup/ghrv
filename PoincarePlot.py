@@ -57,8 +57,11 @@ class PoincarePlotWindow(wx.Frame):
 
         panel = wx.Panel(self)
 
+        if not dm.HasVisibleEpisodes():
+            self.ActiveTagLeft = "Global"
+
+
         if dm.HasVisibleEpisodes():
-            print "Episodes present"
 
             # -------------- Begin of tags selector
 
