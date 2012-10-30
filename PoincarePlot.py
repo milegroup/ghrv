@@ -41,9 +41,9 @@ class PoincarePlotWindow(wx.Frame):
 
     def __init__(self,parent,id,title,dm):
 
-        # wx.Frame.__init__(self, parent, -1, title, size=poincareWindowSize)
+        wx.Frame.__init__(self, parent, -1, title, size=poincareWindowSize)
 
-        wx.Frame.__init__(self, parent, -1, title)
+        # wx.Frame.__init__(self, parent, -1, title)
 
         self.dm = dm
 

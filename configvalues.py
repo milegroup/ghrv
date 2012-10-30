@@ -76,7 +76,7 @@ addEpWinMinSizeMac=(250,280)
 exportSettingsWindowSize=(500,350)
 exportSettingsWindowMinSize=exportSettingsWindowSize
 
-exportSettingsWindowSizeMac=(500,350)
+exportSettingsWindowSizeMac=(500,375)
 exportSettingsWindowMinSizeMac=exportSettingsWindowSizeMac
 
 alphaMatplotlibTags=0.5
