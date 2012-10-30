@@ -54,7 +54,7 @@ class AboutDlg(wx.Frame):
         html=wx.html.HtmlWindow(self.panel, id)
         html.SetPage(
             '<p align="center"><img src="LogoSmall.png"/></p>'
-            '<h3 align="center">gHRV 0.21</h3>'
+            '<h3 align="center">gHRV 1.0</h3>'
             '<p align="center"><b>gHRV: a graphical application for Heart Rate Variability analysis</b></p>'
             '<p align="center">Copyright (C) 2012  Milegroup - Dpt. Informatics - University of Vigo - Spain</p>'
             '<p align="center"><i>http://www.milegroup.net</i></p>'
