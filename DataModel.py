@@ -613,9 +613,16 @@ class DM:
         xmax=int(self.data["BeatTime"][-1])+1
         step=1.0/self.data["interpfreq"]
         
-        BeatTmp = np.insert(self.data["BeatTime"],0,self.data["BeatTime"][0]-1)
+        if platform == "darwin":  # Solves problem with np.insert in Mac
+            BeatTmp = np.concatenate((np.array([self.data["BeatTime"][0]-1]),self.data["BeatTime"]))
+        else:
+            BeatTmp = np.insert(self.data["BeatTime"],0,self.data["BeatTime"][0]-1)
         BeatTmp = np.append(BeatTmp,BeatTmp[-1]+1)
-        niHRTmp = np.insert(self.data["niHR"],0,self.data["niHR"][0])
+
+        if platform == "darwin": # Solves problem with np.insert in Mac
+            niHRTmp = np.concatenate((np.array([self.data["niHR"][0]]),self.data["niHR"]))
+        else:
+            niHRTmp = np.insert(self.data["niHR"],0,self.data["niHR"][0])
         niHRTmp = np.append(niHRTmp,niHRTmp[-1])
         
         
