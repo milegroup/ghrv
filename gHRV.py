@@ -49,6 +49,11 @@ from ReportWindow import *
 # os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
 
 dm=DM(Verbose)
+
+# For debugging errors
+# import sys
+# sys.stdout = open('~/program.out', 'w')
+# sys.stderr = open('~/program.err', 'w')
  
 
 class EditNIHRWindow(wx.Frame):  
@@ -435,10 +440,10 @@ class MainWindow(wx.Frame):
             self.buttonReport.SetBackgroundColour(ReportBGColor)
         self.buttonReport.Disable()
 
-        self.buttonPoincare = wx.Button(self.MainPanel, -1, label="Poincaré plot")
+        self.buttonPoincare = wx.Button(self.MainPanel, -1, label="Poincare plot")
         sbToolsButtonsSizer.Add(self.buttonPoincare, flag=wx.ALL | wx.EXPAND, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnPoincare, id=self.buttonPoincare.GetId())
-        self.buttonPoincare.SetToolTip(wx.ToolTip("Poincaré plot tool"))
+        self.buttonPoincare.SetToolTip(wx.ToolTip("Poincare plot tool"))
         if platform != 'darwin':
             self.buttonPoincare.SetBackgroundColour(PoincareBGColor)
         self.buttonPoincare.Disable()
@@ -905,7 +910,7 @@ class MainWindow(wx.Frame):
             self.fbWindow.Refresh()
 
     def OnPoincare(self,event):
-        PoincarePlotWindow(self,-1,'Poincaré plot',dm)
+        PoincarePlotWindow(self,-1,'Poincare plot',dm)
         self.poincareWindowPresent=True
         self.RefreshMainWindowButtons()
 
