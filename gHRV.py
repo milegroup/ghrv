@@ -250,7 +250,7 @@ class MainWindow(wx.Frame):
 
     configDir = os.path.expanduser('~')+os.sep+'.ghrv'
     configFile = configDir+os.sep+"ghrv.cfg"
-    sbDefaultText="  gHRV 1.0 - http://ghrv.milegroup.net"
+    sbDefaultText="  gHRV %s - http://ghrv.milegroup.net" % Version
     sbPlotHRText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
         
     def __init__(self, parent, id, title):
