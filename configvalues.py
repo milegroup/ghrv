@@ -26,9 +26,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-Verbose=False
+Verbose=True
 DebugMode = False
-Version="1.0.1"
+Version="1.05" # Things like 1.0.5 are invalid
 
 from sys import platform
 borderBig=10

@@ -352,7 +352,7 @@ class DM:
             zf.extract(zfitem,tempDir)
             fileName=tempDir+os.sep+zfitem
             dataName=zfitem[1:]
-            #print("--- Reading file: "+fileName)
+            # print("--- Reading file: "+fileName)
             if zfitem[0]=="#":
                 self.data[dataName]=np.loadtxt(fileName)
                 #print("   Length: "+str(len(self.data[dataName])))
@@ -363,7 +363,7 @@ class DM:
                 else:
                     self.data[dataName]=eval(tempF.read())
                 tempF.close()
-                #print("   Data: "+str(self.data[dataName]))
+                # print("   Data: "+str(self.data[dataName]))
         zf.close()
         
         #print ("Keys: "+str(self.data.keys()))
@@ -382,13 +382,22 @@ class DM:
         if "version" not in self.data.keys(): # Project generated with gHRV 0.18 or older
             if self.data['Verbose']:
                 print("   Importing project from gHRV 0.18 or older")
-                self.ClearBands()
-                if self.HasFrameBasedParams():
-                    self.ClearFrameBasedParams()
-                    self.CalculateFrameBasedParams()
+            self.ClearBands()
+            if self.HasFrameBasedParams():
+                self.ClearFrameBasedParams()
+                self.CalculateFrameBasedParams()
+            self.data["version"]=Version
+
+        if self.data["version"]<Version:
+            if self.data['Verbose']:
+                print("   Importing project from an old version of gHRV")
+            self.ClearBands()
+            if self.HasFrameBasedParams():
+                self.ClearFrameBasedParams()
+                self.CalculateFrameBasedParams()
+            self.data["version"]=Version
               
         shutil.rmtree(tempDir)
-        self.data["version"]=Version
         
             
     def GetSettings(self):
