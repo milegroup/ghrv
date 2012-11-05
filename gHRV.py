@@ -344,6 +344,8 @@ class MainWindow(wx.Frame):
                 string = string + " (deb package)"
             if platform=="darwin" and "gHRV.app" in argv[0]:
                 string = string + " (mac package)"
+            if platform=="win32" and "gHRV.exe" in argv[0]:
+                string = string + "(win package)"
 
             dial = wx.MessageDialog(self, caption="Version info", message=string, style=wx.OK)
             result = dial.ShowModal()
