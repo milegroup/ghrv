@@ -342,7 +342,7 @@ class MainWindow(wx.Frame):
             if argv[0]=="gHRV.py":
                 string = string + " (source)"
                 try:
-                    remoteFile = urllib2.urlopen("http://cloud.github.com/downloads/milegroup/ghrv/Version_src.txt")
+                    remoteFile = urllib2.urlopen("https://raw.github.com/milegroup/ghrv/master/Version_src.txt")
                     remoteVer=remoteFile.readline().strip()
                     remoteFile.close()
                 # Version = "1.4"
