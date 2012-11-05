@@ -47,7 +47,7 @@ from EditNIHR import EditNIHRWindow
 from PoincarePlot import PoincarePlotWindow
 from ReportWindow import *
 
-# os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
+os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
 
 dm=DM(Verbose)
 
@@ -69,6 +69,8 @@ class MainWindow(wx.Frame):
     sbPlotHRText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
         
     def __init__(self, parent, id, title):
+
+
 
         self.ConfigInit()
                         
@@ -332,6 +334,18 @@ class MainWindow(wx.Frame):
         self.Centre()
         self.MainPanel.SetSizer(self.sizer)
         self.MainPanel.Layout()
+
+        if ReportVersion:
+            from sys import argv
+            string=argv[0]
+            if argv[0]=="gHRV.py":
+                string = string + " (source)"
+            if argv[0]=="/usr/share/ghrv/gHRV.pyc":
+                string = string + " (deb package)"
+
+            dial = wx.MessageDialog(self, caption="Version info", message=string, style=wx.OK)
+            result = dial.ShowModal()
+            dial.Destroy()
         
         if DebugMode:
             dm.LoadFileAscii("./beats.txt", self.settings)

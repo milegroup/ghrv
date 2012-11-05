@@ -26,8 +26,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-Verbose=True
+Verbose=False
 DebugMode = False
+ReportVersion = True
 Version="1.05" # Things like 1.0.5 are not valid
 
 from sys import platform
