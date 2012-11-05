@@ -337,10 +337,23 @@ class MainWindow(wx.Frame):
 
         if ReportVersion:
             from sys import argv
+            import urllib2
             string=argv[0]
             if argv[0]=="gHRV.py":
                 string = string + " (source)"
-            if argv[0]=="/usr/share/ghrv/gHRV.pyc":
+                try:
+                    remoteFile = urllib2.urlopen("http://cloud.github.com/downloads/milegroup/ghrv/Version_src.txt")
+                    remoteVer=remoteFile.readline().strip()
+                    remoteFile.close()
+                # Version = "1.4"
+                    if remoteVer > Version:
+                        string = string + "\nNew version avalaible!"
+                    else:
+                        string = string + "\nYour version is up-to-date"
+                except urllib2.URLError:
+                    string = string + "\nNo network!"
+
+            if platform=="linux2" and argv[0]=="/usr/share/ghrv/gHRV.pyc":
                 string = string + " (deb package)"
             if platform=="darwin" and "gHRV.app" in argv[0]:
                 string = string + " (mac package)"
