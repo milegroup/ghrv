@@ -342,7 +342,7 @@ class MainWindow(wx.Frame):
             if argv[0]=="gHRV.py":
                 string = string + " (source)"
                 try:
-                    remoteFile = urllib2.urlopen("https://raw.github.com/milegroup/ghrv/master/Version_src.txt")
+                    remoteFile = urllib2.urlopen("https://raw.github.com/milegroup/ghrv/master/ProgramVersions/src.txt")
                     remoteVer=remoteFile.readline().strip()
                     remoteFile.close()
                 # Version = "1.4"
@@ -351,7 +351,7 @@ class MainWindow(wx.Frame):
                     else:
                         string = string + "\nYour version is up-to-date"
                 except urllib2.URLError:
-                    string = string + "\nNo network!"
+                    string = string + "\nNo acccess to version file!"
 
             if platform=="linux2" and argv[0]=="/usr/share/ghrv/gHRV.pyc":
                 string = string + " (deb package)"
