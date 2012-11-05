@@ -47,7 +47,7 @@ from EditNIHR import EditNIHRWindow
 from PoincarePlot import PoincarePlotWindow
 from ReportWindow import *
 
-os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
+# os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
 
 dm=DM(Verbose)
 
@@ -342,6 +342,8 @@ class MainWindow(wx.Frame):
                 string = string + " (source)"
             if argv[0]=="/usr/share/ghrv/gHRV.pyc":
                 string = string + " (deb package)"
+            if platform=="darwin" and "gHRV.app" in argv[0]:
+                string = string + " (mac package)"
 
             dial = wx.MessageDialog(self, caption="Version info", message=string, style=wx.OK)
             result = dial.ShowModal()
