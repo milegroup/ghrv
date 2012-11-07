@@ -1305,11 +1305,13 @@ class ConfigurationWindow(wx.Frame):
 
 class UpdateSoftwareWindow(wx.Frame):
     """Parameters and working options"""
+
     
     def __init__(self, parent, id):
+        import wx.richtext as rt
         # conftype: project or general
         # settings2 used for main settings when conftype="project"
-        wx.Frame.__init__(self, parent, size=confWindowSize)
+        wx.Frame.__init__(self, parent)
         
         
         self.WindowParent=parent
@@ -1317,12 +1319,28 @@ class UpdateSoftwareWindow(wx.Frame):
         panel=wx.Panel(self)
                 
         self.SetWindowStyle(wx.STAY_ON_TOP)
-        
+
         self.SetTitle("gHRV Update Window")
             
         #print(str(self.settings))
 
         sizer=wx.BoxSizer(wx.VERTICAL)
+
+        sbText1 = rt.RichTextCtrl(panel,-1,size=(200,200))
+        sbText1.BeginFontSize(11)
+        sbText1.BeginBold()
+        sbText1.BeginAlignment(wx.TEXT_ALIGNMENT_CENTRE)
+        sbText1.WriteText("There is a new version of gHRV!\n")
+        sbText1.EndAlignment()
+        sbText1.EndBold()
+        sbText1.Newline()
+        sbText1.WriteText("You are running XXXX\n")
+        sbText1.WriteText("gHRV XXX is available for downloading\n")
+        sbText1.WriteText("Visit http://www.elmundo.es or use the button Download\n")
+        
+        sbText1.EndFontSize()
+
+        sizer.Add(sbText1,flag=wx.ALL|wx.EXPAND, border=borderSmall)
                 
 
         sizer.AddStretchSpacer(1)
@@ -1334,22 +1352,22 @@ class UpdateSoftwareWindow(wx.Frame):
         
         
         buttonLeft = wx.Button(panel, -1)
-        buttonLeft.SetLabel("Skip")
-        buttonLeft.SetToolTip(wx.ToolTip("Click to revert to factory settings"))
+        buttonLeft.SetLabel("Skip this version")
+        buttonLeft.SetToolTip(wx.ToolTip("Click to permanently hide notification of this version"))
         sbButtonsSizer.Add(buttonLeft, flag=wx.ALL|wx.ALIGN_LEFT, border=borderSmall)
         # self.Bind(wx.EVT_BUTTON, self.OnButtonLeft, id=buttonLeft.GetId())
         
         
         sbButtonsSizer.AddStretchSpacer(1)
         
-        buttonLater = wx.Button(panel, -1, label="Later")
+        buttonLater = wx.Button(panel, -1, label="Not now")
         sbButtonsSizer.Add(buttonLater, flag=wx.ALL, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=buttonLater.GetId())
         buttonLater.SetToolTip(wx.ToolTip("Click to decide later"))
         
 
         self.buttonDownload = wx.Button(panel, -1)
-        self.buttonDownload.SetLabel("Download")
+        self.buttonDownload.SetLabel("Go to web site")
         self.buttonDownload.SetToolTip(wx.ToolTip("Click to download new gHRV version"))
         
         sbButtonsSizer.Add(self.buttonDownload, flag=wx.ALL, border=borderSmall)
@@ -1364,14 +1382,9 @@ class UpdateSoftwareWindow(wx.Frame):
         
         panel.SetSizer(sizer)
         
-        self.SetMinSize(confWindowMinSize)
-        #self.MakeModal(True)
+        # self.SetMinSize(confWindowMinSize)
         self.Show()
-        # self.Raise()
-        # self.SetFocus()
-        # self.Update
         self.CenterOnParent()
-        # self.Layout()
 
     # def OnChange(self,event):
     #     self.buttonRight.Enable()
