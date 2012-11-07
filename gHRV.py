@@ -336,7 +336,7 @@ class MainWindow(wx.Frame):
         self.MainPanel.SetSizer(self.sizer)
         self.MainPanel.Layout()
 
-        self.CheckVersion()
+        
         
         if DebugMode:
             dm.LoadFileAscii("./beats.txt", self.settings)
@@ -370,6 +370,10 @@ class MainWindow(wx.Frame):
             
         
         self.canvas.SetFocus()
+
+        self.CheckVersion()
+
+
 
 
     
@@ -517,17 +521,18 @@ class MainWindow(wx.Frame):
             remoteFile = urllib2.urlopen(remoteVersionFile)
             remoteVersion=remoteFile.readline().strip()
             remoteFile.close()
-            remoteVersion="2.0"
             string = string + "Version avalaible in gHRV web page: " + remoteVersion + "\n"
         except urllib2.URLError:
             string = string + "I couldn't check for updates\n"
 
         string = string + "Last checked version "+self.settings["lastcheckedversion"]+"\n"
 
-        if remoteVersion:
-            if remoteVersion > self.settings["lastcheckedversion"]:                
-                string = string + "Now I ask if the user wants to update!!!\n"
-                self.UpdateWindowOpen()
+        # if remoteVersion:
+        #     if remoteVersion > self.settings["lastcheckedversion"]:                
+        #         string = string + "Now I ask if the user wants to update!!!\n"
+        #         self.UpdateWindowOpen()
+    
+        self.UpdateWindowOpen()
 
         if argv[0]=="gHRV.py":
             print string
@@ -547,6 +552,7 @@ class MainWindow(wx.Frame):
         self.updateWindowPresent=False
         self.RefreshMainWindowButtons()
         #print 'After configuration: ',self.settings
+
         self.canvas.SetFocus()
         
         
@@ -1303,15 +1309,15 @@ class UpdateSoftwareWindow(wx.Frame):
     def __init__(self, parent, id):
         # conftype: project or general
         # settings2 used for main settings when conftype="project"
-        if platform != 'darwin':
-            wx.Frame.__init__(self, parent, wx.ID_ANY, size=confWindowSize)
-        else:
-            wx.Frame.__init__(self, parent, wx.ID_ANY, size=confWindowSizeMac)
+        wx.Frame.__init__(self, parent, size=confWindowSize)
+        
         
         self.WindowParent=parent
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         panel=wx.Panel(self)
                 
+        self.SetWindowStyle(wx.STAY_ON_TOP)
+        
         self.SetTitle("gHRV Update Window")
             
         #print(str(self.settings))
@@ -1336,18 +1342,18 @@ class UpdateSoftwareWindow(wx.Frame):
         
         sbButtonsSizer.AddStretchSpacer(1)
         
-        buttonCancel = wx.Button(panel, -1, label="Later")
-        sbButtonsSizer.Add(buttonCancel, flag=wx.ALL, border=borderSmall)
-        # self.Bind(wx.EVT_BUTTON, self.OnEnd, id=buttonCancel.GetId())
-        buttonCancel.SetToolTip(wx.ToolTip("Click to cancel"))
+        buttonLater = wx.Button(panel, -1, label="Later")
+        sbButtonsSizer.Add(buttonLater, flag=wx.ALL, border=borderSmall)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=buttonLater.GetId())
+        buttonLater.SetToolTip(wx.ToolTip("Click to decide later"))
         
 
-        self.buttonRight = wx.Button(panel, -1)
-        self.buttonRight.SetLabel("Download")
-        self.buttonRight.SetToolTip(wx.ToolTip("Click to set this values as default"))
+        self.buttonDownload = wx.Button(panel, -1)
+        self.buttonDownload.SetLabel("Download")
+        self.buttonDownload.SetToolTip(wx.ToolTip("Click to download new gHRV version"))
         
-        sbButtonsSizer.Add(self.buttonRight, flag=wx.ALL, border=borderSmall)
-        # self.Bind(wx.EVT_BUTTON, self.OnButtonRight, id=self.buttonRight.GetId())
+        sbButtonsSizer.Add(self.buttonDownload, flag=wx.ALL, border=borderSmall)
+        self.Bind(wx.EVT_BUTTON, self.OnButtonDownload, id=self.buttonDownload.GetId())
         # self.buttonRight.Disable()
         
 
@@ -1359,14 +1365,19 @@ class UpdateSoftwareWindow(wx.Frame):
         panel.SetSizer(sizer)
         
         self.SetMinSize(confWindowMinSize)
-        self.MakeModal(True)
+        #self.MakeModal(True)
         self.Show()
-        self.Center()
-        
+        # self.Raise()
+        # self.SetFocus()
+        # self.Update
+        self.CenterOnParent()
+        # self.Layout()
+
     # def OnChange(self,event):
     #     self.buttonRight.Enable()
 
-    # def OnButtonRight(self,event):
+    def OnButtonDownload(self,event):
+        self.buttonDownload.Disable()
     #     error = False
     #     messageError=""
     #     tmpSettings={}

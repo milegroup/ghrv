@@ -48,6 +48,8 @@ class AboutDlg(wx.Frame):
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         self.panel = wx.Panel(self)
 
+        self.SetWindowStyle(wx.STAY_ON_TOP)
+
         self.vbox = wx.BoxSizer(wx.VERTICAL)
         
         PageStr = """<p align="center"><img src="LogoSmall.png"/></p>
@@ -86,7 +88,7 @@ class AboutDlg(wx.Frame):
 
         self.Show()
         self.Layout()
-        #self.Centre()
+        self.Centre()
         
         
     def OnEnd(self,event):
