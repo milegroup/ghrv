@@ -83,6 +83,7 @@ class MainWindow(wx.Frame):
         self.MainPanel=wx.Panel(self)
         self.fbWindowPresent=False
         self.configWindowPresent=False
+        self.updateWindowPresent=False
         self.editNIHRWindowPresent=False
         self.editEpisodesWindowPresent=False
         self.aboutWindowPresent=False
@@ -335,34 +336,7 @@ class MainWindow(wx.Frame):
         self.MainPanel.SetSizer(self.sizer)
         self.MainPanel.Layout()
 
-        if ReportVersion:
-            from sys import argv
-            import urllib2
-            string=argv[0]
-            if argv[0]=="gHRV.py":
-                string = string + " (source)"
-                try:
-                    remoteFile = urllib2.urlopen("https://raw.github.com/milegroup/ghrv/master/ProgramVersions/src.txt")
-                    remoteVer=remoteFile.readline().strip()
-                    remoteFile.close()
-                # Version = "1.4"
-                    if remoteVer > Version:
-                        string = string + "\nNew version avalaible!"
-                    else:
-                        string = string + "\nYour version is up-to-date"
-                except urllib2.URLError:
-                    string = string + "\nNo acccess to version file!"
-
-            if platform=="linux2" and argv[0]=="/usr/share/ghrv/gHRV.pyc":
-                string = string + " (deb package)"
-            if platform=="darwin" and "gHRV.app" in argv[0]:
-                string = string + " (mac package)"
-            if platform=="win32" and "gHRV.exe" in argv[0]:
-                string = string + "(win package)"
-
-            dial = wx.MessageDialog(self, caption="Version info", message=string, style=wx.OK)
-            result = dial.ShowModal()
-            dial.Destroy()
+        self.CheckVersion()
         
         if DebugMode:
             dm.LoadFileAscii("./beats.txt", self.settings)
@@ -505,6 +479,76 @@ class MainWindow(wx.Frame):
             win32api.SetFileAttributes(self.configDir,win32con.FILE_ATTRIBUTE_HIDDEN)
 
         #print self.settings
+
+    def CheckVersion(self):
+        from ConfigParser import SafeConfigParser
+        from sys import argv
+        import urllib2
+
+        if "lastcheckedversion" not in self.settings.keys(): # First run of the program
+            self.settings["lastcheckedversion"]=Version
+            self.ConfigSave()
+
+        if Version > self.settings["lastcheckedversion"]: # gHRV was just updated
+            self.settings["lastcheckedversion"]=Version
+            self.ConfigSave()
+        
+        remoteVersion = ""
+        remoteVersionFile = ""
+        string =""
+
+        if argv[0]=="gHRV.py":
+            string = string + "Running gHRV from source. Version: " + Version + "\n"
+            remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/src.txt"
+
+        if platform=="linux2" and argv[0]=="/usr/share/ghrv/gHRV.pyc":
+            string = string + "Running gHRV deb package. Version: " + Version + "\n"
+            remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/deb.txt"
+
+        if platform=="darwin" and "gHRV.app" in argv[0]:
+            string = string +  "Running gHRV mac package. Version: " + Version + "\n"
+            remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/mac.txt"
+
+        if platform=="win32" and "gHRV.exe" in argv[0]:
+            string = string + "Running gHRV win package. Version: " + Version + "\n"
+            remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/win.txt"
+
+        try:
+            remoteFile = urllib2.urlopen(remoteVersionFile)
+            remoteVersion=remoteFile.readline().strip()
+            remoteFile.close()
+            remoteVersion="2.0"
+            string = string + "Version avalaible in gHRV web page: " + remoteVersion + "\n"
+        except urllib2.URLError:
+            string = string + "I couldn't check for updates\n"
+
+        string = string + "Last checked version "+self.settings["lastcheckedversion"]+"\n"
+
+        if remoteVersion:
+            if remoteVersion > self.settings["lastcheckedversion"]:                
+                string = string + "Now I ask if the user wants to update!!!\n"
+                self.UpdateWindowOpen()
+
+        if argv[0]=="gHRV.py":
+            print string
+
+        if ReportVersion:
+            dial = wx.MessageDialog(self, caption="Version info", message=string, style=wx.OK)
+            result = dial.ShowModal()
+            dial.Destroy()
+
+    def UpdateWindowOpen(self):
+        self.updateWindowPresent=True
+        self.RefreshMainWindowButtons()
+        #print 'Before configuration: ',self.settings
+        UpdateSoftwareWindow(self,-1)
+
+    def UpdateWindowClose(self):
+        self.updateWindowPresent=False
+        self.RefreshMainWindowButtons()
+        #print 'After configuration: ',self.settings
+        self.canvas.SetFocus()
+        
         
     def DisableAllButtons(self):
         self.buttonLoadProject.Disable()
@@ -529,7 +573,7 @@ class MainWindow(wx.Frame):
         
         self.DisableAllButtons() # by default all disabled
         
-        if self.configWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent or self.poincareWindowPresent:
+        if self.configWindowPresent or self.updateWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent or self.poincareWindowPresent:
             return
         
         self.buttonConfig.Enable()
@@ -901,7 +945,6 @@ class MainWindow(wx.Frame):
                 self.fbWindow.Refresh()
     
 class ConfigurationWindow(wx.Frame):
-    """Parameters and working options"""
     
     def __init__(self, parent, id, settings, conftype, settings2=None):
         # conftype: project or general
@@ -1253,6 +1296,168 @@ class ConfigurationWindow(wx.Frame):
             self.WindowParent.OnProjectOptionsEnded()
         #self.MakeModal(False)
         self.Destroy()
+
+class UpdateSoftwareWindow(wx.Frame):
+    """Parameters and working options"""
+    
+    def __init__(self, parent, id):
+        # conftype: project or general
+        # settings2 used for main settings when conftype="project"
+        if platform != 'darwin':
+            wx.Frame.__init__(self, parent, wx.ID_ANY, size=confWindowSize)
+        else:
+            wx.Frame.__init__(self, parent, wx.ID_ANY, size=confWindowSizeMac)
+        
+        self.WindowParent=parent
+        self.Bind(wx.EVT_CLOSE,self.OnEnd)
+        panel=wx.Panel(self)
+                
+        self.SetTitle("gHRV Update Window")
+            
+        #print(str(self.settings))
+
+        sizer=wx.BoxSizer(wx.VERTICAL)
+                
+
+        sizer.AddStretchSpacer(1)
+
+# ----------------- Beginning of sizer for buttons
+
+
+        sbButtonsSizer=wx.BoxSizer(wx.HORIZONTAL)
+        
+        
+        buttonLeft = wx.Button(panel, -1)
+        buttonLeft.SetLabel("Skip")
+        buttonLeft.SetToolTip(wx.ToolTip("Click to revert to factory settings"))
+        sbButtonsSizer.Add(buttonLeft, flag=wx.ALL|wx.ALIGN_LEFT, border=borderSmall)
+        # self.Bind(wx.EVT_BUTTON, self.OnButtonLeft, id=buttonLeft.GetId())
+        
+        
+        sbButtonsSizer.AddStretchSpacer(1)
+        
+        buttonCancel = wx.Button(panel, -1, label="Later")
+        sbButtonsSizer.Add(buttonCancel, flag=wx.ALL, border=borderSmall)
+        # self.Bind(wx.EVT_BUTTON, self.OnEnd, id=buttonCancel.GetId())
+        buttonCancel.SetToolTip(wx.ToolTip("Click to cancel"))
+        
+
+        self.buttonRight = wx.Button(panel, -1)
+        self.buttonRight.SetLabel("Download")
+        self.buttonRight.SetToolTip(wx.ToolTip("Click to set this values as default"))
+        
+        sbButtonsSizer.Add(self.buttonRight, flag=wx.ALL, border=borderSmall)
+        # self.Bind(wx.EVT_BUTTON, self.OnButtonRight, id=self.buttonRight.GetId())
+        # self.buttonRight.Disable()
+        
+
+        sizer.Add(sbButtonsSizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
+        
+# ----------------- End of sizer for buttons
+        
+        
+        panel.SetSizer(sizer)
+        
+        self.SetMinSize(confWindowMinSize)
+        self.MakeModal(True)
+        self.Show()
+        self.Center()
+        
+    # def OnChange(self,event):
+    #     self.buttonRight.Enable()
+
+    # def OnButtonRight(self,event):
+    #     error = False
+    #     messageError=""
+    #     tmpSettings={}
+    #     tmpSettings['interpfreq'] = str(self.InterpolFreq.GetValue())
+    #     tmpSettings['windowsize'] = str(self.WindowSize.GetValue())
+    #     tmpSettings['windowshift'] = str(self.WindowShift.GetValue())
+    #     tmpSettings['ulfmin'] = str(self.ULFMin.GetValue())
+    #     tmpSettings['ulfmax'] = str(self.ULFMax.GetValue())
+    #     tmpSettings['vlfmin'] = str(self.VLFMin.GetValue())
+    #     tmpSettings['vlfmax'] = str(self.VLFMax.GetValue())
+    #     tmpSettings['lfmin'] = str(self.LFMin.GetValue())
+    #     tmpSettings['lfmax'] = str(self.LFMax.GetValue())
+    #     tmpSettings['hfmin'] = str(self.HFMin.GetValue())
+    #     tmpSettings['hfmax'] = str(self.HFMax.GetValue())
+            
+    #     try:
+    #         for k in tmpSettings.keys():
+    #             x=float(tmpSettings[k])
+    #     except:
+    #         messageError="One or more of the parameters are not valid numbers"
+    #         error=True
+        
+    #     if not error:
+    #         for k in tmpSettings.keys():
+    #             if float(tmpSettings[k])<0:
+    #                 messageError="Parameters must be positive numbers"
+    #                 error = True
+                       
+    #     if not error:
+    #         p = ['ulfmin','ulfmax','vlfmin','vlfmax','lfmin','lfmax','hfmin','hfmax']
+    #         for k in p:
+    #             if float(tmpSettings[k])>float(tmpSettings['interpfreq']):
+    #                 messageError="Frequency limits must be lower than interpolation frequency"
+    #                 error = True
+                    
+    #     if not error:
+    #         p = [['ulfmin','ulfmax'],['vlfmin','vlfmax'],['lfmin','lfmax'],['hfmin','hfmax']]
+    #         for k in p:
+    #             if float(tmpSettings[k[0]])>float(tmpSettings[k[1]]):
+    #                 messageError="In some band limits are inverted"
+    #                 error = True
+                    
+    #     if not error and self.conftype=="project":
+    #         try:
+    #             tmp = str(unicode(str(self.ProjName.GetValue())))
+    #         except:
+    #             error = True
+    #             messageError="Illegal characters in project name"
+        
+    #     if error:
+    #         self.WindowParent.ErrorWindow(messageStr=messageError)
+    #         self.Raise()
+    #     else:
+    #         for k in tmpSettings.keys():
+    #             self.settings[k] = str(float(tmpSettings[k]))
+    #         if self.conftype=="project":
+    #             self.settings['name']=str(self.ProjName.GetValue())
+    #         self.Close()
+
+    # def OnButtonLeft(self,event):
+    #     """Reset for general, default for project"""
+    #     if self.conftype=="general":
+    #         self.InterpolFreq.SetValue(factorySettings['interpfreq'])
+    #         self.WindowSize.SetValue(factorySettings['windowsize'])
+    #         self.WindowShift.SetValue(factorySettings['windowshift'])
+    #         self.ULFMin.SetValue(factorySettings['ulfmin'])
+    #         self.ULFMax.SetValue(factorySettings['ulfmax'])
+    #         self.VLFMin.SetValue(factorySettings['vlfmin'])
+    #         self.VLFMax.SetValue(factorySettings['vlfmax'])
+    #         self.LFMin.SetValue(factorySettings['lfmin'])
+    #         self.LFMax.SetValue(factorySettings['lfmax'])
+    #         self.HFMin.SetValue(factorySettings['hfmin'])
+    #         self.HFMax.SetValue(factorySettings['hfmax'])
+    #     else:
+    #         self.InterpolFreq.SetValue(self.settings2['interpfreq'])
+    #         self.WindowSize.SetValue(self.settings2['windowsize'])
+    #         self.WindowShift.SetValue(self.settings2['windowshift'])
+    #         self.ULFMin.SetValue(self.settings2['ulfmin'])
+    #         self.ULFMax.SetValue(self.settings2['ulfmax'])
+    #         self.VLFMin.SetValue(self.settings2['vlfmin'])
+    #         self.VLFMax.SetValue(self.settings2['vlfmax'])
+    #         self.LFMin.SetValue(self.settings2['lfmin'])
+    #         self.LFMax.SetValue(self.settings2['lfmax'])
+    #         self.HFMin.SetValue(self.settings2['hfmin'])
+    #         self.HFMax.SetValue(self.settings2['hfmax'])
+        
+        
+    def OnEnd(self,event):
+        self.WindowParent.UpdateWindowClose()
+        self.Destroy()
+        
         
   
 class MainApp(wx.App):
