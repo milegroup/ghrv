@@ -1323,22 +1323,36 @@ class UpdateSoftwareWindow(wx.Frame):
         self.SetTitle("gHRV Update Window")
             
         #print(str(self.settings))
+        sizerOut = wx.BoxSizer(wx.HORIZONTAL)
+        bitmap = wx.Bitmap("LogoSmall.png", wx.BITMAP_TYPE_ANY)
+        bitmap.SetHeight(50)
+        bitmap.SetWidth(50)
+
+        png = wx.StaticBitmap(panel, -1, bitmap)
+        sizerOut.Add(png,flag=wx.ALL, border=borderSmall)
 
         sizer=wx.BoxSizer(wx.VERTICAL)
 
-        sbText1 = rt.RichTextCtrl(panel,-1,size=(200,200))
-        sbText1.BeginFontSize(11)
+        # bitmap = wx.StaticBitmap(panel, -1, wx.Bitmap('LogoSmall.png'))
+        # sizer.Add(bitmap, 1, wx.LEFT | wx.BOTTOM | wx.TOP, 10)
+        
+        # 
+
+        sbText1 = rt.RichTextCtrl(panel,-1,size=(800,150))
+        sbText1.BeginFontSize(12)
         sbText1.BeginBold()
         sbText1.BeginAlignment(wx.TEXT_ALIGNMENT_CENTRE)
         sbText1.WriteText("There is a new version of gHRV!\n")
         sbText1.EndAlignment()
         sbText1.EndBold()
+        sbText1.EndFontSize()
         sbText1.Newline()
-        sbText1.WriteText("You are running XXXX\n")
+        sbText1.BeginFontSize(11)
+        sbText1.WriteText("You are running gHRV "+Version+"\n")
         sbText1.WriteText("gHRV XXX is available for downloading\n")
         sbText1.WriteText("Visit http://www.elmundo.es or use the button Download\n")
-        
         sbText1.EndFontSize()
+        
 
         sizer.Add(sbText1,flag=wx.ALL|wx.EXPAND, border=borderSmall)
                 
@@ -1376,11 +1390,13 @@ class UpdateSoftwareWindow(wx.Frame):
         
 
         sizer.Add(sbButtonsSizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
+
+        sizerOut.Add(sizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
         
 # ----------------- End of sizer for buttons
         
         
-        panel.SetSizer(sizer)
+        panel.SetSizer(sizerOut)
         
         # self.SetMinSize(confWindowMinSize)
         self.Show()
