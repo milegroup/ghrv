@@ -1314,10 +1314,14 @@ class UpdateSoftwareWindow(wx.Frame):
         import wx.richtext as rt
         # conftype: project or general
         # settings2 used for main settings when conftype="project"
-        wx.Frame.__init__(self, parent)
+        if platform != 'darwin':
+            wx.Frame.__init__(self, parent, size=updateWindowSize)
+        else:
+            wx.Frame.__init__(self, parent, size=updateWindowSizeMac)
         
         self.WindowParent=parent
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
+        # self.Bind(wx.EVT_SIZE,self.OnResize)
         panel=wx.Panel(self)
                 
         self.SetWindowStyle(wx.STAY_ON_TOP)
@@ -1329,7 +1333,7 @@ class UpdateSoftwareWindow(wx.Frame):
         PageStr = '''<p><img src="LogoSmall.png" width="50" height="50"/></p>
             <center><p><b>There is a new version of gHRV!</b><>
             <p>You are running gHRV version %s (%s package)</p>
-            <p>gHRV version %s is avalaible</p>
+            <p>gHRV version %s is available for this platform</p>
             <p>Use <b>Go to web site</b> button for downloading</p></center>''' % (Version, platformString, NetworkVersion)
 
         html=wx.html.HtmlWindow(panel, id)
@@ -1388,6 +1392,12 @@ class UpdateSoftwareWindow(wx.Frame):
     def OnEnd(self,event):
         self.WindowParent.UpdateWindowClose()
         self.Destroy()
+
+    # def OnResize(self, event):
+    #     w, h = self.GetSize()
+    #     print "Width, height: ",w,", ",h
+    #     event.Skip()
+
         
   
 class MainApp(wx.App):

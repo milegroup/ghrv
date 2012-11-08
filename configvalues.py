@@ -80,6 +80,9 @@ exportSettingsWindowMinSize=exportSettingsWindowSize
 exportSettingsWindowSizeMac=(500,375)
 exportSettingsWindowMinSizeMac=exportSettingsWindowSizeMac
 
+updateWindowSize=(410,240)
+updateWindowSizeMac=(410,240)
+
 alphaMatplotlibTags=0.5
 
 HRBGColor='#D9FFB3'
