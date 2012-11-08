@@ -500,21 +500,26 @@ class MainWindow(wx.Frame):
         remoteVersion = ""
         remoteVersionFile = ""
         string =""
+        platformString=""
 
         if argv[0]=="gHRV.py":
             string = string + "Running gHRV from source. Version: " + Version + "\n"
+            platformString = "src"
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/src.txt"
 
         if platform=="linux2" and argv[0]=="/usr/share/ghrv/gHRV.pyc":
             string = string + "Running gHRV deb package. Version: " + Version + "\n"
+            platformString = "deb"
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/deb.txt"
 
         if platform=="darwin" and "gHRV.app" in argv[0]:
             string = string +  "Running gHRV mac package. Version: " + Version + "\n"
+            platformString = "mac"
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/mac.txt"
 
         if platform=="win32" and "gHRV.exe" in argv[0]:
             string = string + "Running gHRV win package. Version: " + Version + "\n"
+            platformString = "win"
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/win.txt"
 
         try:
@@ -527,13 +532,11 @@ class MainWindow(wx.Frame):
 
         string = string + "Last checked version "+self.settings["lastcheckedversion"]+"\n"
 
-        # if remoteVersion:
-        #     if remoteVersion > self.settings["lastcheckedversion"]:                
-        #         string = string + "Now I ask if the user wants to update!!!\n"
-        #         self.UpdateWindowOpen()
+        if remoteVersion:
+            if remoteVersion > self.settings["lastcheckedversion"]:                
+                string = string + "Now I ask if the user wants to update!!!\n"
+                self.UpdateWindowOpen(remoteVersion,platformString)
     
-        self.UpdateWindowOpen()
-
         if argv[0]=="gHRV.py":
             print string
 
@@ -542,11 +545,11 @@ class MainWindow(wx.Frame):
             result = dial.ShowModal()
             dial.Destroy()
 
-    def UpdateWindowOpen(self):
+    def UpdateWindowOpen(self,remoteVersion,platformString):
         self.updateWindowPresent=True
         self.RefreshMainWindowButtons()
         #print 'Before configuration: ',self.settings
-        UpdateSoftwareWindow(self,-1)
+        UpdateSoftwareWindow(self,-1,remoteVersion,platformString)
 
     def UpdateWindowClose(self):
         self.updateWindowPresent=False
@@ -1307,12 +1310,11 @@ class UpdateSoftwareWindow(wx.Frame):
     """Parameters and working options"""
 
     
-    def __init__(self, parent, id):
+    def __init__(self, parent, id, NetworkVersion,platformString):
         import wx.richtext as rt
         # conftype: project or general
         # settings2 used for main settings when conftype="project"
         wx.Frame.__init__(self, parent)
-        
         
         self.WindowParent=parent
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
@@ -1322,42 +1324,18 @@ class UpdateSoftwareWindow(wx.Frame):
 
         self.SetTitle("gHRV Update Window")
             
-        #print(str(self.settings))
-        sizerOut = wx.BoxSizer(wx.HORIZONTAL)
-        bitmap = wx.Bitmap("LogoSmall.png", wx.BITMAP_TYPE_ANY)
-        bitmap.SetHeight(50)
-        bitmap.SetWidth(50)
-
-        png = wx.StaticBitmap(panel, -1, bitmap)
-        sizerOut.Add(png,flag=wx.ALL, border=borderSmall)
-
         sizer=wx.BoxSizer(wx.VERTICAL)
 
-        # bitmap = wx.StaticBitmap(panel, -1, wx.Bitmap('LogoSmall.png'))
-        # sizer.Add(bitmap, 1, wx.LEFT | wx.BOTTOM | wx.TOP, 10)
+        PageStr = '''<p><img src="LogoSmall.png" width="50" height="50"/></p>
+            <center><p><b>There is a new version of gHRV!</b><>
+            <p>You are running gHRV version %s (%s package)</p>
+            <p>gHRV version %s is avalaible</p>
+            <p>Use <b>Go to web site</b> button for downloading</p></center>''' % (Version, platformString, NetworkVersion)
+
+        html=wx.html.HtmlWindow(panel, id)
+        html.SetPage(PageStr)
         
-        # 
-
-        sbText1 = rt.RichTextCtrl(panel,-1,size=(800,150))
-        sbText1.BeginFontSize(12)
-        sbText1.BeginBold()
-        sbText1.BeginAlignment(wx.TEXT_ALIGNMENT_CENTRE)
-        sbText1.WriteText("There is a new version of gHRV!\n")
-        sbText1.EndAlignment()
-        sbText1.EndBold()
-        sbText1.EndFontSize()
-        sbText1.Newline()
-        sbText1.BeginFontSize(11)
-        sbText1.WriteText("You are running gHRV "+Version+"\n")
-        sbText1.WriteText("gHRV XXX is available for downloading\n")
-        sbText1.WriteText("Visit http://www.elmundo.es or use the button Download\n")
-        sbText1.EndFontSize()
-        
-
-        sizer.Add(sbText1,flag=wx.ALL|wx.EXPAND, border=borderSmall)
-                
-
-        sizer.AddStretchSpacer(1)
+        sizer.Add(html, 1, wx.LEFT | wx.TOP | wx.GROW)
 
 # ----------------- Beginning of sizer for buttons
 
@@ -1366,7 +1344,7 @@ class UpdateSoftwareWindow(wx.Frame):
         
         
         buttonLeft = wx.Button(panel, -1)
-        buttonLeft.SetLabel("Skip this version")
+        buttonLeft.SetLabel("Skip gHRV %s" % NetworkVersion)
         buttonLeft.SetToolTip(wx.ToolTip("Click to permanently hide notification of this version"))
         sbButtonsSizer.Add(buttonLeft, flag=wx.ALL|wx.ALIGN_LEFT, border=borderSmall)
         # self.Bind(wx.EVT_BUTTON, self.OnButtonLeft, id=buttonLeft.GetId())
@@ -1374,7 +1352,7 @@ class UpdateSoftwareWindow(wx.Frame):
         
         sbButtonsSizer.AddStretchSpacer(1)
         
-        buttonLater = wx.Button(panel, -1, label="Not now")
+        buttonLater = wx.Button(panel, -1, label="Later")
         sbButtonsSizer.Add(buttonLater, flag=wx.ALL, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnEnd, id=buttonLater.GetId())
         buttonLater.SetToolTip(wx.ToolTip("Click to decide later"))
@@ -1391,113 +1369,25 @@ class UpdateSoftwareWindow(wx.Frame):
 
         sizer.Add(sbButtonsSizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
 
-        sizerOut.Add(sizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
+        # sizerOut.Add(sizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
         
 # ----------------- End of sizer for buttons
         
         
-        panel.SetSizer(sizerOut)
+        panel.SetSizer(sizer)
         
         # self.SetMinSize(confWindowMinSize)
         self.Show()
         self.CenterOnParent()
 
-    # def OnChange(self,event):
-    #     self.buttonRight.Enable()
 
     def OnButtonDownload(self,event):
         self.buttonDownload.Disable()
-    #     error = False
-    #     messageError=""
-    #     tmpSettings={}
-    #     tmpSettings['interpfreq'] = str(self.InterpolFreq.GetValue())
-    #     tmpSettings['windowsize'] = str(self.WindowSize.GetValue())
-    #     tmpSettings['windowshift'] = str(self.WindowShift.GetValue())
-    #     tmpSettings['ulfmin'] = str(self.ULFMin.GetValue())
-    #     tmpSettings['ulfmax'] = str(self.ULFMax.GetValue())
-    #     tmpSettings['vlfmin'] = str(self.VLFMin.GetValue())
-    #     tmpSettings['vlfmax'] = str(self.VLFMax.GetValue())
-    #     tmpSettings['lfmin'] = str(self.LFMin.GetValue())
-    #     tmpSettings['lfmax'] = str(self.LFMax.GetValue())
-    #     tmpSettings['hfmin'] = str(self.HFMin.GetValue())
-    #     tmpSettings['hfmax'] = str(self.HFMax.GetValue())
-            
-    #     try:
-    #         for k in tmpSettings.keys():
-    #             x=float(tmpSettings[k])
-    #     except:
-    #         messageError="One or more of the parameters are not valid numbers"
-    #         error=True
-        
-    #     if not error:
-    #         for k in tmpSettings.keys():
-    #             if float(tmpSettings[k])<0:
-    #                 messageError="Parameters must be positive numbers"
-    #                 error = True
-                       
-    #     if not error:
-    #         p = ['ulfmin','ulfmax','vlfmin','vlfmax','lfmin','lfmax','hfmin','hfmax']
-    #         for k in p:
-    #             if float(tmpSettings[k])>float(tmpSettings['interpfreq']):
-    #                 messageError="Frequency limits must be lower than interpolation frequency"
-    #                 error = True
-                    
-    #     if not error:
-    #         p = [['ulfmin','ulfmax'],['vlfmin','vlfmax'],['lfmin','lfmax'],['hfmin','hfmax']]
-    #         for k in p:
-    #             if float(tmpSettings[k[0]])>float(tmpSettings[k[1]]):
-    #                 messageError="In some band limits are inverted"
-    #                 error = True
-                    
-    #     if not error and self.conftype=="project":
-    #         try:
-    #             tmp = str(unicode(str(self.ProjName.GetValue())))
-    #         except:
-    #             error = True
-    #             messageError="Illegal characters in project name"
-        
-    #     if error:
-    #         self.WindowParent.ErrorWindow(messageStr=messageError)
-    #         self.Raise()
-    #     else:
-    #         for k in tmpSettings.keys():
-    #             self.settings[k] = str(float(tmpSettings[k]))
-    #         if self.conftype=="project":
-    #             self.settings['name']=str(self.ProjName.GetValue())
-    #         self.Close()
-
-    # def OnButtonLeft(self,event):
-    #     """Reset for general, default for project"""
-    #     if self.conftype=="general":
-    #         self.InterpolFreq.SetValue(factorySettings['interpfreq'])
-    #         self.WindowSize.SetValue(factorySettings['windowsize'])
-    #         self.WindowShift.SetValue(factorySettings['windowshift'])
-    #         self.ULFMin.SetValue(factorySettings['ulfmin'])
-    #         self.ULFMax.SetValue(factorySettings['ulfmax'])
-    #         self.VLFMin.SetValue(factorySettings['vlfmin'])
-    #         self.VLFMax.SetValue(factorySettings['vlfmax'])
-    #         self.LFMin.SetValue(factorySettings['lfmin'])
-    #         self.LFMax.SetValue(factorySettings['lfmax'])
-    #         self.HFMin.SetValue(factorySettings['hfmin'])
-    #         self.HFMax.SetValue(factorySettings['hfmax'])
-    #     else:
-    #         self.InterpolFreq.SetValue(self.settings2['interpfreq'])
-    #         self.WindowSize.SetValue(self.settings2['windowsize'])
-    #         self.WindowShift.SetValue(self.settings2['windowshift'])
-    #         self.ULFMin.SetValue(self.settings2['ulfmin'])
-    #         self.ULFMax.SetValue(self.settings2['ulfmax'])
-    #         self.VLFMin.SetValue(self.settings2['vlfmin'])
-    #         self.VLFMax.SetValue(self.settings2['vlfmax'])
-    #         self.LFMin.SetValue(self.settings2['lfmin'])
-    #         self.LFMax.SetValue(self.settings2['lfmax'])
-    #         self.HFMin.SetValue(self.settings2['hfmin'])
-    #         self.HFMax.SetValue(self.settings2['hfmax'])
-        
+    
         
     def OnEnd(self,event):
         self.WindowParent.UpdateWindowClose()
         self.Destroy()
-        
         
   
 class MainApp(wx.App):

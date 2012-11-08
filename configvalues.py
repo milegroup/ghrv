@@ -29,7 +29,7 @@
 Verbose=False
 DebugMode = False
 ReportVersion = False
-Version="1.05" # Things like 1.0.5 are not valid
+Version="0.999" # Things like 1.0.5 are not valid
 
 from sys import platform
 borderBig=10
