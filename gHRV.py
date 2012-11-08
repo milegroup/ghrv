@@ -880,6 +880,9 @@ class MainWindow(wx.Frame):
         dial.Destroy()
         if result == wx.ID_YES:
             self.Destroy()
+
+    def Abort(self):
+        self.Destroy()
         
     def OnAbout(self, event):
         self.aboutWindowPresent=True
@@ -1310,7 +1313,7 @@ class UpdateSoftwareWindow(wx.Frame):
     """Parameters and working options"""
 
     
-    def __init__(self, parent, id, NetworkVersion,platformString):
+    def __init__(self, parent, id, NetworkVersion, platformString):
         import wx.richtext as rt
         # conftype: project or general
         # settings2 used for main settings when conftype="project"
@@ -1320,6 +1323,7 @@ class UpdateSoftwareWindow(wx.Frame):
             wx.Frame.__init__(self, parent, size=updateWindowSizeMac)
         
         self.WindowParent=parent
+        self.NetworkVersion = NetworkVersion
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         # self.Bind(wx.EVT_SIZE,self.OnResize)
         panel=wx.Panel(self)
@@ -1334,7 +1338,7 @@ class UpdateSoftwareWindow(wx.Frame):
             <center><p><b>There is a new version of gHRV!</b><>
             <p>You are running gHRV version %s (%s package)</p>
             <p>gHRV version %s is available for this platform</p>
-            <p>Use <b>Go to web site</b> button for downloading</p></center>''' % (Version, platformString, NetworkVersion)
+            <p>Use <b>Go to web site</b> button for downloading</p></center>''' % (Version, platformString, self.NetworkVersion)
 
         html=wx.html.HtmlWindow(panel, id)
         html.SetPage(PageStr)
@@ -1348,10 +1352,10 @@ class UpdateSoftwareWindow(wx.Frame):
         
         
         buttonLeft = wx.Button(panel, -1)
-        buttonLeft.SetLabel("Skip gHRV %s" % NetworkVersion)
+        buttonLeft.SetLabel("Skip gHRV %s" % self.NetworkVersion)
         buttonLeft.SetToolTip(wx.ToolTip("Click to permanently hide notification of this version"))
         sbButtonsSizer.Add(buttonLeft, flag=wx.ALL|wx.ALIGN_LEFT, border=borderSmall)
-        # self.Bind(wx.EVT_BUTTON, self.OnButtonLeft, id=buttonLeft.GetId())
+        self.Bind(wx.EVT_BUTTON, self.OnSkip, id=buttonLeft.GetId())
         
         
         sbButtonsSizer.AddStretchSpacer(1)
@@ -1367,27 +1371,32 @@ class UpdateSoftwareWindow(wx.Frame):
         self.buttonDownload.SetToolTip(wx.ToolTip("Click to download new gHRV version"))
         
         sbButtonsSizer.Add(self.buttonDownload, flag=wx.ALL, border=borderSmall)
-        self.Bind(wx.EVT_BUTTON, self.OnButtonDownload, id=self.buttonDownload.GetId())
+        self.Bind(wx.EVT_BUTTON, self.OnBrowser, id=self.buttonDownload.GetId())
         # self.buttonRight.Disable()
         
 
         sizer.Add(sbButtonsSizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
 
-        # sizerOut.Add(sizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
-        
 # ----------------- End of sizer for buttons
         
         
         panel.SetSizer(sizer)
         
-        # self.SetMinSize(confWindowMinSize)
         self.Show()
         self.CenterOnParent()
 
 
-    def OnButtonDownload(self,event):
-        self.buttonDownload.Disable()
-    
+    def OnSkip(self,event):
+        self.WindowParent.settings["lastcheckedversion"]=self.NetworkVersion
+        self.WindowParent.ConfigSave()
+        self.WindowParent.UpdateWindowClose()
+        self.Destroy()
+
+    def OnBrowser(self,event):
+        import webbrowser
+        webbrowser.open("http://milegroup.github.com/ghrv/packages.html")
+        self.WindowParent.Destroy()
+
         
     def OnEnd(self,event):
         self.WindowParent.UpdateWindowClose()
@@ -1397,8 +1406,7 @@ class UpdateSoftwareWindow(wx.Frame):
     #     w, h = self.GetSize()
     #     print "Width, height: ",w,", ",h
     #     event.Skip()
-
-        
+  
   
 class MainApp(wx.App):
     def OnInit(self):
