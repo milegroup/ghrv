@@ -51,7 +51,6 @@ poincareWindowMinSize=(590,640)
 #editNIHRWindowSize=(1024,768)
 #BandsWindowSize=(1024,768)
 aboutWindowSize=(800,700)
-aboutWindowMinSize=(640,480)
 aboutWindowSizeMac=(640,500)
 
 confWindowSize=(500,450)

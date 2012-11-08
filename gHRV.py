@@ -582,16 +582,11 @@ class MainWindow(wx.Frame):
         
         self.DisableAllButtons() # by default all disabled
         
-        if self.configWindowPresent or self.updateWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent or self.poincareWindowPresent:
+        if self.configWindowPresent or self.updateWindowPresent or self.aboutWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent or self.poincareWindowPresent:
             return
         
         self.buttonConfig.Enable()
         
-        if self.aboutWindowPresent:
-            self.buttonAbout.Disable()
-        else:
-            self.buttonAbout.Enable()
-            
         
         if dm.HasHR():
             self.buttonSaveProject.Enable()
