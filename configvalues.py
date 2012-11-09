@@ -29,7 +29,7 @@
 Verbose=False
 DebugMode = False
 ReportVersion = False
-Version="0.999" # Things like 1.0.5 are not valid
+Version="1.1" # Things like 1.0.5 are not valid
 
 from sys import platform
 borderBig=10
@@ -79,7 +79,7 @@ exportSettingsWindowMinSize=exportSettingsWindowSize
 exportSettingsWindowSizeMac=(500,375)
 exportSettingsWindowMinSizeMac=exportSettingsWindowSizeMac
 
-updateWindowSize=(410,240)
+updateWindowSize=(500,280)
 updateWindowSizeMac=(410,240)
 
 alphaMatplotlibTags=0.5
