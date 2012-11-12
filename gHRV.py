@@ -502,7 +502,7 @@ class MainWindow(wx.Frame):
         string =""
         platformString=""
 
-        if argv[0]=="gHRV.py":
+        if argv[0].endswith("gHRV.py"):
             string = string + "Running gHRV from source. Version: " + Version + "\n"
             platformString = "src"
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/src.txt"
