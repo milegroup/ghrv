@@ -81,6 +81,8 @@ exportSettingsWindowMinSizeMac=exportSettingsWindowSizeMac
 
 updateWindowSize=(500,280)
 updateWindowSizeMac=(410,240)
+updateWindowSizeWin=(500,360)
+
 
 alphaMatplotlibTags=0.5
 

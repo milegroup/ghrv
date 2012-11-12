@@ -1311,10 +1311,14 @@ class UpdateSoftwareWindow(wx.Frame):
     
     def __init__(self, parent, id, NetworkVersion, platformString):
 
-        if platform != 'darwin':
-            wx.Frame.__init__(self, parent, size=updateWindowSize)
-        else:
+
+        if platform == 'darwin':
             wx.Frame.__init__(self, parent, size=updateWindowSizeMac)
+        elif platform == 'win32':
+            wx.Frame.__init__(self, parent, size=updateWindowSizeWin)
+        else:
+            wx.Frame.__init__(self, parent, size=updateWindowSize)
+
         
         self.WindowParent=parent
         self.NetworkVersion = NetworkVersion
@@ -1325,6 +1329,8 @@ class UpdateSoftwareWindow(wx.Frame):
 
         if platform != "win32":        
             self.SetWindowStyle(wx.STAY_ON_TOP)
+        else:
+            self.ToggleWindowStyle(wx.STAY_ON_TOP)
 
         self.SetTitle("gHRV Update Window")
             
