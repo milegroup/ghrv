@@ -585,6 +585,7 @@ class MainWindow(wx.Frame):
         if self.configWindowPresent or self.updateWindowPresent or self.aboutWindowPresent or self.editNIHRWindowPresent or self.editEpisodesWindowPresent or self.reportWindowPresent or self.signifWindowPresent or self.poincareWindowPresent:
             return
         
+        self.buttonAbout.Enable()
         self.buttonConfig.Enable()
         
         
@@ -1309,9 +1310,7 @@ class UpdateSoftwareWindow(wx.Frame):
 
     
     def __init__(self, parent, id, NetworkVersion, platformString):
-        import wx.richtext as rt
-        # conftype: project or general
-        # settings2 used for main settings when conftype="project"
+
         if platform != 'darwin':
             wx.Frame.__init__(self, parent, size=updateWindowSize)
         else:
@@ -1322,8 +1321,10 @@ class UpdateSoftwareWindow(wx.Frame):
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         # self.Bind(wx.EVT_SIZE,self.OnResize)
         panel=wx.Panel(self)
-                
-        self.SetWindowStyle(wx.STAY_ON_TOP)
+
+
+        if platform != "win32":        
+            self.SetWindowStyle(wx.STAY_ON_TOP)
 
         self.SetTitle("gHRV Update Window")
             

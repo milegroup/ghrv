@@ -47,7 +47,8 @@ class AboutDlg(wx.Frame):
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         panel = wx.Panel(self)
 
-        self.SetWindowStyle(wx.STAY_ON_TOP)
+        if platform != "win32": 
+            self.SetWindowStyle(wx.STAY_ON_TOP)
 
         self.SetTitle("About gHRV")
 
