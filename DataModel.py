@@ -44,6 +44,12 @@ class DM:
     def __init__(self,Verbose):
         """Initialization of the data model"""
         self.ClearAll()
+        
+        self.data["Verbose"]=Verbose
+
+        if (self.data["Verbose"]==True):
+            print("** Creating data model")
+        
             
     def ClearAll(self):
         self.data={}
