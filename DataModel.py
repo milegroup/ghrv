@@ -660,8 +660,11 @@ class DM:
         if self.data["Verbose"]:
             print("** Calculating power per band")
             
-                
-        signal=self.data["HR"]/60.0
+        if not FBRR:
+            signal=self.data["HR"]/60.0
+        else:
+            signal=1000.0/(self.data["HR"]/60)
+
         shiftsamp=self.data['windowshift']*self.data["interpfreq"]
         sizesamp=self.data['windowsize']*self.data["interpfreq"]
         

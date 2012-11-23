@@ -29,9 +29,9 @@
 Verbose=False
 DebugMode = False
 ReportVersion = False
+FBRR = False
 Version="1.1" # Things like 1.0.5 are not valid
 
-from sys import platform
 borderBig=10
 borderSmall=5
 borderVeryBig=20
