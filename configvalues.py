@@ -29,7 +29,6 @@
 Verbose=False
 DebugMode = False
 ReportVersion = False
-FBRR = False
 Version="1.1" # Things like 1.0.5 are not valid
 
 borderBig=10

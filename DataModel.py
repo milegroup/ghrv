@@ -658,23 +658,31 @@ class DM:
         """Calculates power per band
             size -> size of window (seconds)
             shift -> displacement of window (seconds)"""
-                
-        def Freq2Sample(f,numfsamples):
-            """Obtain spectrum sample from frequency"""
-            return (2*f*numfsamples/self.data["interpfreq"])
-                
+
+        hammingfactor=1.586
+
+        def power(spec,freq,fmin,fmax):
+            band = [spec[i] for i in range(len(spec)) if freq[i] >= fmin and freq[i]<=fmax]
+            powerinband = hammingfactor*np.sum(band)/(2*len(spec)**2)
+            return powerinband
+                                
         if self.data["Verbose"]:
             print("** Calculating power per band")
             
-        if not FBRR:
-            signal=self.data["HR"]/60.0
-        else:
-            signal=1000.0/(self.data["HR"]/60)
+        signal=1000/(self.data["HR"]/60.0) # msec.
 
         shiftsamp=self.data['windowshift']*self.data["interpfreq"]
         sizesamp=self.data['windowsize']*self.data["interpfreq"]
         
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
+
+        sizesamp2=sizesamp
+        if (sizesamp2%2 != 0):
+            sizesamp2=sizesamp2+1
+
+        freqs = np.linspace(start=0,stop=self.data["interpfreq"]/2,num=sizesamp2,endpoint=True)
+        hw=np.hamming(sizesamp2)
+
         
         if showProgress:
             import wx
@@ -715,40 +723,42 @@ class DM:
             begframe=int(indexframe*shiftsamp)
             endframe=int(begframe+sizesamp) # samples
             frame=signal[begframe:endframe]
+            if (len(frame)%2 != 0):
+                frame=np.append(frame,[0])
             
             begtime=indexframe*self.data['windowshift']
             endtime=begtime+self.data['windowsize'] # seconds
             
-            h=np.hamming(len(frame))
+            frame=frame*hw
             frame=frame-np.mean(frame)
-            frame=frame*h
-            #print("-----------------------")
-            #print("Frame "+str(indexframe))
-            spec=abs(np.fft.rfft(frame)) # Sólo la mitad positiva del espectro
-            #print("Frame power (time): "+str(np.sum(frame*frame)))
-            #print("Frame power (frequency): "+str(2*np.sum(spec*spec)/len(frame)))
             
-            ulfspec=spec[Freq2Sample(self.data['ulfmin'],len(spec)):Freq2Sample(self.data['ulfmax'],len(spec))]
-            ulfpower=2*np.sum(ulfspec*ulfspec)/len(frame) # Hz^2
+            # print("-----------------------")
+            # print("Frame "+str(indexframe))
+            # print("Frame power (time): "+str(hammingfactor*np.mean(frame*frame))+" ms^2")
+
+            spec_tmp=np.absolute(np.fft.fft(frame))**2
+            spec=spec_tmp[0:(len(spec_tmp)/2)] # Only positive half of spectrum
+
+            
+            # print("Frame power (frequency): "+str(power(spec,freqs,0,self.data["interpfreq"]/2)))
+            
+            ulfpower=power(spec,freqs,self.data["ulfmin"],self.data["ulfmax"])
             self.data["ULF"].append(ulfpower)
             #print("ULF power: "+str(ulfpower))
             
-            vlfspec=spec[Freq2Sample(self.data['vlfmin'],len(spec)):Freq2Sample(self.data['vlfmax'],len(spec))]
-            vlfpower=2*np.sum(vlfspec*vlfspec)/len(frame) # Hz^2
+            vlfpower=power(spec,freqs,self.data["vlfmin"],self.data["vlfmax"])
             self.data["VLF"].append(vlfpower)
             #print("VLF power: "+str(vlfpower))
             
-            lfspec=spec[Freq2Sample(self.data['lfmin'],len(spec)):Freq2Sample(self.data['lfmax'],len(spec))]
-            lfpower=2*np.sum(lfspec*lfspec)/len(frame) # Hz^2
+            lfpower=power(spec,freqs,self.data["lfmin"],self.data["lfmax"])
             self.data["LF"].append(lfpower)
             #print("LF power: "+str(lfpower))
             
-            hfspec=spec[Freq2Sample(self.data['hfmin'],len(spec)):Freq2Sample(self.data['hfmax'],len(spec))]
-            hfpower=2*np.sum(hfspec*hfspec)/len(frame)  # Hz^2
+            hfpower=power(spec,freqs,self.data["hfmin"],self.data["hfmax"])
             self.data["HF"].append(hfpower)
             #print("HF: "+str(hfpower))
             
-            totalpower=2*np.sum(spec*spec)/len(frame)  # Hz^2
+            totalpower=power(spec,freqs,0,self.data["interpfreq"]/2.0)
             self.data["Power"].append(totalpower)
             
             #print("ULF+VLF+LF+HF power: "+str(ulfpower+vlfpower+lfpower+hfpower))
@@ -1175,11 +1185,11 @@ class DM:
         info["lflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['lfmin'],self.data['lfmax'])
         info["hflim"]="{0:.3f} - {1:.3f} Hz".format(self.data['hfmin'],self.data['hfmax'])
         
-        info["ulf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['ULF']),np.std(self.data['ULF'],ddof=1))
-        info["vlf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['VLF']),np.std(self.data['VLF'],ddof=1))
-        info["lf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['LF']),np.std(self.data['LF'],ddof=1))
-        info["hf"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['HF']),np.std(self.data['HF'],ddof=1))
-        info["Power"]="{0:.3f} &plusmn; {1:.3f} Hz&sup2;".format(np.mean(self.data['Power']),np.std(self.data['Power'],ddof=1))
+        info["ulf"]="{0:.3f} &plusmn; {1:.3f} msec.&sup2;".format(np.mean(self.data['ULF']),np.std(self.data['ULF'],ddof=1))
+        info["vlf"]="{0:.3f} &plusmn; {1:.3f} msec.&sup2;".format(np.mean(self.data['VLF']),np.std(self.data['VLF'],ddof=1))
+        info["lf"]="{0:.3f} &plusmn; {1:.3f} msec.&sup2;".format(np.mean(self.data['LF']),np.std(self.data['LF'],ddof=1))
+        info["hf"]="{0:.3f} &plusmn; {1:.3f} msec.&sup2;".format(np.mean(self.data['HF']),np.std(self.data['HF'],ddof=1))
+        info["Power"]="{0:.3f} &plusmn; {1:.3f} msec.&sup2;".format(np.mean(self.data['Power']),np.std(self.data['Power'],ddof=1))
         info["LFHF"]="{0:.3f} &plusmn; {1:.3f}".format(np.mean(self.data['LFHF']),np.std(self.data['LFHF'],ddof=1))
         info["Mean HR"]="{0:.3f} &plusmn; {1:.3f} bps".format(np.mean(self.data['Mean HR']),np.std(self.data['Mean HR'],ddof=1))
         info["HR STD"]="{0:.3f} &plusmn; {1:.3f} bps".format(np.mean(self.data['HR STD']),np.std(self.data['HR STD'],ddof=1))
