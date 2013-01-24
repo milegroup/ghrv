@@ -95,7 +95,6 @@ class AboutDlg(wx.Frame):
         self.Show()
         self.CentreOnParent()
         
-        
     def OnEnd(self,event):
         self.WindowParent.OnAboutEnded()
         self.Destroy()
