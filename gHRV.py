@@ -1263,6 +1263,12 @@ class ConfigurationWindow(wx.Frame):
             except:
                 error = True
                 messageError="Illegal characters in project name"
+
+        if not error and dm.HasFrameBasedParams():
+            numframes = dm.GetNumFrames(float(tmpSettings['interpfreq']),float(tmpSettings['windowsize']),float(tmpSettings['windowshift']))
+            if (numframes < minNumFrames):
+                messageError="Too few data for analysis: "+str(numframes)+" frames\nMinimum number of frames is "+str(minNumFrames)
+                error = True
         
         if error:
             self.WindowParent.ErrorWindow(messageStr=messageError)

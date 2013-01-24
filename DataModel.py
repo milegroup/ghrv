@@ -654,7 +654,14 @@ class DM:
 
         if self.data["Verbose"]:
             print ("   Obtained "+str(len(self.data["HR"]))+" points")
-            
+
+
+    def GetNumFrames(self,interfreq,windowsize,windowshift):
+        shiftsamp=windowshift*interfreq
+        sizesamp=windowsize*interfreq     
+        numframes=int(((len(self.data["HR"])-sizesamp)/shiftsamp)+1.0)
+        return numframes
+        
                 
     def CalculateFrameBasedParams(self, showProgress=False):
         """Calculates power per band
@@ -677,6 +684,7 @@ class DM:
         sizesamp=self.data['windowsize']*self.data["interpfreq"]
         
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
+        
         if (numframes < minNumFrames):
             raise Exceptions.FewFramesError(numframes)
 
