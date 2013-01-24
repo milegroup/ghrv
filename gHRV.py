@@ -859,7 +859,7 @@ class MainWindow(wx.Frame):
             try:
                 dm.CalculateFrameBasedParams(showProgress=True)
             except Exceptions.FewFramesError as e:
-                self.ErrorWindow(messageStr="Too few data for analysis: "+str(e.NumOfFrames)+" frames\nMinimum number of frames is "+str(minNumFrames),
+                self.ErrorWindow(messageStr="Too few data for analysis: "+str(max(0,e.NumOfFrames))+" frames\nMinimum number of frames is "+str(minNumFrames),
                                      captionStr="Error calculating frame-based parameters")
         if dm.HasFrameBasedParams():
             self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters",dm)
@@ -1265,7 +1265,7 @@ class ConfigurationWindow(wx.Frame):
         if not error and dm.HasFrameBasedParams():
             numframes = dm.GetNumFrames(float(tmpSettings['interpfreq']),float(tmpSettings['windowsize']),float(tmpSettings['windowshift']))
             if (numframes < minNumFrames):
-                messageError="Too few data for analysis: "+str(numframes)+" frames\nMinimum number of frames is "+str(minNumFrames)
+                messageError="Too few data for analysis: "+str(max(0,numframes))+" frames\nMinimum number of frames is "+str(minNumFrames)
                 error = True
         
         if error:
