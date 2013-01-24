@@ -33,6 +33,8 @@ import numpy as np
 from sys import platform
 from configvalues import *
 import matplotlib
+import Exceptions 
+
 
 listofsettings=['interpfreq','windowsize','windowshift','ulfmin','ulfmax','vlfmin','vlfmax','lfmin','lfmax','hfmin','hfmax','name']
 
@@ -92,7 +94,7 @@ class DM:
         
         
         if (self.data["Verbose"]==True):
-            print("** Loading asii file "+asciiFile)
+            print("** Loading ascii file "+asciiFile)
                 
                 
         asciiData = np.loadtxt(asciiFile)
@@ -675,6 +677,8 @@ class DM:
         sizesamp=self.data['windowsize']*self.data["interpfreq"]
         
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
+        if (numframes < minNumFrames):
+            raise Exceptions.FewFramesError(numframes)
 
         sizesamp2=sizesamp
         if (sizesamp2%2 != 0):

@@ -108,6 +108,7 @@ buttonSizeEditEpisodes=(120,35)
 textCtrlSize=(60,25)
 textCtrlSizeBig=(80,25)
 
+minNumFrames = 3
 
 verticalFactorPBPlot=0.9
 
