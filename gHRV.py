@@ -27,8 +27,6 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
     
-# TODO: Comprobar cuando la ventana es más grande que la señal
-
 import wx
 import matplotlib
 matplotlib.use('WXAgg')
