@@ -281,7 +281,7 @@ class DM:
                     # print ("Code: "+str(code))
                     # print ("Time: "+str(time))
 
-                    if code==0:
+                    if code==0 and time==0:
                         break
 
                     # Original code:

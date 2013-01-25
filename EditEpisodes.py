@@ -26,9 +26,6 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-# TODO: problema si añado episodio y luego cancelo
-
-
 
 import wx
 from configvalues import *
@@ -36,6 +33,8 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
 import wx.grid as gridlib
+from sys import platform
+
 
 class EditEpisodesWindow(wx.Frame):
     
