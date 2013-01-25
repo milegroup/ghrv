@@ -29,6 +29,7 @@
 # TODO: problema si añado episodio y luego cancelo
 
 
+
 import wx
 from configvalues import *
 import matplotlib
