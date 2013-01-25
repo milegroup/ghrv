@@ -704,10 +704,10 @@ class MainWindow(wx.Frame):
                 try: 
                     dm.LoadBeatWFDB(str(unicode(fileName)),self.settings)
                 except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    self.ErrorWindow(messageStr="Ilegal characters in filename:\n"+fileName,
                                      captionStr="Error loading WFDB file")
                 except:
-                    self.ErrorWindow(messageStr="Problem loading WFDB file:\n .hea and annotation files are needed",
+                    self.ErrorWindow(messageStr="Problem loading WFDB file:\n"+fileName,
                                      captionStr="Error loading WFDB file")
                 else:
                     self.RefreshMainWindow()    

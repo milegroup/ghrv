@@ -26,7 +26,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-Verbose=False
+Verbose=True
 DebugMode = False
 ReportVersion = False
 Version="1.1" # Things like 1.0.5 are not valid

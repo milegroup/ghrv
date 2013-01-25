@@ -249,10 +249,14 @@ class DM:
         for filefound in filesfound:
             extensionsfound.append(filefound[-3:])
         extensionsfound.remove('hea')
+
+        if 'atr' in extensionsfound:
+            extensionsfound.remove('atr')
+            extensionsfound.insert(0,'atr')
         if 'qrs' in extensionsfound:
             extensionsfound.remove('qrs')
             extensionsfound.insert(0,'qrs')
-            # 'qrs' in first place
+            # 'qrs' in first place, then 'atr'
 
         # print "Extensions: ",str(extensionsfound)
         for extension in extensionsfound:
@@ -274,21 +278,26 @@ class DM:
                     time = value % 1024
                     
                     # print ("Value: "+str(int(value)))
-                    # print ("Code: "+str(code))
-                    # print ("Time: "+str(time))
+                    print ("Code: "+str(code))
+                    print ("Time: "+str(time))
 
                     if code==0 and time==0:
                         break
 
-                    if code==1:
+                    if code<50: # Original if code == 1 
                         accumulator = accumulator+time
                         # print "Sec: ",accumulator/samplingFrequency
                         beats.append(accumulator/samplingFrequency)
                     else:
                         if code==63:
-                            jump = int(time)/2 + int(time)%2
-                            for i in range(jump):
-                                value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                            # Modified code:
+                            jump = int(time) + int(time)%2
+                            x = datafile.read(jump)
+                            value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                            # Original code:    
+                            # jump = int(time)/2 + int(time)%2
+                            # for i in range(jump):
+                            #     value = ord(datafile.read(1))+ord(datafile.read(1))*256
                         else:
                             if code==59 and time==0:
                                 for i in range(2):
@@ -301,6 +310,9 @@ class DM:
                     print("   File "+wfdbdatafile+" didn't work")
             else:
                 break
+
+        if (self.data["Verbose"]==True):
+            print("   File "+wfdbdatafile+" has been loaded")
 
         self.LoadBeatSec(np.array(beats),settings)
         
