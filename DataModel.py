@@ -278,13 +278,17 @@ class DM:
                     time = value % 1024
                     
                     # print ("Value: "+str(int(value)))
-                    print ("Code: "+str(code))
-                    print ("Time: "+str(time))
+                    # print ("Code: "+str(code))
+                    # print ("Time: "+str(time))
 
-                    if code==0 and time==0:
+                    if code==0:
                         break
 
-                    if code<50: # Original if code == 1 
+                    # Original code:
+                    # if code==1: # Only normal beats
+
+                    # Modified code:
+                    if code<50: 
                         accumulator = accumulator+time
                         # print "Sec: ",accumulator/samplingFrequency
                         beats.append(accumulator/samplingFrequency)
