@@ -692,6 +692,8 @@ class DM:
 
         hammingfactor=1.586
 
+
+
         def power(spec,freq,fmin,fmax):
             band = [spec[i] for i in range(len(spec)) if freq[i] >= fmin and freq[i]<=fmax]
             powerinband = hammingfactor*np.sum(band)/(2*len(spec)**2)
