@@ -3,7 +3,7 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2012  Milegroup - Dpt. Informatics
+#   Copyright (C) 2013  Milegroup - Dpt. Informatics
 #      University of Vigo - Spain
 #      www.milegroup.net
 #
@@ -379,7 +379,7 @@ class DM:
             # print("--- Reading file: "+fileName)
             if zfitem[0]=="#":
                 self.data[dataName]=np.loadtxt(fileName)
-                #print("   Length: "+str(len(self.data[dataName])))
+                # print("   Length: "+str(len(self.data[dataName])))
             else:
                 tempF = open(fileName,'r')
                 if dataName=="name":
@@ -389,8 +389,12 @@ class DM:
                 tempF.close()
                 # print("   Data: "+str(self.data[dataName]))
         zf.close()
+
+        if "version" in self.data.keys():
+            self.data["version"] = str(self.data["version"])
+            # version needs to be a string for comparison purposes
         
-        #print ("Keys: "+str(self.data.keys()))
+        # print ("Keys: "+str(self.data.keys()))
         
         #print self.data["name"]
         
@@ -414,6 +418,8 @@ class DM:
 
         if self.data["version"]<Version:
             if self.data['Verbose']:
+                print("   gHRV version: *"+Version+"*")
+                print("   Project build with gHRV version: *"+self.data["version"]+"*")
                 print("   Importing project from an old version of gHRV")
             self.ClearBands()
             if self.HasFrameBasedParams():

@@ -3,7 +3,7 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2012  Milegroup - Dpt. Informatics
+#   Copyright (C) 2013  Milegroup - Dpt. Informatics
 #      University of Vigo - Spain
 #      www.milegroup.net
 #
@@ -29,7 +29,8 @@
     
 # TODO: 
 #   - non lle pon as extensións aos arquivos ao gardar (esto hai que correxilo)
-#   - tarda moito en cargar os proxectos (agora non o vexo, proba ti cun rexistro grande haber que pasa)
+#   - cambiar interacción con las figuras
+#   - seleccionar tipos de latidos cargados en ficheros physionet
 
 
 import wx
