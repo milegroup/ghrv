@@ -32,6 +32,7 @@
 #   - cambiar interacción con las figuras
 #   - seleccionar tipos de latidos cargados en ficheros physionet
 #   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
+#   - report con un fichero grande es muy lento
 
 
 import wx
