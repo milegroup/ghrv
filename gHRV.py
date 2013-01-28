@@ -31,6 +31,7 @@
 #   - non lle pon as extensións aos arquivos ao gardar (esto hai que correxilo)
 #   - cambiar interacción con las figuras
 #   - seleccionar tipos de latidos cargados en ficheros physionet
+#   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
 
 
 import wx
