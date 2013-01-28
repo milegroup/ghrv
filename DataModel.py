@@ -1347,7 +1347,7 @@ class DM:
         if self.HasEpisodes():
             return (list(set(self.data["EpisodesType"])),self.data["EpisodesVisible"])
         else:
-            return ([],set([]))
+            return ([],[])
     
     def SetVisibleEpisodes(self,ListOfEp):
         """Updates the list of visible episodes"""

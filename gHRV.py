@@ -28,10 +28,8 @@
 #   ----------------------------------------------------------------------
     
 # TODO: 
-#   - Error al añadir el primer episodio de forma manual
 #   - non lle pon as extensións aos arquivos ao gardar (esto hai que correxilo)
 #   - tarda moito en cargar os proxectos (agora non o vexo, proba ti cun rexistro grande haber que pasa)
-#   - problema si añado episodio y luego cancelo (??)
 
 
 import wx
