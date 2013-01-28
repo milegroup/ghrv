@@ -719,10 +719,13 @@ class DM:
         freqs = np.linspace(start=0,stop=self.data["interpfreq"]/2,num=sizesamp2,endpoint=True)
         hw=np.hamming(sizesamp2)
 
+        if numframes<=10:
+            showProgress = False
+
         
         if showProgress:
             import wx
-            dlg = wx.ProgressDialog("Calculating parameters","An informative message",maximum = (numframes-1)//10,
+            dlg = wx.ProgressDialog("Calculating parameters","Preparing data...",maximum = (numframes-1)//10,
                 style=wx.PD_CAN_ABORT | wx.PD_AUTO_HIDE | wx.PD_REMAINING_TIME | wx.PD_ESTIMATED_TIME)
         
         
@@ -755,7 +758,7 @@ class DM:
             if showProgress:
                 if indexframe%10 == 0:
                     KeepGoing = dlg.Update(indexframe//10, "Frame number: %s/%s" % (indexframe,numframes))[0]
-                    # print "Keep: "+str(KeepGoing)
+                    print "Keep: "+str(KeepGoing)
             begframe=int(indexframe*shiftsamp)
             endframe=int(begframe+sizesamp) # samples
             frame=signal[begframe:endframe]
