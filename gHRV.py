@@ -33,6 +33,10 @@
 #   - seleccionar tipos de latidos cargados en ficheros physionet
 #   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
 #   - report con un fichero grande es muy lento
+#   - colores/monocromo
+#   - Las ventanas que lanza la aplicación son bastante anchas. En mi equipo no cogen a lo ancho. Idealmente, la aplicación debería comprobar el tamaño de la pantalla antes de lanzar la ventana y asegurarse que el tamaño de ventana que usa inicial es menor que el tamaño de ventana.
+#   - Yo hubiese empleado el icono de la herramienta (el dibujo de Leonardo) como icono de todas las ventanas, y no ese icono con forma de libreta de notas que tienen.
+#   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 
 
 import wx
