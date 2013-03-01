@@ -187,7 +187,7 @@ class MainWindow(wx.Frame):
         sbBeatsButtonsSizerRow1.Add(self.buttonEditHR, flag=wx.ALL, border=borderSmall)
         self.MainPanel.Bind(wx.EVT_BUTTON, self.OnNIHREdit, id=self.buttonEditHR.GetId())
         self.buttonEditHR.SetToolTip(wx.ToolTip("Interactive removal of outliers"))
-        if platform != 'darwin':
+        if platform != 'darwin' and ColoredButtons:
             self.buttonEditHR.SetBackgroundColour(EditBGColor)
         self.buttonEditHR.Disable()
                 
@@ -227,7 +227,7 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnEpisodesEdit, id=self.buttonEditEpisodes.GetId())
         self.buttonEditEpisodes.SetToolTip(wx.ToolTip("Click to open episodes editor"))
         self.buttonEditEpisodes.Disable()
-        if platform != 'darwin':
+        if platform != 'darwin' and ColoredButtons:
             self.buttonEditEpisodes.SetBackgroundColour(EpisodesEditionBGColor)
                             
         sbEpisodesButtonsSizer.Add(sbEpisodesButtonsSizerRow1, flag=wx.EXPAND)
@@ -256,7 +256,7 @@ class MainWindow(wx.Frame):
         sbToolsButtonsSizer.Add(self.buttonTemporal, flag=wx.ALL | wx.EXPAND, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnFrameBased, id=self.buttonTemporal.GetId())
         self.buttonTemporal.SetToolTip(wx.ToolTip("Temporal evolution of parameters"))
-        if platform != 'darwin':
+        if platform != 'darwin' and ColoredButtons:
             self.buttonTemporal.SetBackgroundColour(TemporalBGColor)
         self.buttonTemporal.Disable()
         
@@ -264,7 +264,7 @@ class MainWindow(wx.Frame):
         sbToolsButtonsSizer.Add(self.buttonReport, flag=wx.ALL | wx.EXPAND, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnReport, id=self.buttonReport.GetId())
         self.buttonReport.SetToolTip(wx.ToolTip("Create report"))
-        if platform != 'darwin':
+        if platform != 'darwin' and ColoredButtons:
             self.buttonReport.SetBackgroundColour(ReportBGColor)
         self.buttonReport.Disable()
 
@@ -272,7 +272,7 @@ class MainWindow(wx.Frame):
         sbToolsButtonsSizer.Add(self.buttonPoincare, flag=wx.ALL | wx.EXPAND, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnPoincare, id=self.buttonPoincare.GetId())
         self.buttonPoincare.SetToolTip(wx.ToolTip("Poincare plot tool"))
-        if platform != 'darwin':
+        if platform != 'darwin' and ColoredButtons:
             self.buttonPoincare.SetBackgroundColour(PoincareBGColor)
         self.buttonPoincare.Disable()
         
@@ -321,7 +321,10 @@ class MainWindow(wx.Frame):
         # ------------------
         # Begin of plot area
         
-        self.fig = matplotlib.figure.Figure((4,5),facecolor=HRBGColor)
+        if ColoredBGPlots:
+            self.fig = matplotlib.figure.Figure((4,5),facecolor=HRBGColor)
+        else:
+            self.fig = matplotlib.figure.Figure((4,5))
         #self.fig.set_figwidth(5)
         #self.fig.set_figheight(5)
         self.canvas = FigureCanvas(self.MainPanel, -1, self.fig)

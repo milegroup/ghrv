@@ -26,9 +26,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-Verbose=False
+Verbose = False
 DebugMode = False
 ReportVersion = False
+ColoredButtons = True
+ColoredBGPlots = True
 Version="1.2" # Things like 1.0.5 are not valid
 
 borderBig=10

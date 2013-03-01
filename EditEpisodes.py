@@ -55,7 +55,11 @@ class EditEpisodesWindow(wx.Frame):
         # Create the mpl Figure and FigCanvas objects. 
         # 5x4 inches, 100 dots-per-inch
         #
-        self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=EpisodesEditionBGColor)
+
+        if ColoredBGPlots:
+            self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=EpisodesEditionBGColor)
+        else:
+            self.fig = matplotlib.figure.Figure((5.0, 4.0))
         self.canvas = FigureCanvas(self.panel, -1, self.fig)
         self.canvas.mpl_connect('button_press_event', self.OnClick)
         

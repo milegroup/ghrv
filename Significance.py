@@ -132,8 +132,11 @@ class SignificanceWindow(wx.Frame):
 
 
         # -------------- Begin of figure
-
-        self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=SignifBGColor)
+        if ColoredBGPlots:
+            self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=SignifBGColor)
+        else:
+            self.fig = matplotlib.figure.Figure((5.0, 4.0))
+            
         self.fig.subplots_adjust(left=0.05, bottom=0.18, right=0.98, top=0.92, wspace=0.20, hspace=0.15)
         self.canvas = FigureCanvas(panel, -1, self.fig)
         

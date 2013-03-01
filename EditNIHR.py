@@ -50,7 +50,10 @@ class EditNIHRWindow(wx.Frame):
                         
         self.panel = wx.Panel(self)
         
-        self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=EditBGColor)
+        if ColoredBGPlots:
+            self.fig = matplotlib.figure.Figure((5.0, 4.0),facecolor=EditBGColor)
+        else:
+            self.fig = matplotlib.figure.Figure((5.0, 4.0))
         self.canvas = FigureCanvas(self.panel, -1, self.fig)
         self.canvas.mpl_connect('button_press_event', self.onClick)
         

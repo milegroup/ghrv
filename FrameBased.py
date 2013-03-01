@@ -53,7 +53,11 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.panel = wx.Panel(self)
         self.WindowParent=parent
         
-        self.fig = matplotlib.figure.Figure(facecolor=TemporalBGColor)
+        if ColoredBGPlots:
+            self.fig = matplotlib.figure.Figure(facecolor=TemporalBGColor)
+        else:
+            self.fig = matplotlib.figure.Figure()
+            
         self.canvas = FigureCanvas(self.panel, -1, self.fig)
                    
         self.mainBox = wx.BoxSizer(wx.HORIZONTAL)
@@ -74,7 +78,7 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnSignif, id=self.signifButton.GetId())
         self.signifButton.SetToolTip(wx.ToolTip("Click to perform significance analysis"))
         self.vboxRightArea.Add(self.signifButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_RIGHT)
-        if platform != 'darwin':
+        if platform != 'darwin' and ColoredButtons:
             self.signifButton.SetBackgroundColour(SignifBGColor)
         if self.dm.HasVisibleEpisodes():
             self.signifButton.Enable()
