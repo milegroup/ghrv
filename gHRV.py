@@ -722,7 +722,18 @@ class MainWindow(wx.Frame):
                     self.ErrorWindow(messageStr="Problem loading WFDB file:\n"+fileName,
                                      captionStr="Error loading WFDB file")
                 else:
-                    self.RefreshMainWindow()    
+                    self.RefreshMainWindow()
+            else:
+                try:
+                    dm.LoadFileAscii(str(unicode(fileName)),self.settings)
+                except UnicodeEncodeError:
+                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                     captionStr="Error loading ascii file")
+                except:
+                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid ascii file",
+                                     captionStr="Error loading ascii file")
+                else:
+                    self.RefreshMainWindow() 
         self.canvas.SetFocus()
         
         
