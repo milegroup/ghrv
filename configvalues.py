@@ -134,8 +134,11 @@ plotPoincareHeight=300.0
 plotFBWidth=740.0
 plotFBHeight=500.0
 
-fileTypesLinMac="EPS file (*.eps)|*.eps;*EPS|JPEG file (*.jpg,*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tif,*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF|All files (*.*)|*.*"
+fileTypesLinMac="EPS file (*.eps)|*.eps;*EPS|JPEG file (*.jpg,*.jpeg)|*.jpeg;*.JPEG;*.jpg;*.JPG|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|TIFF file (*.tif,*.tiff)|*.tiff;*.TIFF;*.tif;*.TIF"
+automaticExtensionsLinMac = {0:"eps",1:"jpeg",2:"pdf",3:"png",4:"svg",5:"tiff"}
 extensionsLinMac=["eps","jpeg","jpg","pdf","png","svg","tif","tiff"]
-fileTypesWin="EPS file (*.eps)|*.eps;*EPS|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG|All files (*.*)|*.*"
+
+fileTypesWin="EPS file (*.eps)|*.eps;*EPS|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG"
+automaticExtensionsWin = {0:"eps",1:"pdf",3:"png",4:"svg"}
 extensionsWin=["eps","pdf","png","svg"]
 

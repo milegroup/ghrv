@@ -758,7 +758,7 @@ class DM:
             if showProgress:
                 if indexframe%10 == 0:
                     KeepGoing = dlg.Update(indexframe//10, "Frame number: %s/%s" % (indexframe,numframes))[0]
-                    print "Keep: "+str(KeepGoing)
+                    # print "Keep: "+str(KeepGoing)
             begframe=int(indexframe*shiftsamp)
             endframe=int(begframe+sizesamp) # samples
             frame=signal[begframe:endframe]

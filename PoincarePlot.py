@@ -34,6 +34,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
 import numpy as np
 import os
+from sys import platform
 
 class PoincarePlotWindow(wx.Frame):
 
@@ -159,24 +160,24 @@ class PoincarePlotWindow(wx.Frame):
             if platform != "win32":
                 filetypes = fileTypesLinMac
                 extensions= extensionsLinMac
+                automaticExtensions = automaticExtensionsLinMac
             else:
                 filetypes = fileTypesWin
                 extensions= extensionsWin
+                automaticExtensions = automaticExtensionsWin
                 
-            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=self.dm.GetName()+"_SIG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
+            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=self.dm.GetName()+"_PP", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
             result = dial.ShowModal()
             if result == wx.ID_OK:
                 fileName=dial.GetPath()
                 fileExt = os.path.splitext(fileName)[1][1:].strip()
-                if fileExt=="":
-                    self.ErrorWindow(messageStr="Filename extension missing",captionStr="Error saving figure    ")
-                elif fileExt not in extensions:
-                    self.ErrorWindow(messageStr="Filetype not supported: "+fileExt,captionStr="Error saving figure    ")
-                else:
-                    try:
-                        self.canvas.print_figure(fileName)
-                    except:
-                        self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
+                if fileExt not in extensions:
+                    fileName = fileName + "." + automaticExtensions[dial.GetFilterIndex()]
+                    # print "Saving ",fileName
+                try:
+                    self.canvas.print_figure(fileName)
+                except:
+                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
             dial.Destroy()
 
         self.canvas.SetFocus()
