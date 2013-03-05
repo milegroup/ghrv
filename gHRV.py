@@ -416,6 +416,7 @@ class MainWindow(wx.Frame):
         #     dm.PlotHRZoomReset()
         #     self.canvas.draw()
         if keycode==83:
+
             fileName=""
             if platform != "win32":
                 filetypes = fileTypesLinMac
