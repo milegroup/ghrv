@@ -33,7 +33,9 @@ import numpy as np
 from sys import platform
 from configvalues import *
 import matplotlib
-import Exceptions 
+import Exceptions
+from matplotlib.widgets import Button
+
 
 
 listofsettings=['interpfreq','windowsize','windowshift','ulfmin','ulfmax','vlfmin','vlfmax','lfmin','lfmax','hfmin','hfmax','name']
@@ -1443,19 +1445,19 @@ class DM:
 
         return total,inside,outside
     
-    def CreatePlot(self,plotType):
+    # def CreatePlot(self,plotType):
         
-        """Creates and opens a new plot with HR"""
-        fig = matplotlib.pyplot.figure()
-        axes = fig.add_subplot(1,1,1)
-        if plotType=="HR":
-            self.CreatePlotHREmbedded(axes)
-        if plotType=="HRHistogram":
-            self.CreatePlotHRHistogramEmbedded(axes)
-        if plotType=="RRHistogram":
-            self.CreatePlotRRHistogramEmbedded(axes)
-        matplotlib.pyplot.grid(True)
-        matplotlib.pyplot.show()
+    #     """Creates and opens a new plot with HR"""
+    #     fig = matplotlib.pyplot.figure()
+    #     axes = fig.add_subplot(1,1,1)
+    #     if plotType=="HR":
+    #         self.CreatePlotHREmbedded(axes)
+    #     if plotType=="HRHistogram":
+    #         self.CreatePlotHRHistogramEmbedded(axes)
+    #     if plotType=="RRHistogram":
+    #         self.CreatePlotRRHistogramEmbedded(axes)
+    #     matplotlib.pyplot.grid(True)
+    #     matplotlib.pyplot.show()
         
        
         
@@ -1467,7 +1469,7 @@ class DM:
         fig.set_size_inches((width/plotDPI,height/plotDPI))
         
         if plotType=="HR":
-            self.CreatePlotHREmbedded(fig,zoomReset)
+            self.CreatePlotHREmbedded(fig,zoomReset,interactive=False)
         if plotType=="HRHistogram":
             self.CreatePlotHRHistogramEmbedded(fig)
         if plotType=="RRHistogram":
@@ -1539,13 +1541,98 @@ class DM:
         matplotlib.pyplot.show()
         
     
-    def CreatePlotHREmbedded(self,fig,zoomReset=False):
+    def CreatePlotHREmbedded(self,fig,zoomReset=False,interactive=True):
         """Creates an HR Plot embedded in axes
         Valid for windows and stand-alone plots"""
+
+
+        def zoomin(event):
+            if self.data["Verbose"]:
+                print("** HR Zoom in")
+            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+            self.data["PlotHRXMin"]+=delta
+            self.data["PlotHRXMax"]-=delta
+            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            fig.canvas.draw()
+
+
+        def zoomout(event):
+            if self.data["Verbose"]:
+                print("** HR Zoom out")
+            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.2
+            self.data["PlotHRXMin"]-=delta
+            self.data["PlotHRXMax"]+=delta
+            xvector = self.GetHRDataPlot()[0]
+            self.data["PlotHRXMin"]=max(xvector[0],self.data["PlotHRXMin"])
+            self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
+            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            fig.canvas.draw()
+            
+
+        def zoomreset(event):
+            if self.data["Verbose"]:
+                print("** HR Zoom reset")
+            xvector = self.GetHRDataPlot()[0]
+            self.data["PlotHRXMin"] = xvector[0]
+            self.data["PlotHRXMax"] = xvector[-1]
+            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            fig.canvas.draw()
+
+
+        def panright(event):
+            if self.data["Verbose"]:
+                print("** HR Pan right")
+            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+            xvector = self.GetHRDataPlot()[0]
+            delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
+            self.data["PlotHRXMin"] += delta
+            self.data["PlotHRXMax"] += delta
+            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            fig.canvas.draw()
+
+
+        def panleft(event):
+            if self.data["Verbose"]:
+                print("** HR Pan left")
+            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+            xvector = self.GetHRDataPlot()[0]
+            delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
+            self.data["PlotHRXMin"] -= delta
+            self.data["PlotHRXMax"] -= delta
+            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            fig.canvas.draw()
+            
+            
+           
+
         
+        
+
+        plotFormat={
+            'left':0.07,
+            'bottom':0.07,
+            'right':0.98,
+            'top':0.94,
+            'wspace':0.20,
+            'hspace':.15,
+            'ymintag':0.04,
+            'ymaxtag':0.96,
+            'littlebuttonsize':0.03,
+            'buttonsmargin':0.01
+        }
         
         self.HRaxes = fig.add_subplot(1,1,1)
-        fig.subplots_adjust(left=0.07, bottom=0.07, right=0.98, top=0.94, wspace=0.20, hspace=0.15)
+
+        fig.subplots_adjust(
+            left=plotFormat['left'],
+            bottom=plotFormat['bottom'],
+            right=plotFormat['right'],
+            top=plotFormat['top'],
+            wspace=plotFormat['wspace'],
+            hspace=plotFormat['hspace']
+        )
+
+
         
         xvector, yvector = self.GetHRDataPlot()
         if "PlotHRXMin" not in self.data:
@@ -1558,6 +1645,60 @@ class DM:
         
         
         self.HRaxes.set_title(self.GetHeartRatePlotTitle())
+
+
+        if interactive:
+            newaxzoomin = fig.add_axes(self.HRaxes.get_position())
+            newaxzoomin.set_position([
+                plotFormat['left']+plotFormat['littlebuttonsize']+2*plotFormat['buttonsmargin'],
+                plotFormat['top']-plotFormat['littlebuttonsize']-plotFormat['buttonsmargin'],
+                plotFormat['littlebuttonsize'],
+                plotFormat['littlebuttonsize']
+            ])
+            self.btzoomin=Button(newaxzoomin,"+")
+            self.btzoomin.on_clicked(zoomin)
+
+            newaxzoomout = fig.add_axes(self.HRaxes.get_position())
+            newaxzoomout.set_position([
+                plotFormat['left']+plotFormat['littlebuttonsize']+2*plotFormat['buttonsmargin'],
+                plotFormat['top']-3*plotFormat['littlebuttonsize']-3*plotFormat['buttonsmargin'],
+                plotFormat['littlebuttonsize'],
+                plotFormat['littlebuttonsize']
+            ])
+            self.btzoomout=Button(newaxzoomout,"-")
+            self.btzoomout.on_clicked(zoomout)
+
+            newaxzoomreset = fig.add_axes(self.HRaxes.get_position())
+            newaxzoomreset.set_position([
+                plotFormat['left']+plotFormat['littlebuttonsize']+2*plotFormat['buttonsmargin'],
+                plotFormat['top']-2*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
+                plotFormat['littlebuttonsize'],
+                plotFormat['littlebuttonsize']
+            ])
+            self.btzoomreset=Button(newaxzoomreset,"0")
+            self.btzoomreset.on_clicked(zoomreset)
+
+            newaxpanright = fig.add_axes(self.HRaxes.get_position())
+            newaxpanright.set_position([
+                plotFormat['left']+2*plotFormat['littlebuttonsize']+3*plotFormat['buttonsmargin'],
+                plotFormat['top']-2*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
+                plotFormat['littlebuttonsize'],
+                plotFormat['littlebuttonsize']
+            ])
+            self.btpanright=Button(newaxpanright,">")
+            self.btpanright.on_clicked(panright)
+
+            newaxpanleft = fig.add_axes(self.HRaxes.get_position())
+            newaxpanleft.set_position([
+                plotFormat['left']+plotFormat['buttonsmargin'],
+                plotFormat['top']-2*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
+                plotFormat['littlebuttonsize'],
+                plotFormat['littlebuttonsize']
+            ])
+            self.btpanleft=Button(newaxpanleft,"<")
+            self.btpanleft.on_clicked(panleft)
+
+            # End program block if interactive = True
             
         
         if self.HasVisibleEpisodes():
@@ -1570,9 +1711,9 @@ class DM:
                 endsvector=[starts[w]+durations[w] for w in range(numEpisodes) if tags[w]==tag]
                 for j in range(len(startsvector)):
                     if j==0:
-                        self.HRaxes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
+                        self.HRaxes.axvspan(startsvector[j], endsvector[j], ymin=plotFormat['ymintag'], ymax=plotFormat['ymaxtag'], facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
                     else:
-                        self.HRaxes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
+                        self.HRaxes.axvspan(startsvector[j], endsvector[j], ymin=plotFormat['ymintag'], ymax=plotFormat['ymaxtag'], facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
                 i=i+1
             leg=self.HRaxes.legend(fancybox=True,shadow=True)
             for t in leg.get_texts():
@@ -1580,6 +1721,8 @@ class DM:
                 
         if not zoomReset:       
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+
+
             
         self.HRaxes.grid()
         
@@ -1712,13 +1855,13 @@ class DM:
         else:
             fig.subplots_adjust(left=0.07, bottom=0.07, right=0.98, top=0.94, wspace=0.20, hspace=0.15)
         
-    def PlotHRZoomIn(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
-        self.data["PlotHRXMin"]+=delta
-        self.data["PlotHRXMax"]-=delta
-        self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-        if self.data["Verbose"]:
-            print("** HR Zoom in")
+    # def PlotHRZoomIn(self):
+    #     delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+    #     self.data["PlotHRXMin"]+=delta
+    #     self.data["PlotHRXMax"]-=delta
+    #     self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+    #     if self.data["Verbose"]:
+    #         print("** HR Zoom in")
             
     def PlotFBZoomIn(self):
         delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
@@ -1729,13 +1872,13 @@ class DM:
         if self.data["Verbose"]:
             print("** FB Zoom in")
         
-    def PlotHRZoomReset(self):
-        xvector = self.GetHRDataPlot()[0]
-        self.data["PlotHRXMin"] = xvector[0]
-        self.data["PlotHRXMax"] = xvector[-1]
-        self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-        if self.data["Verbose"]:
-            print("** HR Zoom reset")
+    # def PlotHRZoomReset(self):
+    #     xvector = self.GetHRDataPlot()[0]
+    #     self.data["PlotHRXMin"] = xvector[0]
+    #     self.data["PlotHRXMax"] = xvector[-1]
+    #     self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+    #     if self.data["Verbose"]:
+    #         print("** HR Zoom reset")
             
     def PlotFBZoomReset(self):
         self.data["PlotFBXMin"] = 0
@@ -1745,16 +1888,16 @@ class DM:
         if self.data["Verbose"]:
             print("** FB Zoom reset")
         
-    def PlotHRZoomOut(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.2
-        self.data["PlotHRXMin"]-=delta
-        self.data["PlotHRXMax"]+=delta
-        xvector = self.GetHRDataPlot()[0]
-        self.data["PlotHRXMin"]=max(xvector[0],self.data["PlotHRXMin"])
-        self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
-        self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-        if self.data["Verbose"]:
-            print("** HR Zoom out")
+    # def PlotHRZoomOut(self):
+    #     delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.2
+    #     self.data["PlotHRXMin"]-=delta
+    #     self.data["PlotHRXMax"]+=delta
+    #     xvector = self.GetHRDataPlot()[0]
+    #     self.data["PlotHRXMin"]=max(xvector[0],self.data["PlotHRXMin"])
+    #     self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
+    #     self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+    #     if self.data["Verbose"]:
+    #         print("** HR Zoom out")
             
     def PlotFBZoomOut(self):
         delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.2
@@ -1768,15 +1911,15 @@ class DM:
         if self.data["Verbose"]:
             print("** FB Zoom out")
             
-    def PlotHRPanRight(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
-        xvector = self.GetHRDataPlot()[0]
-        delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
-        self.data["PlotHRXMin"] += delta
-        self.data["PlotHRXMax"] += delta
-        self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-        if self.data["Verbose"]:
-            print("** HR Pan right")
+    # def PlotHRPanRight(self):
+    #     delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+    #     xvector = self.GetHRDataPlot()[0]
+    #     delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
+    #     self.data["PlotHRXMin"] += delta
+    #     self.data["PlotHRXMax"] += delta
+    #     self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+    #     if self.data["Verbose"]:
+    #         print("** HR Pan right")
             
     def PlotFBPanRight(self):
         delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
@@ -1789,15 +1932,15 @@ class DM:
         if self.data["Verbose"]:
             print("** FB Pan right")
             
-    def PlotHRPanLeft(self):
-        delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
-        xvector = self.GetHRDataPlot()[0]
-        delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
-        self.data["PlotHRXMin"] -= delta
-        self.data["PlotHRXMax"] -= delta
-        self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-        if self.data["Verbose"]:
-            print("** HR Pan left")
+    # def PlotHRPanLeft(self):
+    #     delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+    #     xvector = self.GetHRDataPlot()[0]
+    #     delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
+    #     self.data["PlotHRXMin"] -= delta
+    #     self.data["PlotHRXMax"] -= delta
+    #     self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+    #     if self.data["Verbose"]:
+    #         print("** HR Pan left")
             
     def PlotFBPanLeft(self):
         delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1

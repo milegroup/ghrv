@@ -40,8 +40,8 @@
 
 import wx
 import matplotlib
-matplotlib.use('WXAgg')
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+# matplotlib.use('WXAgg')
+# from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 import matplotlib.pyplot
 import os
 import numpy as np
@@ -340,7 +340,7 @@ class MainWindow(wx.Frame):
         self.sb = self.CreateStatusBar()
         self.sb.SetStatusText(self.sbDefaultText)
         
-        self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
+        # self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
 
         
         self.SetMinSize(mainWindowMinSize)
@@ -396,25 +396,25 @@ class MainWindow(wx.Frame):
             return
         keycode = event.GetKeyCode()
         # print (str(keycode))
-        if keycode == 73:
-            # print "Zoom in"
-            dm.PlotHRZoomIn()
-            self.canvas.draw()
-        if keycode == 77:
+        # if keycode == 73:
+        #     # print "Zoom in"
+        #     dm.PlotHRZoomIn()
+        #     self.canvas.draw()
+        # if keycode == 77:
             # print "Zoom out"
-            dm.PlotHRZoomOut()
-            self.canvas.draw()
-        if keycode == 75:
-            # print "Pan right"
-            dm.PlotHRPanRight()
-            self.canvas.draw()
-        if keycode == 74:
-            # print "Pan left"
-            dm.PlotHRPanLeft()
-            self.canvas.draw()
-        if keycode == 48:
-            dm.PlotHRZoomReset()
-            self.canvas.draw()
+            # dm.PlotHRZoomOut()
+            # self.canvas.draw()
+        # if keycode == 75:
+        #     # print "Pan right"
+        #     dm.PlotHRPanRight()
+        #     self.canvas.draw()
+        # if keycode == 74:
+        #     # print "Pan left"
+        #     dm.PlotHRPanLeft()
+        #     self.canvas.draw()
+        # if keycode == 48:
+        #     dm.PlotHRZoomReset()
+        #     self.canvas.draw()
         if keycode==83:
             fileName=""
             if platform != "win32":
