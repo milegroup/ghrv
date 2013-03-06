@@ -718,7 +718,7 @@ class DM:
         if (sizesamp2%2 != 0):
             sizesamp2=sizesamp2+1
 
-        freqs = np.linspace(start=0,stop=self.data["interpfreq"]/2,num=sizesamp2,endpoint=True)
+        
         hw=np.hamming(sizesamp2)
 
         if numframes<=10:
@@ -779,6 +779,8 @@ class DM:
 
             spec_tmp=np.absolute(np.fft.fft(frame))**2
             spec=spec_tmp[0:(len(spec_tmp)/2)] # Only positive half of spectrum
+
+            freqs = np.linspace(start=0,stop=self.data["interpfreq"]/2,num=len(spec),endpoint=True)
 
             
             # print("Frame power (frequency): "+str(power(spec,freqs,0,self.data["interpfreq"]/2)))
