@@ -340,8 +340,6 @@ class MainWindow(wx.Frame):
         self.sb = self.CreateStatusBar()
         self.sb.SetStatusText(self.sbDefaultText)
         
-        # self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
-
         
         self.SetMinSize(mainWindowMinSize)
         self.SetTitle('gHRV')
@@ -386,63 +384,6 @@ class MainWindow(wx.Frame):
 
         self.CheckVersion()
 
-
-
-
-    
-    def OnKeyPress(self, event):
-        if not dm.HasHR():
-            # event.Skip()
-            return
-        keycode = event.GetKeyCode()
-        # print (str(keycode))
-        # if keycode == 73:
-        #     # print "Zoom in"
-        #     dm.PlotHRZoomIn()
-        #     self.canvas.draw()
-        # if keycode == 77:
-            # print "Zoom out"
-            # dm.PlotHRZoomOut()
-            # self.canvas.draw()
-        # if keycode == 75:
-        #     # print "Pan right"
-        #     dm.PlotHRPanRight()
-        #     self.canvas.draw()
-        # if keycode == 74:
-        #     # print "Pan left"
-        #     dm.PlotHRPanLeft()
-        #     self.canvas.draw()
-        # if keycode == 48:
-        #     dm.PlotHRZoomReset()
-        #     self.canvas.draw()
-        if keycode==83:
-
-            fileName=""
-            if platform != "win32":
-                filetypes = fileTypesLinMac
-                extensions= extensionsLinMac
-                automaticExtensions = automaticExtensionsLinMac
-            else:
-                filetypes = fileTypesWin
-                extensions= extensionsWin
-                automaticExtensions = automaticExtensionsWin
-                
-                
-            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=dm.GetName()+"_HR", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
-            result = dial.ShowModal()
-            if result == wx.ID_OK:
-                fileName=dial.GetPath()
-                fileExt = os.path.splitext(fileName)[1][1:].strip()
-                if fileExt not in extensions:
-                    fileName = fileName + "." + automaticExtensions[dial.GetFilterIndex()]
-                    # print "Saving ",fileName
-                try:
-                    self.canvas.print_figure(fileName)
-                except:
-                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
-            dial.Destroy()
-        # event.Skip()
-        self.canvas.SetFocus()
     
    
     def ConfigInit(self):
@@ -651,13 +592,6 @@ class MainWindow(wx.Frame):
         self.canvas.draw()
         self.canvas.SetFocus()
         
-        
-    def ErrorWindow(self,messageStr,captionStr="ERROR"):
-        """Generic error window"""
-        dial = wx.MessageDialog(self, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
-        result = dial.ShowModal()
-        dial.Destroy()
-        self.canvas.SetFocus()
     
     def WarningWindow(self,messageStr,captionStr="WARNING"):
         """Generic warning window"""
@@ -681,47 +615,47 @@ class MainWindow(wx.Frame):
                 try:
                     dm.LoadFileAscii(str(unicode(fileName)),self.settings)
                 except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading ascii file")
                 except:
-                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid ascii file",
+                    Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid ascii file",
                                      captionStr="Error loading ascii file")
                 else:
                     self.RefreshMainWindow()
-            if ext=="hrm":
+            elif ext=="hrm":
                 try:
                     dm.LoadFilePolar(str(unicode(fileName)),self.settings)
                 except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading polar file")
                 except:
-                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid polar file",
+                    Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid polar file",
                                      captionStr="Error loading polar file")
                 else:
                     self.RefreshMainWindow()
-            if ext=="sdf":
+            elif ext=="sdf":
                 try:
                     dm.LoadFileSuunto(str(unicode(fileName)),self.settings)
                     
                 except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading suunto file")
                 except:
-                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid suunto file",
+                    Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid suunto file",
                                      captionStr="Error loading suunto file")
                 else:
                     self.RefreshMainWindow()
-            if ext=="hea":
+            elif ext=="hea":
                 # dial = wx.MessageDialog(self, "Not yet implemented", "Soon...", wx.OK)
                 # result = dial.ShowModal()
                 # dial.Destroy()
                 try: 
                     dm.LoadBeatWFDB(str(unicode(fileName)),self.settings)
                 except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename:\n"+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename:\n"+fileName,
                                      captionStr="Error loading WFDB file")
                 except:
-                    self.ErrorWindow(messageStr="Problem loading WFDB file:\n"+fileName,
+                    Utils.ErrorWindow(messageStr="Problem loading WFDB file:\n"+fileName,
                                      captionStr="Error loading WFDB file")
                 else:
                     self.RefreshMainWindow()
@@ -729,10 +663,10 @@ class MainWindow(wx.Frame):
                 try:
                     dm.LoadFileAscii(str(unicode(fileName)),self.settings)
                 except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading ascii file")
                 except:
-                    self.ErrorWindow(messageStr=fileName+" does not seem to be a valid ascii file",
+                    Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid ascii file",
                                      captionStr="Error loading ascii file")
                 else:
                     self.RefreshMainWindow() 
@@ -751,10 +685,10 @@ class MainWindow(wx.Frame):
             try:
                 dm.LoadEpisodesAscii(str(unicode(fileName)))
             except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading episodes file")
             except:
-                self.ErrorWindow(messageStr=fileName+" does not seem to be a valid episodes file",captionStr="Error loading episodes file")
+                Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid episodes file",captionStr="Error loading episodes file")
             else:
                 EpisodesTags=dm.GetEpisodesTags()
                 for Tag in EpisodesTags:
@@ -783,10 +717,10 @@ class MainWindow(wx.Frame):
             try:
                 dm.LoadProject(str(unicode(fileName)))
             except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading project file")
             except:
-                self.ErrorWindow(messageStr=fileName+" does not seem to be a valid project file",captionStr="Error loading project file")
+                Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid project file",captionStr="Error loading project file")
             else:
                 self.RefreshMainWindow()                
             
@@ -800,10 +734,10 @@ class MainWindow(wx.Frame):
             try:
                 dm.SaveProject(str(unicode(fileName)))
             except UnicodeEncodeError:
-                    self.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error saving project file")
             except:
-                self.ErrorWindow(messageStr="Error saving project to file: "+fileName,captionStr="Error saving project file")
+                Utils.ErrorWindow(messageStr="Error saving project to file: "+fileName,captionStr="Error saving project file")
         dial.Destroy()
                    
     def OnProjectClear(self,event):
@@ -883,7 +817,7 @@ class MainWindow(wx.Frame):
             try:
                 dm.CalculateFrameBasedParams(showProgress=True)
             except Utils.FewFramesException as e:
-                self.ErrorWindow(messageStr="Too few data for analysis: "+str(max(0,e.NumOfFrames))+" frames\nMinimum number of frames is "+str(minNumFrames),
+                Utils.ErrorWindow(messageStr="Too few data for analysis: "+str(max(0,e.NumOfFrames))+" frames\nMinimum number of frames is "+str(minNumFrames),
                                      captionStr="Error calculating frame-based parameters")
         if dm.HasFrameBasedParams():
             self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters",dm)
