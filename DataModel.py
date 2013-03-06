@@ -33,7 +33,7 @@ import numpy as np
 from sys import platform
 from configvalues import *
 import matplotlib
-import Exceptions
+import Utils
 from matplotlib.widgets import Button
 
 
@@ -712,7 +712,7 @@ class DM:
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
         
         if (numframes < minNumFrames):
-            raise Exceptions.FewFramesError(numframes)
+            raise Utils.FewFramesException(numframes)
 
         sizesamp2=sizesamp
         if (sizesamp2%2 != 0):

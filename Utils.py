@@ -30,7 +30,7 @@
 class Error(Exception):
     pass
 
-class FewFramesError(Error):
+class FewFramesException(Error):
     def __init__(self,NumOfFrames):
         self.NumOfFrames = NumOfFrames
   

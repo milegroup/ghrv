@@ -55,7 +55,7 @@ from EditEpisodes import EditEpisodesWindow
 from EditNIHR import EditNIHRWindow
 from PoincarePlot import PoincarePlotWindow
 from ReportWindow import *
-import Exceptions
+import Utils
 
 # os.chdir("/usr/share/ghrv") # Uncomment when building a .deb package
 
@@ -885,7 +885,7 @@ class MainWindow(wx.Frame):
         if dm.HasFrameBasedParams()==False:
             try:
                 dm.CalculateFrameBasedParams(showProgress=True)
-            except Exceptions.FewFramesError as e:
+            except Utils.FewFramesException as e:
                 self.ErrorWindow(messageStr="Too few data for analysis: "+str(max(0,e.NumOfFrames))+" frames\nMinimum number of frames is "+str(minNumFrames),
                                      captionStr="Error calculating frame-based parameters")
         if dm.HasFrameBasedParams():
