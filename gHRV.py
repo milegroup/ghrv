@@ -29,6 +29,7 @@
     
 # TODO: 
 #   - cambiar interacción con las figuras
+#   - check overwrite in plot save
 #   - seleccionar tipos de latidos cargados en ficheros physionet
 #   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
 #   - report con un fichero grande es muy lento
@@ -76,7 +77,6 @@ class MainWindow(wx.Frame):
     configDir = os.path.expanduser('~')+os.sep+'.ghrv'
     configFile = configDir+os.sep+"ghrv.cfg"
     sbDefaultText="  gHRV %s - http://ghrv.milegroup.net" % Version
-    sbPlotHRText="  Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
         
     def __init__(self, parent, id, title):
 
@@ -642,8 +642,6 @@ class MainWindow(wx.Frame):
         self.RefreshMainWindowButtons()
         self.RefreshMainWindowPlot()
         self.canvas.SetFocus()
-        if dm.HasHR():
-            self.sb.SetStatusText(self.sbPlotHRText)
     
     def RefreshMainWindowPlot(self):
         """Redraws the plot of the main window"""
@@ -817,7 +815,6 @@ class MainWindow(wx.Frame):
             self.RefreshMainWindowButtons()
             self.fig.clear()
             self.canvas.draw()
-            self.sb.SetStatusText(self.sbDefaultText)
     
     def OnEpisodesEdit(self,event):
         EditEpisodesWindow(self,-1,'Episodes Edition',dm)

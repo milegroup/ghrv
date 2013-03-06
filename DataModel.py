@@ -35,6 +35,8 @@ from configvalues import *
 import matplotlib
 import Utils
 from matplotlib.widgets import Button
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+
 
 
 
@@ -1463,12 +1465,13 @@ class DM:
         
        
         
-    def CreatePlotFile(self,plotType,filename,width,height,zoomReset=False):
+    def CreatePlotFile(self,plotType,filename,width=100,height=100,zoomReset=False,automatic=False):
         """Creates and saves a new plot"""
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
         fig = Figure()
-        fig.set_size_inches((width/plotDPI,height/plotDPI))
+        if not automatic:
+            fig.set_size_inches((width/plotDPI,height/plotDPI))
         
         if plotType=="HR":
             self.CreatePlotHREmbedded(fig,zoomReset,interactive=False)
@@ -1481,7 +1484,16 @@ class DM:
         if plotType=="Poincare":
             self.CreatePlotPoincareEmbedded(fig)
         canvas = FigureCanvasAgg(fig)
-        canvas.print_figure(filename, dpi=plotDPI)
+        if automatic:
+            try:
+                canvas.print_figure(filename)
+            except:
+                Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
+        else:
+            try:
+                canvas.print_figure(filename, dpi=plotDPI)
+            except:
+                Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
 
     def CreatePlotPoincareEmbedded(self,fig):
         from matplotlib.patches import Ellipse
@@ -1603,6 +1615,17 @@ class DM:
             self.data["PlotHRXMax"] -= delta
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
             fig.canvas.draw()
+
+        def saveplot(event):
+            from matplotlib.backends.backend_agg import FigureCanvasAgg
+            fileName = Utils.SavePlotFileName(self.GetName()+"_HR")
+            if fileName != None:
+                if self.data["Verbose"]:
+                    print("** HR Saving figure in file: "+fileName)
+                self.CreatePlotFile('HR',fileName,zoomReset=False,automatic=True)
+
+            # canvas = FigureCanvasAgg(fig)
+            # canvas.print_figure(fileName)
             
             
            
@@ -1611,7 +1634,7 @@ class DM:
         
 
         plotFormat={
-            'left':0.07,
+            'left':0.08,
             'bottom':0.07,
             'right':0.98,
             'top':0.94,
@@ -1620,7 +1643,8 @@ class DM:
             'ymintag':0.04,
             'ymaxtag':0.96,
             'littlebuttonsize':0.03,
-            'buttonsmargin':0.01
+            'buttonsmargin':0.01,
+            'savebuttonwidth':0.08
         }
         
         self.HRaxes = fig.add_subplot(1,1,1)
@@ -1699,6 +1723,16 @@ class DM:
             ])
             self.btpanleft=Button(newaxpanleft,"<")
             self.btpanleft.on_clicked(panleft)
+
+            newaxsaveplot = fig.add_axes(self.HRaxes.get_position())
+            newaxsaveplot.set_position([
+                plotFormat['left']+plotFormat['buttonsmargin'],
+                plotFormat['bottom']+plotFormat['buttonsmargin'],
+                plotFormat['savebuttonwidth'],
+                plotFormat['littlebuttonsize']
+            ])
+            self.btsaveplot=Button(newaxsaveplot,"Save")
+            self.btsaveplot.on_clicked(saveplot)
 
             # End program block if interactive = True
             

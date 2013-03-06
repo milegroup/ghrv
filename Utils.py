@@ -27,10 +27,47 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
+from sys import platform
+import os
+from configvalues import *
+import wx
+
 class Error(Exception):
-    pass
+	pass
 
 class FewFramesException(Error):
-    def __init__(self,NumOfFrames):
-        self.NumOfFrames = NumOfFrames
-  
+	def __init__(self,NumOfFrames):
+		self.NumOfFrames = NumOfFrames
+
+def SavePlotFileName(fileNameTmp):
+	fileName=""
+	if platform != "win32":
+		filetypes = fileTypesLinMac
+		extensions= extensionsLinMac
+		automaticExtensions = automaticExtensionsLinMac
+	else:
+		filetypes = fileTypesWin
+		extensions= extensionsWin
+		automaticExtensions = automaticExtensionsWin
+
+	dial = wx.FileDialog(None, message="Save figure as...", defaultFile=fileNameTmp, style=wx.FD_SAVE, wildcard=filetypes)
+	result = dial.ShowModal()
+	if result == wx.ID_OK:
+		fileName=dial.GetPath()
+		fileExt = os.path.splitext(fileName)[1][1:].strip()
+		if fileExt not in extensions:
+			fileName = fileName + "." + automaticExtensions[dial.GetFilterIndex()]
+		# print "Saving ",fileName
+		dial.Destroy()
+		return fileName
+	else:
+		dial.Destroy()
+		return None
+
+def ErrorWindow(messageStr,captionStr="ERROR"):
+    """Generic error window"""
+    dial = wx.MessageDialog(None, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
+    result = dial.ShowModal()
+    dial.Destroy()
+
+
