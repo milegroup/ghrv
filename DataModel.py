@@ -1558,6 +1558,22 @@ class DM:
         """Creates an HR Plot embedded in axes
         Valid for windows and stand-alone plots"""
 
+        self.PosLinePresent=False
+
+        def drawPosLine():
+            ymin,ymax = self.HRaxes.get_ylim()
+            ypos = ymin+(ymax-ymin)*0.01
+            
+            xvector = self.GetHRDataPlot()[0]
+            xminrel = (self.data["PlotHRXMin"]-xvector[0])/(xvector[-1]-xvector[0])
+            xmaxrel = (self.data["PlotHRXMax"]-xvector[0])/(xvector[-1]-xvector[0])
+            if self.PosLinePresent:
+                self.fgPosLine.remove()
+                self.bgPosLine.remove()
+            self.bgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=1)
+            self.fgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=5,xmin=xminrel,xmax=xmaxrel)
+            self.PosLinePresent=True
+
 
         def zoomin(event):
             if self.data["Verbose"]:
@@ -1566,6 +1582,7 @@ class DM:
             self.data["PlotHRXMin"]+=delta
             self.data["PlotHRXMax"]-=delta
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            drawPosLine()
             fig.canvas.draw()
 
 
@@ -1579,6 +1596,7 @@ class DM:
             self.data["PlotHRXMin"]=max(xvector[0],self.data["PlotHRXMin"])
             self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            drawPosLine()
             fig.canvas.draw()
             
 
@@ -1589,6 +1607,7 @@ class DM:
             self.data["PlotHRXMin"] = xvector[0]
             self.data["PlotHRXMax"] = xvector[-1]
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            drawPosLine()
             fig.canvas.draw()
 
 
@@ -1601,6 +1620,7 @@ class DM:
             self.data["PlotHRXMin"] += delta
             self.data["PlotHRXMax"] += delta
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            drawPosLine()
             fig.canvas.draw()
 
 
@@ -1613,6 +1633,7 @@ class DM:
             self.data["PlotHRXMin"] -= delta
             self.data["PlotHRXMax"] -= delta
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            drawPosLine()
             fig.canvas.draw()
 
         def saveplot(event):
@@ -1725,6 +1746,8 @@ class DM:
             self.btsaveplot=Button(newaxsaveplot,"Save")
             self.btsaveplot.on_clicked(saveplot)
 
+            drawPosLine()
+
             # End program block if interactive = True
             
         
@@ -1748,6 +1771,8 @@ class DM:
                 
         if not zoomReset:       
             self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+
+
 
 
             
