@@ -30,6 +30,7 @@
 import wx
 from configvalues import *
 import matplotlib
+import Utils
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 import os
 from sys import platform
@@ -40,7 +41,7 @@ from Significance import SignificanceWindow
 class FrameBasedEvolutionWindow(wx.Frame):  
     """ Window for temporal evolution of parameters obtained from interpolated HR"""
     
-    sbDefaultText="   Keys: 'i'/'m' zoom in/out, 'j'/'k' pan left/right, '0' resets, 's' saves plot"
+    sbDefaultText=""
     
     def __init__(self,parent,id,title,dm):
 
@@ -102,68 +103,23 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.panel.SetSizer(self.mainBox)
         
         self.sb = self.CreateStatusBar()
+        self.sbDefaultText = "Window size: "+str(dm.data["windowsize"])+" sec."
+        self.sbDefaultText += "   -   "
+        self.sbDefaultText += "Window shift: "+str(dm.data["windowshift"])+" sec."
+        self.sbDefaultText += "   -   "
+        numFrames = dm.GetNumFrames(dm.data["interpfreq"],dm.data["windowsize"],dm.data["windowshift"])
+        self.sbDefaultText += "No. of frames: "+str(numFrames)
+
         self.sb.SetStatusText(self.sbDefaultText)
         
         self.dm.CreatePlotFBEmbedded(self.fig)
         self.canvas.draw()
-        self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
         
         self.SetMinSize(mainWindowMinSize)
         self.Show(True)
         self.Layout()
         self.canvas.SetFocus()
         
-    def ErrorWindow(self,messageStr,captionStr="ERROR"):
-        """Generic error window"""
-        dial = wx.MessageDialog(self, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
-        result = dial.ShowModal()
-        dial.Destroy()
-        self.canvas.SetFocus()
-
-        
-    def OnKeyPress(self, event):
-        keycode = event.GetKeyCode()
-        if keycode == 73:
-            self.dm.PlotFBZoomIn()
-            self.canvas.draw()
-        if keycode == 77:
-            self.dm.PlotFBZoomOut()
-            self.canvas.draw()
-        if keycode == 48:
-            self.dm.PlotFBZoomReset()
-            self.canvas.draw()
-        if keycode == 75:
-            self.dm.PlotFBPanRight()
-            self.canvas.draw()
-        if keycode == 74:
-            self.dm.PlotFBPanLeft()
-            self.canvas.draw()
-        if keycode==83:
-            fileName=""
-            if platform != "win32":
-                filetypes = fileTypesLinMac
-                extensions= extensionsLinMac
-                automaticExtensions = automaticExtensionsLinMac
-            else:
-                filetypes = fileTypesWin
-                extensions= extensionsWin
-                automaticExtensions = automaticExtensionsWin
-                
-            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=self.dm.GetName()+"_FB", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
-            result = dial.ShowModal()
-            if result == wx.ID_OK:
-                fileName=dial.GetPath()
-                fileExt = os.path.splitext(fileName)[1][1:].strip()
-                if fileExt not in extensions:
-                    fileName = fileName + "." + automaticExtensions[dial.GetFilterIndex()]
-                    # print "Saving ",fileName
-                try:
-                    self.canvas.print_figure(fileName)
-                except:
-                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
-            dial.Destroy()
-        # event.Skip()
-        self.canvas.SetFocus()  
       
 
     def insertBandsSelector(self):
@@ -409,16 +365,16 @@ class FrameBasedExportSettings(wx.Frame):
                     
         dial = wx.FileDialog(self, message="Save data as...", defaultFile=self.dm.GetName()+".txt", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         result = dial.ShowModal()
-        if result == wx.ID_OK:
-            
-                
+
+
+        if result == wx.ID_OK:        
             fileName=dial.GetPath()
             if result == wx.ID_OK:
                 fileName=dial.GetPath()
                 try:
                     self.dm.SaveFrameBasedData(fileName,listOfBands,SepChar,self.RowHeader.GetValue(),self.ColumnHeader.GetValue()) 
                 except:
-                    self.WindowParent.ErrorWindow(messageStr="Error saving data to file: "+fileName,captionStr="Error saving data file")
+                    Utils.ErrorWindow(messageStr="Error saving data to file: "+fileName,captionStr="Error saving data file")
                     self.Raise()
         dial.Destroy()
         self.WindowParent.OnExportEnded()

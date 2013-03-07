@@ -339,7 +339,7 @@ class MainWindow(wx.Frame):
         
         self.sb = self.CreateStatusBar()
         self.sb.SetStatusText(self.sbDefaultText)
-        
+ 
         
         self.SetMinSize(mainWindowMinSize)
         self.SetTitle('gHRV')
@@ -599,7 +599,7 @@ class MainWindow(wx.Frame):
         result = dial.ShowModal()
         dial.Destroy()
         self.canvas.SetFocus()
-       
+
 
     def OnLoadBeat(self, event):
         filetypes = "Supported files (*.txt;*.hrm;*sdf;*.hea)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF;*.hea;*.HEA|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|WFDB header files (*.hea)|*.hea;*.HEA|All files (*.*)|*.*"
