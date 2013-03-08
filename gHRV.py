@@ -28,7 +28,6 @@
 #   ----------------------------------------------------------------------
     
 #   TODO: 
-#   - HR  y FB zoom no funciona tras grabar figura
 #   - cambiar interacción con las figuras (cambiadas HR y FB)
 #   - check overwrite in plot save
 #   - seleccionar tipos de latidos cargados en ficheros physionet

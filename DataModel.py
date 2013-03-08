@@ -1558,12 +1558,14 @@ class DM:
     def CreatePlotHREmbedded(self,fig,zoomReset=False,interactive=True):
         """Creates an HR Plot embedded in axes
         Valid for windows and stand-alone plots"""
+        
+        # interactive = True when the plot is showed in the GUI
 
         if interactive: 
             self.PosLinePresent=False
     
             def drawPosLine():
-                ymin,ymax = self.HRaxes.get_ylim()
+                ymin,ymax = HRaxes.get_ylim()
                 ypos = ymin+(ymax-ymin)*0.01
                 
                 xvector = self.GetHRDataPlot()[0]
@@ -1572,8 +1574,8 @@ class DM:
                 if self.PosLinePresent:
                     self.fgPosLine.remove()
                     self.bgPosLine.remove()
-                self.bgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=1)
-                self.fgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=5,xmin=xminrel,xmax=xmaxrel)
+                self.bgPosLine = HRaxes.axhline(y=ypos,color='g',linewidth=1)
+                self.fgPosLine = HRaxes.axhline(y=ypos,color='g',linewidth=5,xmin=xminrel,xmax=xmaxrel)
                 self.PosLinePresent=True
     
     
@@ -1583,7 +1585,7 @@ class DM:
                 delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
                 self.data["PlotHRXMin"]+=delta
                 self.data["PlotHRXMax"]-=delta
-                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
                 drawPosLine()
                 fig.canvas.draw()
     
@@ -1597,7 +1599,7 @@ class DM:
                 xvector = self.GetHRDataPlot()[0]
                 self.data["PlotHRXMin"]=max(xvector[0],self.data["PlotHRXMin"])
                 self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
-                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
                 drawPosLine()
                 fig.canvas.draw()
                 
@@ -1608,7 +1610,7 @@ class DM:
                 xvector = self.GetHRDataPlot()[0]
                 self.data["PlotHRXMin"] = xvector[0]
                 self.data["PlotHRXMax"] = xvector[-1]
-                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
                 drawPosLine()
                 fig.canvas.draw()
     
@@ -1621,7 +1623,7 @@ class DM:
                 delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
                 self.data["PlotHRXMin"] += delta
                 self.data["PlotHRXMax"] += delta
-                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
                 drawPosLine()
                 fig.canvas.draw()
     
@@ -1634,7 +1636,7 @@ class DM:
                 delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
                 self.data["PlotHRXMin"] -= delta
                 self.data["PlotHRXMax"] -= delta
-                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
                 drawPosLine()
                 fig.canvas.draw()
     
@@ -1661,8 +1663,8 @@ class DM:
             'savebuttonwidth':0.06
         }
         
-        self.HRaxes = fig.add_subplot(1,1,1)
-
+        HRaxes = fig.add_subplot(1,1,1)
+        
         fig.subplots_adjust(
             left=plotFormat['left'],
             bottom=plotFormat['bottom'],
@@ -1679,16 +1681,16 @@ class DM:
             self.data["PlotHRXMin"]=xvector[0]
             self.data["PlotHRXMax"]=xvector[-1]
         
-        self.HRaxes.plot(xvector,yvector,'k-')
-        self.HRaxes.set_xlabel("Time (sec.)")
-        self.HRaxes.set_ylabel("HR (beats/min.)")
+        HRaxes.plot(xvector,yvector,'k-')
+        HRaxes.set_xlabel("Time (sec.)")
+        HRaxes.set_ylabel("HR (beats/min.)")
         
         
-        self.HRaxes.set_title(self.GetHeartRatePlotTitle())
+        HRaxes.set_title(self.GetHeartRatePlotTitle())
 
 
         if interactive:
-            newaxzoomin = fig.add_axes(self.HRaxes.get_position())
+            newaxzoomin = fig.add_axes(HRaxes.get_position())
             newaxzoomin.set_position([
                 plotFormat['left']+plotFormat['littlebuttonsize']+2*plotFormat['buttonsmargin'],
                 plotFormat['top']-plotFormat['littlebuttonsize']-plotFormat['buttonsmargin'],
@@ -1698,7 +1700,7 @@ class DM:
             self.btzoomin=Button(newaxzoomin,"+")
             self.btzoomin.on_clicked(zoomin)
 
-            newaxzoomout = fig.add_axes(self.HRaxes.get_position())
+            newaxzoomout = fig.add_axes(HRaxes.get_position())
             newaxzoomout.set_position([
                 plotFormat['left']+plotFormat['littlebuttonsize']+2*plotFormat['buttonsmargin'],
                 plotFormat['top']-3*plotFormat['littlebuttonsize']-3*plotFormat['buttonsmargin'],
@@ -1708,7 +1710,7 @@ class DM:
             self.btzoomout=Button(newaxzoomout,"-")
             self.btzoomout.on_clicked(zoomout)
 
-            newaxzoomreset = fig.add_axes(self.HRaxes.get_position())
+            newaxzoomreset = fig.add_axes(HRaxes.get_position())
             newaxzoomreset.set_position([
                 plotFormat['left']+plotFormat['littlebuttonsize']+2*plotFormat['buttonsmargin'],
                 plotFormat['top']-2*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
@@ -1718,7 +1720,7 @@ class DM:
             self.btzoomreset=Button(newaxzoomreset,"0")
             self.btzoomreset.on_clicked(zoomreset)
 
-            newaxpanright = fig.add_axes(self.HRaxes.get_position())
+            newaxpanright = fig.add_axes(HRaxes.get_position())
             newaxpanright.set_position([
                 plotFormat['left']+2*plotFormat['littlebuttonsize']+3*plotFormat['buttonsmargin'],
                 plotFormat['top']-2*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
@@ -1728,7 +1730,7 @@ class DM:
             self.btpanright=Button(newaxpanright,">")
             self.btpanright.on_clicked(panright)
 
-            newaxpanleft = fig.add_axes(self.HRaxes.get_position())
+            newaxpanleft = fig.add_axes(HRaxes.get_position())
             newaxpanleft.set_position([
                 plotFormat['left']+plotFormat['buttonsmargin'],
                 plotFormat['top']-2*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
@@ -1738,7 +1740,7 @@ class DM:
             self.btpanleft=Button(newaxpanleft,"<")
             self.btpanleft.on_clicked(panleft)
 
-            newaxsaveplot = fig.add_axes(self.HRaxes.get_position())
+            newaxsaveplot = fig.add_axes(HRaxes.get_position())
             newaxsaveplot.set_position([
                 plotFormat['left']+2*plotFormat['buttonsmargin']+1.5*plotFormat['littlebuttonsize']-0.5*plotFormat['savebuttonwidth'],
                 plotFormat['top']-4*plotFormat['littlebuttonsize']-4*plotFormat['buttonsmargin'],
@@ -1763,22 +1765,22 @@ class DM:
                 endsvector=[starts[w]+durations[w] for w in range(numEpisodes) if tags[w]==tag]
                 for j in range(len(startsvector)):
                     if j==0:
-                        self.HRaxes.axvspan(startsvector[j], endsvector[j], ymin=plotFormat['ymintag'], ymax=plotFormat['ymaxtag'], facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
+                        HRaxes.axvspan(startsvector[j], endsvector[j], ymin=plotFormat['ymintag'], ymax=plotFormat['ymaxtag'], facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
                     else:
-                        self.HRaxes.axvspan(startsvector[j], endsvector[j], ymin=plotFormat['ymintag'], ymax=plotFormat['ymaxtag'], facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
+                        HRaxes.axvspan(startsvector[j], endsvector[j], ymin=plotFormat['ymintag'], ymax=plotFormat['ymaxtag'], facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
                 i=i+1
-            leg=self.HRaxes.legend(fancybox=True,shadow=True)
+            leg=HRaxes.legend(fancybox=True,shadow=True)
             for t in leg.get_texts():
                 t.set_fontsize('small')
                 
         if not zoomReset:       
-            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+            HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
 
 
 
 
             
-        self.HRaxes.grid()
+        HRaxes.grid()
         
         
         
@@ -1815,92 +1817,95 @@ class DM:
                             axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
                 i=i+1
                 
-        self.PosLinePresent=False
-
-        def drawPosLine():
-            ymin,ymax = axBottom.get_ylim()
-            ypos = ymin+(ymax-ymin)*0.01
-            
-            xminabs = 0
-            xmaxabs = 1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
-            
-            xminrel = (self.data["PlotFBXMin"]-xminabs)/(xmaxabs-xminabs)
-            xmaxrel = (self.data["PlotFBXMax"]-xminabs)/(xmaxabs-xminabs)
-            if self.PosLinePresent:
-                self.fgPosLine.remove()
-                self.bgPosLine.remove()
-            self.bgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=1)
-            self.fgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=5,xmin=xminrel,xmax=xmaxrel)
-            self.PosLinePresent=True
-
-
-        def zoomin(event):
-            delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
-            self.data["PlotFBXMin"]+=delta
-            self.data["PlotFBXMax"]-=delta
-            for axes in self.FBaxesbands:
-                axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
-            if self.data["Verbose"]:
-                print("** FB Zoom in")
-            drawPosLine()
-            fig.canvas.draw()
-
-        def zoomout(event):
-            delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.2
-            self.data["PlotFBXMin"]-=delta
-            self.data["PlotFBXMax"]+=delta
-            maxtmp=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
-            self.data["PlotFBXMin"]=max(0,self.data["PlotFBXMin"])
-            self.data["PlotFBXMax"]=min(maxtmp,self.data["PlotFBXMax"])
-            for axes in self.FBaxesbands:
-                axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
-            if self.data["Verbose"]:
-                print("** FB Zoom out")
-            drawPosLine()
-            fig.canvas.draw()
-
-        def zoomreset(event):
-            self.data["PlotFBXMin"] = 0
-            self.data["PlotFBXMax"] = 1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
-            for axes in self.FBaxesbands:
-                axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
-            if self.data["Verbose"]:
-                print("** FB Zoom reset")
-            drawPosLine()
-            fig.canvas.draw()
-
-        def panright(event):
-            delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
-            maxtmp=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
-            delta=min(delta,maxtmp-self.data["PlotFBXMax"])
-            self.data["PlotFBXMin"] += delta
-            self.data["PlotFBXMax"] += delta
-            for axes in self.FBaxesbands:
-                axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
-            if self.data["Verbose"]:
-                print("** FB Pan right")
-            drawPosLine()
-            fig.canvas.draw()
-
-        def panleft(event):
-            delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
-            delta=min(delta,self.data["PlotFBXMin"])
-            self.data["PlotFBXMin"] -= delta
-            self.data["PlotFBXMax"] -= delta
-            for axes in self.FBaxesbands:
-                axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
-            if self.data["Verbose"]:
-                print("** FB Pan left")
-            drawPosLine()
-            fig.canvas.draw()
-
-        def saveplot(event):
-            # from matplotlib.backends.backend_agg import FigureCanvasAgg
-            fileName = Utils.SavePlotFileName(self.GetName()+"_FB")
-            if fileName != None:
+        if interactive:
+            self.PosLinePresent=False
+    
+            def drawPosLine():
+                ymin,ymax = axBottom.get_ylim()
+                ypos = ymin+(ymax-ymin)*0.02
+                
+                xminabs = 0
+                xmaxabs = 1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+                
+                xminrel = (self.data["PlotFBXMin"]-xminabs)/(xmaxabs-xminabs)
+                xmaxrel = (self.data["PlotFBXMax"]-xminabs)/(xmaxabs-xminabs)
+                if self.PosLinePresent:
+                    self.fgPosLine.remove()
+                    self.bgPosLine.remove()
+                self.bgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=1)
+                self.fgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=5,xmin=xminrel,xmax=xmaxrel)
+                self.PosLinePresent=True
+    
+    
+            def zoomin(event):
+                delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
+                self.data["PlotFBXMin"]+=delta
+                self.data["PlotFBXMax"]-=delta
+                for axes in FBaxesbands:
+                    axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
                 if self.data["Verbose"]:
-                    print("** FB Saving figure in file: "+fileName)
-                self.CreatePlotFile('FB',fileName,zoomReset=False,automatic=True)
+                    print("** FB Zoom in")
+                drawPosLine()
+                fig.canvas.draw()
+    
+            def zoomout(event):
+                delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.2
+                self.data["PlotFBXMin"]-=delta
+                self.data["PlotFBXMax"]+=delta
+                maxtmp=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+                self.data["PlotFBXMin"]=max(0,self.data["PlotFBXMin"])
+                self.data["PlotFBXMax"]=min(maxtmp,self.data["PlotFBXMax"])
+                for axes in FBaxesbands:
+                    axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+                if self.data["Verbose"]:
+                    print("** FB Zoom out")
+                drawPosLine()
+                fig.canvas.draw()
+    
+            def zoomreset(event):
+                self.data["PlotFBXMin"] = 0
+                self.data["PlotFBXMax"] = 1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+                for axes in FBaxesbands:
+                    axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+                if self.data["Verbose"]:
+                    print("** FB Zoom reset")
+                drawPosLine()
+                fig.canvas.draw()
+    
+            def panright(event):
+                delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
+                maxtmp=1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+                delta=min(delta,maxtmp-self.data["PlotFBXMax"])
+                self.data["PlotFBXMin"] += delta
+                self.data["PlotFBXMax"] += delta
+                for axes in FBaxesbands:
+                    axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+                if self.data["Verbose"]:
+                    print("** FB Pan right")
+                drawPosLine()
+                fig.canvas.draw()
+    
+            def panleft(event):
+                delta=(self.data["PlotFBXMax"]-self.data["PlotFBXMin"])*0.1
+                delta=min(delta,self.data["PlotFBXMin"])
+                self.data["PlotFBXMin"] -= delta
+                self.data["PlotFBXMax"] -= delta
+                for axes in FBaxesbands:
+                    axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
+                if self.data["Verbose"]:
+                    print("** FB Pan left")
+                drawPosLine()
+                fig.canvas.draw()
+    
+            def saveplot(event):
+                # from matplotlib.backends.backend_agg import FigureCanvasAgg
+                fileName = Utils.SavePlotFileName(self.GetName()+"_FB")
+                if fileName != None:
+                    if self.data["Verbose"]:
+                        print("** FB Saving figure in file: "+fileName)
+                    self.CreatePlotFile('FB',fileName,zoomReset=False,automatic=True)
+                    
+        # end of if interactive
 
 
 
@@ -1940,7 +1945,7 @@ class DM:
             'ymaxtag':0.96,
             'littlebuttonsize':0.025,
             'buttonsmargin':0.007,
-            'savebuttonwidth':0.05
+            'savebuttonwidth':0.04
         } 
 
         if hasEpisodes:
@@ -1955,7 +1960,7 @@ class DM:
         matplotlib.rc('legend', fontsize=10) 
         
         
-        self.FBaxesbands=[]
+        FBaxesbands=[]
             
         # Heart rate plot
         axBottom = fig.add_subplot(len(self.VisibleBands),1,len(self.VisibleBands))
@@ -1970,7 +1975,7 @@ class DM:
             for t in leg.get_texts():
                 t.set_fontsize('small')
                 
-        self.FBaxesbands.append(axBottom)
+        FBaxesbands.append(axBottom)
 
            
         BandsToPlot = [ x for x in self.VisibleBands if x not in self.GetFixedBands()]
@@ -2007,10 +2012,10 @@ class DM:
             if hasEpisodes :
                 AddEpisodesToBandSubplot(axBand)
                 
-            self.FBaxesbands.append(axBand)
+            FBaxesbands.append(axBand)
         
         if not zoomReset:        
-            for axes in self.FBaxesbands:
+            for axes in FBaxesbands:
                 axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])  
         
         fig.suptitle(self.GetName() + " - frame-based evolution", fontsize=16)
