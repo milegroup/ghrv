@@ -1562,7 +1562,7 @@ class DM:
         # interactive = True when the plot is showed in the GUI
 
         if interactive: 
-            self.PosLinePresent=False
+            self.HRPosLinePresent=False
     
             def drawPosLine():
                 ymin,ymax = HRaxes.get_ylim()
@@ -1571,12 +1571,12 @@ class DM:
                 xvector = self.GetHRDataPlot()[0]
                 xminrel = (self.data["PlotHRXMin"]-xvector[0])/(xvector[-1]-xvector[0])
                 xmaxrel = (self.data["PlotHRXMax"]-xvector[0])/(xvector[-1]-xvector[0])
-                if self.PosLinePresent:
-                    self.fgPosLine.remove()
-                    self.bgPosLine.remove()
-                self.bgPosLine = HRaxes.axhline(y=ypos,color='g',linewidth=1)
-                self.fgPosLine = HRaxes.axhline(y=ypos,color='g',linewidth=5,xmin=xminrel,xmax=xmaxrel)
-                self.PosLinePresent=True
+                if self.HRPosLinePresent:
+                    self.fgHRPosLine.remove()
+                    self.bgHRPosLine.remove()
+                self.bgHRPosLine = HRaxes.axhline(y=ypos,color='g',linewidth=1)
+                self.fgHRPosLine = HRaxes.axhline(y=ypos,color='g',linewidth=5,xmin=xminrel,xmax=xmaxrel)
+                self.HRPosLinePresent=True
     
     
             def zoomin(event):
@@ -1697,8 +1697,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btzoomin=Button(newaxzoomin,"+")
-            self.btzoomin.on_clicked(zoomin)
+            self.HRbtzoomin=Button(newaxzoomin,"+")
+            self.HRbtzoomin.on_clicked(zoomin)
 
             newaxzoomout = fig.add_axes(HRaxes.get_position())
             newaxzoomout.set_position([
@@ -1707,8 +1707,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btzoomout=Button(newaxzoomout,"-")
-            self.btzoomout.on_clicked(zoomout)
+            self.HRbtzoomout=Button(newaxzoomout,"-")
+            self.HRbtzoomout.on_clicked(zoomout)
 
             newaxzoomreset = fig.add_axes(HRaxes.get_position())
             newaxzoomreset.set_position([
@@ -1717,8 +1717,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btzoomreset=Button(newaxzoomreset,"0")
-            self.btzoomreset.on_clicked(zoomreset)
+            self.HRbtzoomreset=Button(newaxzoomreset,"0")
+            self.HRbtzoomreset.on_clicked(zoomreset)
 
             newaxpanright = fig.add_axes(HRaxes.get_position())
             newaxpanright.set_position([
@@ -1727,8 +1727,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btpanright=Button(newaxpanright,">")
-            self.btpanright.on_clicked(panright)
+            self.HRbtpanright=Button(newaxpanright,">")
+            self.HRbtpanright.on_clicked(panright)
 
             newaxpanleft = fig.add_axes(HRaxes.get_position())
             newaxpanleft.set_position([
@@ -1737,8 +1737,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btpanleft=Button(newaxpanleft,"<")
-            self.btpanleft.on_clicked(panleft)
+            self.HRbtpanleft=Button(newaxpanleft,"<")
+            self.HRbtpanleft.on_clicked(panleft)
 
             newaxsaveplot = fig.add_axes(HRaxes.get_position())
             newaxsaveplot.set_position([
@@ -1747,8 +1747,8 @@ class DM:
                 plotFormat['savebuttonwidth'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btsaveplot=Button(newaxsaveplot,"Save")
-            self.btsaveplot.on_clicked(saveplot)
+            self.HRbtsaveplot=Button(newaxsaveplot,"Save")
+            self.HRbtsaveplot.on_clicked(saveplot)
 
             drawPosLine()
 
@@ -1775,12 +1775,10 @@ class DM:
                 
         if not zoomReset:       
             HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-
-
-
-
             
         HRaxes.grid()
+        
+        # end of CreateHRPlotEmbedded
         
         
         
@@ -1818,7 +1816,7 @@ class DM:
                 i=i+1
                 
         if interactive:
-            self.PosLinePresent=False
+            self.FBPosLinePresent=False
     
             def drawPosLine():
                 ymin,ymax = axBottom.get_ylim()
@@ -1829,12 +1827,12 @@ class DM:
                 
                 xminrel = (self.data["PlotFBXMin"]-xminabs)/(xmaxabs-xminabs)
                 xmaxrel = (self.data["PlotFBXMax"]-xminabs)/(xmaxabs-xminabs)
-                if self.PosLinePresent:
-                    self.fgPosLine.remove()
-                    self.bgPosLine.remove()
-                self.bgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=1)
-                self.fgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=5,xmin=xminrel,xmax=xmaxrel)
-                self.PosLinePresent=True
+                if self.FBPosLinePresent:
+                    self.fgFBPosLine.remove()
+                    self.bgFBPosLine.remove()
+                self.bgFBPosLine = axBottom.axhline(y=ypos,color='b',linewidth=1)
+                self.fgFBPosLine = axBottom.axhline(y=ypos,color='b',linewidth=5,xmin=xminrel,xmax=xmaxrel)
+                self.FBPosLinePresent=True
     
     
             def zoomin(event):
@@ -2039,8 +2037,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btzoomin=Button(newaxzoomin,"+")
-            self.btzoomin.on_clicked(zoomin)
+            self.FBbtzoomin=Button(newaxzoomin,"+")
+            self.FBbtzoomin.on_clicked(zoomin)
 
             newaxzoomout = fig.add_axes(axBottom.get_position())
             newaxzoomout.set_position([
@@ -2049,8 +2047,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btzoomout=Button(newaxzoomout,"-")
-            self.btzoomout.on_clicked(zoomout)
+            self.FBbtzoomout=Button(newaxzoomout,"-")
+            self.FBbtzoomout.on_clicked(zoomout)
 
             newaxzoomreset = fig.add_axes(axBottom.get_position())
             newaxzoomreset.set_position([
@@ -2059,8 +2057,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btzoomreset=Button(newaxzoomreset,"0")
-            self.btzoomreset.on_clicked(zoomreset)
+            self.FBbtzoomreset=Button(newaxzoomreset,"0")
+            self.FBbtzoomreset.on_clicked(zoomreset)
 
             newaxpanright = fig.add_axes(axBottom.get_position())
             newaxpanright.set_position([
@@ -2069,8 +2067,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btpanright=Button(newaxpanright,">")
-            self.btpanright.on_clicked(panright)
+            self.FBbtpanright=Button(newaxpanright,">")
+            self.FBbtpanright.on_clicked(panright)
 
             newaxpanleft = fig.add_axes(axBottom.get_position())
             newaxpanleft.set_position([
@@ -2079,8 +2077,8 @@ class DM:
                 plotFormat['littlebuttonsize'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btpanleft=Button(newaxpanleft,"<")
-            self.btpanleft.on_clicked(panleft)
+            self.FBbtpanleft=Button(newaxpanleft,"<")
+            self.FBbtpanleft.on_clicked(panleft)
 
 
             newaxsaveplot = fig.add_axes(axBottom.get_position())
@@ -2090,8 +2088,8 @@ class DM:
                 plotFormat['savebuttonwidth'],
                 plotFormat['littlebuttonsize']
             ])
-            self.btsaveplot=Button(newaxsaveplot,"Save")
-            self.btsaveplot.on_clicked(saveplot)
+            self.FBbtsaveplot=Button(newaxsaveplot,"Save")
+            self.FBbtsaveplot.on_clicked(saveplot)
             
             drawPosLine()
 
