@@ -1493,6 +1493,7 @@ class DM:
                 canvas.print_figure(filename, dpi=plotDPI)
             except:
                 Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
+                
 
     def CreatePlotPoincareEmbedded(self,fig):
         from matplotlib.patches import Ellipse
@@ -1810,8 +1811,26 @@ class DM:
                         if j==0:
                             axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags, label=tag)
                         else:
-                           axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
+                            axes.axvspan(startsvector[j], endsvector[j], ymin=0.04, ymax=0.96, facecolor=self.GetEpisodeColor(tag), alpha=alphaMatplotlibTags)
                 i=i+1
+                
+        self.PosLinePresent=False
+
+        def drawPosLine():
+            ymin,ymax = axBottom.get_ylim()
+            ypos = ymin+(ymax-ymin)*0.01
+            
+            xminabs = 0
+            xmaxabs = 1.0/self.data["interpfreq"]*(len(self.data["HR"])-1)
+            
+            xminrel = (self.data["PlotFBXMin"]-xminabs)/(xmaxabs-xminabs)
+            xmaxrel = (self.data["PlotFBXMax"]-xminabs)/(xmaxabs-xminabs)
+            if self.PosLinePresent:
+                self.fgPosLine.remove()
+                self.bgPosLine.remove()
+            self.bgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=1)
+            self.fgPosLine = axBottom.axhline(y=ypos,color='b',linewidth=5,xmin=xminrel,xmax=xmaxrel)
+            self.PosLinePresent=True
 
 
         def zoomin(event):
@@ -1822,6 +1841,7 @@ class DM:
                 axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
             if self.data["Verbose"]:
                 print("** FB Zoom in")
+            drawPosLine()
             fig.canvas.draw()
 
         def zoomout(event):
@@ -1835,6 +1855,7 @@ class DM:
                 axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
             if self.data["Verbose"]:
                 print("** FB Zoom out")
+            drawPosLine()
             fig.canvas.draw()
 
         def zoomreset(event):
@@ -1844,6 +1865,7 @@ class DM:
                 axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
             if self.data["Verbose"]:
                 print("** FB Zoom reset")
+            drawPosLine()
             fig.canvas.draw()
 
         def panright(event):
@@ -1856,6 +1878,7 @@ class DM:
                 axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
             if self.data["Verbose"]:
                 print("** FB Pan right")
+            drawPosLine()
             fig.canvas.draw()
 
         def panleft(event):
@@ -1867,6 +1890,7 @@ class DM:
                 axes.set_xlim(self.data["PlotFBXMin"],self.data["PlotFBXMax"])
             if self.data["Verbose"]:
                 print("** FB Pan left")
+            drawPosLine()
             fig.canvas.draw()
 
         def saveplot(event):
@@ -2062,6 +2086,8 @@ class DM:
             ])
             self.btsaveplot=Button(newaxsaveplot,"Save")
             self.btsaveplot.on_clicked(saveplot)
+            
+            drawPosLine()
 
 
         # end of "if interactive"

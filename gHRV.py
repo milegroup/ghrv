@@ -27,9 +27,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
     
-# TODO: 
-#   - HR zoom no funciona tras grabar figura
-#   - cambiar interacción con las figuras
+#   TODO: 
+#   - HR  y FB zoom no funciona tras grabar figura
+#   - cambiar interacción con las figuras (cambiadas HR y FB)
 #   - check overwrite in plot save
 #   - seleccionar tipos de latidos cargados en ficheros physionet
 #   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
