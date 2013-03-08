@@ -1559,92 +1559,93 @@ class DM:
         """Creates an HR Plot embedded in axes
         Valid for windows and stand-alone plots"""
 
-        self.PosLinePresent=False
-
-        def drawPosLine():
-            ymin,ymax = self.HRaxes.get_ylim()
-            ypos = ymin+(ymax-ymin)*0.01
-            
-            xvector = self.GetHRDataPlot()[0]
-            xminrel = (self.data["PlotHRXMin"]-xvector[0])/(xvector[-1]-xvector[0])
-            xmaxrel = (self.data["PlotHRXMax"]-xvector[0])/(xvector[-1]-xvector[0])
-            if self.PosLinePresent:
-                self.fgPosLine.remove()
-                self.bgPosLine.remove()
-            self.bgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=1)
-            self.fgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=5,xmin=xminrel,xmax=xmaxrel)
-            self.PosLinePresent=True
-
-
-        def zoomin(event):
-            if self.data["Verbose"]:
-                print("** HR Zoom in")
-            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
-            self.data["PlotHRXMin"]+=delta
-            self.data["PlotHRXMax"]-=delta
-            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-            drawPosLine()
-            fig.canvas.draw()
-
-
-        def zoomout(event):
-            if self.data["Verbose"]:
-                print("** HR Zoom out")
-            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.2
-            self.data["PlotHRXMin"]-=delta
-            self.data["PlotHRXMax"]+=delta
-            xvector = self.GetHRDataPlot()[0]
-            self.data["PlotHRXMin"]=max(xvector[0],self.data["PlotHRXMin"])
-            self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
-            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-            drawPosLine()
-            fig.canvas.draw()
-            
-
-        def zoomreset(event):
-            if self.data["Verbose"]:
-                print("** HR Zoom reset")
-            xvector = self.GetHRDataPlot()[0]
-            self.data["PlotHRXMin"] = xvector[0]
-            self.data["PlotHRXMax"] = xvector[-1]
-            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-            drawPosLine()
-            fig.canvas.draw()
-
-
-        def panright(event):
-            if self.data["Verbose"]:
-                print("** HR Pan right")
-            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
-            xvector = self.GetHRDataPlot()[0]
-            delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
-            self.data["PlotHRXMin"] += delta
-            self.data["PlotHRXMax"] += delta
-            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-            drawPosLine()
-            fig.canvas.draw()
-
-
-        def panleft(event):
-            if self.data["Verbose"]:
-                print("** HR Pan left")
-            delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
-            xvector = self.GetHRDataPlot()[0]
-            delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
-            self.data["PlotHRXMin"] -= delta
-            self.data["PlotHRXMax"] -= delta
-            self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
-            drawPosLine()
-            fig.canvas.draw()
-
-        def saveplot(event):
-            # from matplotlib.backends.backend_agg import FigureCanvasAgg
-            fileName = Utils.SavePlotFileName(self.GetName()+"_HR")
-            if fileName != None:
+        if interactive: 
+            self.PosLinePresent=False
+    
+            def drawPosLine():
+                ymin,ymax = self.HRaxes.get_ylim()
+                ypos = ymin+(ymax-ymin)*0.01
+                
+                xvector = self.GetHRDataPlot()[0]
+                xminrel = (self.data["PlotHRXMin"]-xvector[0])/(xvector[-1]-xvector[0])
+                xmaxrel = (self.data["PlotHRXMax"]-xvector[0])/(xvector[-1]-xvector[0])
+                if self.PosLinePresent:
+                    self.fgPosLine.remove()
+                    self.bgPosLine.remove()
+                self.bgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=1)
+                self.fgPosLine = self.HRaxes.axhline(y=ypos,color='g',linewidth=5,xmin=xminrel,xmax=xmaxrel)
+                self.PosLinePresent=True
+    
+    
+            def zoomin(event):
                 if self.data["Verbose"]:
-                    print("** HR Saving figure in file: "+fileName)
-                self.CreatePlotFile('HR',fileName,zoomReset=False,automatic=True)
-            
+                    print("** HR Zoom in")
+                delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+                self.data["PlotHRXMin"]+=delta
+                self.data["PlotHRXMax"]-=delta
+                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                drawPosLine()
+                fig.canvas.draw()
+    
+    
+            def zoomout(event):
+                if self.data["Verbose"]:
+                    print("** HR Zoom out")
+                delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.2
+                self.data["PlotHRXMin"]-=delta
+                self.data["PlotHRXMax"]+=delta
+                xvector = self.GetHRDataPlot()[0]
+                self.data["PlotHRXMin"]=max(xvector[0],self.data["PlotHRXMin"])
+                self.data["PlotHRXMax"]=min(xvector[-1],self.data["PlotHRXMax"])
+                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                drawPosLine()
+                fig.canvas.draw()
+                
+    
+            def zoomreset(event):
+                if self.data["Verbose"]:
+                    print("** HR Zoom reset")
+                xvector = self.GetHRDataPlot()[0]
+                self.data["PlotHRXMin"] = xvector[0]
+                self.data["PlotHRXMax"] = xvector[-1]
+                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                drawPosLine()
+                fig.canvas.draw()
+    
+    
+            def panright(event):
+                if self.data["Verbose"]:
+                    print("** HR Pan right")
+                delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+                xvector = self.GetHRDataPlot()[0]
+                delta=min(delta,xvector[-1]-self.data["PlotHRXMax"])
+                self.data["PlotHRXMin"] += delta
+                self.data["PlotHRXMax"] += delta
+                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                drawPosLine()
+                fig.canvas.draw()
+    
+    
+            def panleft(event):
+                if self.data["Verbose"]:
+                    print("** HR Pan left")
+                delta=(self.data["PlotHRXMax"]-self.data["PlotHRXMin"])*0.1
+                xvector = self.GetHRDataPlot()[0]
+                delta=min(delta,self.data["PlotHRXMin"]-xvector[0])
+                self.data["PlotHRXMin"] -= delta
+                self.data["PlotHRXMax"] -= delta
+                self.HRaxes.set_xlim(self.data["PlotHRXMin"],self.data["PlotHRXMax"])
+                drawPosLine()
+                fig.canvas.draw()
+    
+            def saveplot(event):
+                # from matplotlib.backends.backend_agg import FigureCanvasAgg
+                fileName = Utils.SavePlotFileName(self.GetName()+"_HR")
+                if fileName != None:
+                    if self.data["Verbose"]:
+                        print("** HR Saving figure in file: "+fileName)
+                    self.CreatePlotFile('HR',fileName,zoomReset=False,automatic=True)
+                
 
         plotFormat={
             'left':0.08,
