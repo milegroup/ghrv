@@ -26,7 +26,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
-#   probando git desde eclipse (fase 2)
 
 import wx
 from sys import platform
