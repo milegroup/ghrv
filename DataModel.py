@@ -1480,7 +1480,7 @@ class DM:
         if plotType=="FB":
             self.CreatePlotFBEmbedded(fig,zoomReset,interactive=False)
         if plotType=="Poincare":
-            self.CreatePlotPoincareEmbedded(fig)
+            self.CreatePlotPoincareEmbedded(fig,interactive=False)  
         canvas = FigureCanvasAgg(fig)
 
         if automatic:
@@ -1495,42 +1495,177 @@ class DM:
                 Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
                 
 
-    def CreatePlotPoincareEmbedded(self,fig):
+    def CreatePlotPoincareEmbedded(self,fig,ActiveTagLeft="Global",ActiveTagRight="None",interactive=True):
         from matplotlib.patches import Ellipse
+        
+        self.PPActiveTagLeft=ActiveTagLeft
+        self.PPActiveTagRight=ActiveTagRight
 
-        axes = fig.add_subplot(1,1,1, aspect='equal')
-        xvector,yvector = self.GetPoincareDataPlot(tag="Global")
-        mincoord=0.9*min(min(xvector),min(yvector))
-        maxcoord=1.1*max(max(xvector),max(yvector))
-        meanx=np.mean(xvector)
-        meany=np.mean(yvector)
-        sd1 = np.std((xvector-yvector)/np.sqrt(2.0),ddof=1)
-        sd2 = np.std((xvector+yvector)/np.sqrt(2.0),ddof=1)
-
-        axes.plot(xvector,yvector,".r")
-        axes.set_xlabel("RR[i] (msec.)")
-        axes.set_ylabel("RR[i+1] (msec.)")
-        axes.set_title(u"Poincaré Plot")
-        axes.set_xlim(mincoord,maxcoord)
-        axes.set_ylim(mincoord,maxcoord)
-
-        coordarrow1 =np.sqrt(sd2*sd2/2)
-        coordarrow2 =np.sqrt(sd1*sd1/2)
-        axes.arrow(meanx,meany,coordarrow1,coordarrow1,
-            lw=1, head_width=(maxcoord-mincoord)/100,
-            head_length=(maxcoord-mincoord)/50,
-            length_includes_head=True, fc='k', zorder=3)
-        axes.arrow(meanx, meany, -coordarrow2, coordarrow2,
-            lw=1, head_width=(maxcoord-mincoord)/100,
-            head_length=(maxcoord-mincoord)/50,
-            length_includes_head=True, fc='k', zorder=4)
-
-        ell=Ellipse(xy=(meanx,meany),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
-        axes.add_artist(ell)
-        # ell.set_alpha(0.7)
-        ell.set(zorder=2)
-
-        axes.grid(True)
+        
+        def CreateSubplot(axes, xdata, ydata, titlestr=None, pos="left"):
+            if pos=="left":
+                color=".r"
+            else:
+                color=".c"
+ 
+            meanx=np.mean(xdata)
+            meany=np.mean(ydata)
+ 
+            sd1 = np.std((xdata-ydata)/np.sqrt(2.0),ddof=1)
+            sd2 = np.std((xdata+ydata)/np.sqrt(2.0),ddof=1)
+ 
+            cad =""
+ 
+            if self.PPActiveTagRight!="None":
+                cad += " "+titlestr+" - "
+                cad += "SD1: %.2f ms. - SD2: %.2f ms." % (sd1,sd2)
+                if pos=="left":
+                    cad += "\n"
+            else:
+                cad += " SD1: %.2f ms. - SD2: %.2f ms." % (sd1,sd2)
+              
+            axes.plot(xdata,ydata,color)
+ 
+            coordarrow1 =np.sqrt(sd2*sd2/2)
+            coordarrow2 =np.sqrt(sd1*sd1/2)
+ 
+            axes.arrow(meanx,meany,coordarrow1,coordarrow1,
+                lw=1, head_width=(maxcoord-mincoord)/100,
+                head_length=(maxcoord-mincoord)/50,
+                length_includes_head=True, fc='k', zorder=3)
+ 
+            axes.arrow(meanx, meany, -coordarrow2, coordarrow2,
+                lw=1, head_width=(maxcoord-mincoord)/100,
+                head_length=(maxcoord-mincoord)/50,
+                length_includes_head=True, fc='k', zorder=4)
+ 
+            axes.set_xlim(mincoord,maxcoord)
+            axes.set_ylim(mincoord,maxcoord)
+            axes.set_xlabel("$RR_i (msec.)$")
+            if pos=="left":
+                axes.set_ylabel("$RR_{i+1} (msec.)$")
+ 
+            if self.PPActiveTagRight=="None":
+                if self.PPActiveTagLeft=="Global":
+                    axes.set_title(self.GetPoincarePlotTitle())
+                else:
+                    axes.set_title(self.PPActiveTagLeft)
+ 
+            else:
+                axes.set_title(titlestr)
+                fig.suptitle(self.GetPoincarePlotTitle())
+ 
+             
+ 
+            if self.data["Verbose"]==True:
+                if titlestr:
+                    print ("** Creating Poincare Plot  -  " + titlestr)
+                else:
+                    print ("** Creating Poincare Plot")
+                print("   SD1: {0:.3f}".format(sd1))
+                print("   SD2: {0:.3f}".format(sd2))
+         
+            ell=Ellipse(xy=(meanx,meany),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
+            axes.add_artist(ell)
+            # ell.set_alpha(0.7)
+            ell.set(zorder=2)
+ 
+            axes.grid(True)
+            return cad
+            # End of CreateSubplot
+#         
+        
+        if interactive:
+            def saveplot(event):
+                fileName = Utils.SavePlotFileName(self.GetName()+"_PP")
+                if fileName != None:
+                    if self.data["Verbose"]:
+                        print("** HR Saving figure in file: "+fileName)
+                    self.CreatePlotFile('Poincare',fileName,zoomReset=False,automatic=True)
+        
+        print "Creating poincaré plot with",ActiveTagLeft,"and",ActiveTagRight
+        
+                
+        cad =""
+ 
+        if self.PPActiveTagRight=="None":
+            axes = fig.add_subplot(111, aspect='equal')
+            xvector,yvector = self.GetPoincareDataPlot(tag=self.PPActiveTagLeft)
+            maxval=max(max(xvector),max(yvector))
+            minval=min(min(xvector),min(yvector))
+        else:
+            axes1 = fig.add_subplot(121, aspect='equal')
+            axes2 = fig.add_subplot(122, aspect='equal')
+            xvector1,yvector1 = self.GetPoincareDataPlot(tag=self.PPActiveTagLeft)
+            xvector2,yvector2 = self.GetPoincareDataPlot(tag=self.PPActiveTagRight)
+            minval=min(min(xvector1),min(yvector1),min(xvector2),min(yvector2))
+            maxval=max(max(xvector1),max(yvector1),max(xvector2),max(yvector2))
+ 
+ 
+         
+        maxplot=maxval*1.05
+        maxcoord=maxval*1.1
+ 
+        minplot=minval*0.95
+        mincoord=minval*0.9
+ 
+ 
+        if self.PPActiveTagRight=="None":
+            cad += CreateSubplot(axes, xvector, yvector)
+        else:
+            cad +=CreateSubplot(axes1, xvector1, yvector1, titlestr=self.PPActiveTagLeft)
+            cad +=CreateSubplot(axes2, xvector2, yvector2, titlestr=self.PPActiveTagRight, pos="right")
+ 
+        print(cad)
+         
+#         axes = fig.add_subplot(1,1,1, aspect='equal')
+#         xvector,yvector = self.GetPoincareDataPlot(tag="Global")
+#         mincoord=0.9*min(min(xvector),min(yvector))
+#         maxcoord=1.1*max(max(xvector),max(yvector))
+#         meanx=np.mean(xvector)
+#         meany=np.mean(yvector)
+#         sd1 = np.std((xvector-yvector)/np.sqrt(2.0),ddof=1)
+#         sd2 = np.std((xvector+yvector)/np.sqrt(2.0),ddof=1)
+# 
+#         axes.plot(xvector,yvector,".r")
+#         axes.set_xlabel("RR[i] (msec.)")
+#         axes.set_ylabel("RR[i+1] (msec.)")
+#         axes.set_title(u"Poincaré Plot")
+#         axes.set_xlim(mincoord,maxcoord)
+#         axes.set_ylim(mincoord,maxcoord)
+# 
+#         coordarrow1 =np.sqrt(sd2*sd2/2)
+#         coordarrow2 =np.sqrt(sd1*sd1/2)
+#         axes.arrow(meanx,meany,coordarrow1,coordarrow1,
+#             lw=1, head_width=(maxcoord-mincoord)/100,
+#             head_length=(maxcoord-mincoord)/50,
+#             length_includes_head=True, fc='k', zorder=3)
+#         axes.arrow(meanx, meany, -coordarrow2, coordarrow2,
+#             lw=1, head_width=(maxcoord-mincoord)/100,
+#             head_length=(maxcoord-mincoord)/50,
+#             length_includes_head=True, fc='k', zorder=4)
+# 
+#         ell=Ellipse(xy=(meanx,meany),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
+#         axes.add_artist(ell)
+#         # ell.set_alpha(0.7)
+#         ell.set(zorder=2)            
+# 
+#         axes.grid(True)
+        
+        if interactive:
+            if self.PPActiveTagRight=="None":
+                newaxsaveplot = fig.add_axes(axes.get_position())
+            else:
+                newaxsaveplot = fig.add_axes(axes1.get_position())
+     
+            newaxsaveplot.set_position([
+                  2*plotFormat['buttonsmargin'],
+                  1.0-2*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
+                  1.5*plotFormat['savebuttonwidth'],
+                  1.5*plotFormat['littlebuttonsize']
+              ])
+            self.PPbtsaveplot=Button(newaxsaveplot,"Save")
+            self.PPbtsaveplot.on_clicked(saveplot)
 
         matplotlib.pyplot.show()
         
@@ -1649,19 +1784,7 @@ class DM:
                     self.CreatePlotFile('HR',fileName,zoomReset=False,automatic=True)
                 
 
-        plotFormat={
-            'left':0.08,
-            'bottom':0.07,
-            'right':0.98,
-            'top':0.94,
-            'wspace':0.20,
-            'hspace':.15,
-            'ymintag':0.04,
-            'ymaxtag':0.96,
-            'littlebuttonsize':0.025,
-            'buttonsmargin':0.005,
-            'savebuttonwidth':0.06
-        }
+        
         
         HRaxes = fig.add_subplot(1,1,1)
         

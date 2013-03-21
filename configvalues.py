@@ -144,3 +144,18 @@ fileTypesWin="EPS file (*.eps)|*.eps;*EPS|PDF file (*.pdf)|*.pdf;*.PDF|PNG file 
 automaticExtensionsWin = {0:"eps",1:"pdf",3:"png",4:"svg"}
 extensionsWin=["eps","pdf","png","svg"]
 
+plotFormat={
+            'left':0.08,
+            'bottom':0.07,
+            'right':0.98,
+            'top':0.94,
+            'wspace':0.20,
+            'hspace':.15,
+            'ymintag':0.04,
+            'ymaxtag':0.96,
+            'littlebuttonsize':0.025,
+            'buttonsmargin':0.005,
+            'savebuttonwidth':0.06
+        }
+
+
