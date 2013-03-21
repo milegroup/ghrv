@@ -1585,6 +1585,8 @@ class DM:
         
         print "Creating poincaré plot with",ActiveTagLeft,"and",ActiveTagRight
         
+        fig.clear()
+        
                 
         cad =""
  
