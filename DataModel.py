@@ -1620,39 +1620,6 @@ class DM:
  
         print(cad)
          
-#         axes = fig.add_subplot(1,1,1, aspect='equal')
-#         xvector,yvector = self.GetPoincareDataPlot(tag="Global")
-#         mincoord=0.9*min(min(xvector),min(yvector))
-#         maxcoord=1.1*max(max(xvector),max(yvector))
-#         meanx=np.mean(xvector)
-#         meany=np.mean(yvector)
-#         sd1 = np.std((xvector-yvector)/np.sqrt(2.0),ddof=1)
-#         sd2 = np.std((xvector+yvector)/np.sqrt(2.0),ddof=1)
-# 
-#         axes.plot(xvector,yvector,".r")
-#         axes.set_xlabel("RR[i] (msec.)")
-#         axes.set_ylabel("RR[i+1] (msec.)")
-#         axes.set_title(u"Poincaré Plot")
-#         axes.set_xlim(mincoord,maxcoord)
-#         axes.set_ylim(mincoord,maxcoord)
-# 
-#         coordarrow1 =np.sqrt(sd2*sd2/2)
-#         coordarrow2 =np.sqrt(sd1*sd1/2)
-#         axes.arrow(meanx,meany,coordarrow1,coordarrow1,
-#             lw=1, head_width=(maxcoord-mincoord)/100,
-#             head_length=(maxcoord-mincoord)/50,
-#             length_includes_head=True, fc='k', zorder=3)
-#         axes.arrow(meanx, meany, -coordarrow2, coordarrow2,
-#             lw=1, head_width=(maxcoord-mincoord)/100,
-#             head_length=(maxcoord-mincoord)/50,
-#             length_includes_head=True, fc='k', zorder=4)
-# 
-#         ell=Ellipse(xy=(meanx,meany),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
-#         axes.add_artist(ell)
-#         # ell.set_alpha(0.7)
-#         ell.set(zorder=2)            
-# 
-#         axes.grid(True)
         
         if interactive:
             if self.PPActiveTagRight=="None":
@@ -1670,6 +1637,62 @@ class DM:
             self.PPbtsaveplot.on_clicked(saveplot)
 
         matplotlib.pyplot.show()
+        
+    def CreatePlotSignifEmbedded(self,fig,ActiveTagLeft,ActiveTagRight,ActiveParam):
+        self.ActiveTagLeftSignif = ActiveTagLeft
+        self.ActiveTagRightSignif = ActiveTagRight
+        self.ActiveParamSignif = ActiveParam
+        self.signifNumBins=signifNumBins
+        
+        ActiveParamTmp = self.ActiveParamSignif
+        if ActiveParamTmp=="LF/HF":
+            ActiveParamTmp="LFHF"
+        valuesleft = self.GetFrameBasedData(ActiveParamTmp,self.ActiveTagLeftSignif)[1]
+        if not self.ActiveTagRightSignif:
+            valuesright = self.GetFrameBasedData(ActiveParamTmp,self.ActiveTagLeftSignif)[2]
+        else:
+            valuesright = self.GetFrameBasedData(ActiveParamTmp,self.ActiveTagRightSignif)[1]
+            
+        valuesleftweight=np.ones_like(valuesleft)/len(valuesleft)
+        valuesrightweight=np.ones_like(valuesright)/len(valuesright)
+        
+        fig.clear()
+        SignifAxes = fig.add_subplot(1,1,1)    
+            
+#        print "signifNumMinValues: ",signifNumMinValues
+#        print "valuesleft:",len(valuesleft)
+#        print "valuesright:",len(valuesright)
+            
+        if (len(valuesleft)>signifNumMinValues) and (len(valuesright)>signifNumMinValues):
+            self.EnoughDataSignif=True
+            
+            if self.ActiveTagRightSignif:
+                labels= [self.ActiveTagLeftSignif, self.ActiveTagRightSignif]
+            else: 
+                labels= ["Inside " +self.ActiveTagLeftSignif, "Outside " +self.ActiveTagLeftSignif]
+            SignifAxes.hist([valuesleft,valuesright], self.signifNumBins, 
+                            weights = [valuesleftweight,valuesrightweight],
+                            normed=False, histtype='bar',
+                            color=['red', 'cyan'],
+                            label=labels)
+            SignifAxes.set_title('Histogram: '+self.ActiveParamSignif)
+
+            SignifAxes.legend(bbox_to_anchor=(1., -0.1), loc=1,
+                            ncol=2, borderaxespad=0.)
+            SignifAxes.grid()
+        else:
+            self.EnoughDataSignif=False
+            
+            SignifAxes.set_xlim(-1,1)
+            SignifAxes.set_ylim(-1,1)
+            SignifAxes.text(0.0, 0.0, "Not enough data", size=20,
+                            horizontalalignment='center',
+                            verticalalignment='center',
+                            bbox=dict(boxstyle='round',facecolor='red', alpha=0.5))
+#            
+          
+        return (valuesleft,valuesright)
+        
         
         
     def CreatePlotHRHistogramEmbedded(self,fig):

@@ -359,25 +359,26 @@ class MainWindow(wx.Frame):
             EpisodesTags=dm.GetEpisodesTags()
             for Tag in EpisodesTags:
                 dm.AssignEpisodeColor(Tag)
+            dm.InterpolateNIHR()
             self.RefreshMainWindow()
             # PoincarePlotWindow(self,-1,'Poincaré plot',dm)
             # self.poincareWindowPresent=True
-            # self.RefreshMainWindowButtons()
+            self.RefreshMainWindowButtons()
 
-            # if dm.HasFrameBasedParams()==False:
-            #     dm.CalculateFrameBasedParams(showProgress=True)
-            # self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters",dm)
+            if dm.HasFrameBasedParams()==False:
+                dm.CalculateFrameBasedParams(showProgress=True)
+            self.fbWindow = FrameBasedEvolutionWindow(self,-1,"Temporal evolution of parameters",dm)
             # self.fbWindowPresent=True
             # self.RefreshMainWindowButtons()
             # EditEpisodesWindow(self,-1,'Episodes Edition',dm)
             # self.editEpisodesWindowPresent=True
-            import tempfile
-            reportName="report.html"
-            reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
-            dm.CreateReport(reportDir,reportName,'report_files')
-            ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
-            self.reportWindowPresent=True
-            self.RefreshMainWindowButtons()
+#            import tempfile
+#            reportName="report.html"
+#            reportDir=tempfile.mkdtemp(prefix="gHRV_Report_")
+#            dm.CreateReport(reportDir,reportName,'report_files')
+#            ReportWindow(self,-1,'Report: '+dm.GetName(),reportDir+os.sep+reportName, dm)
+#            self.reportWindowPresent=True
+#            self.RefreshMainWindowButtons()
 
             
         

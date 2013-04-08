@@ -168,62 +168,62 @@ class SignificanceWindow(wx.Frame):
 
         self.SetMinSize(signifWindowMinSize)
 
-        self.sb = self.CreateStatusBar()
-        self.sb.SetStatusText(self.sbSignifText)
+#        self.sb = self.CreateStatusBar()
+#        self.sb.SetStatusText(self.sbSignifText)
 
-        self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
+#        self.canvas.Bind(wx.EVT_KEY_DOWN, self.OnKeyPress)
 
         self.Show(True)
         self.Layout()
         self.Refresh()
         self.canvas.SetFocus()
 
-    def OnKeyPress(self,event):
-        if not self.EnoughData:
-            # event.Skip()
-            return
-        keycode = event.GetKeyCode()
-        if keycode == 73:
-            # print "Zoom in"
-            self.signifNumBins += 1
-            self.Refresh()
-
-        if keycode == 77:
-            # print "Zoom out"
-            if self.signifNumBins > 2:
-                self.signifNumBins -= 1
-            self.Refresh()
-
-        if keycode == 48:
-            self.signifNumBins = signifNumBins
-            self.Refresh()
-
-        if keycode==83:
-            fileName=""
-            if platform != "win32":
-                filetypes = fileTypesLinMac
-                extensions= extensionsLinMac
-                automaticExtensions = automaticExtensionsLinMac
-            else:
-                filetypes = fileTypesWin
-                extensions= extensionsWin
-                automaticExtensions = automaticExtensionsWin
-                
-            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=self.dm.GetName()+"_SIG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
-            result = dial.ShowModal()
-            if result == wx.ID_OK:
-                fileName=dial.GetPath()
-                fileExt = os.path.splitext(fileName)[1][1:].strip()
-                if fileExt not in extensions:
-                    fileName = fileName + "." + automaticExtensions[dial.GetFilterIndex()]
-                    # print "Saving ",fileName
-                try:
-                    self.canvas.print_figure(fileName)
-                except:
-                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
-            dial.Destroy()
-
-        self.canvas.SetFocus()
+#    def OnKeyPress(self,event):
+#        if not self.EnoughData:
+#            # event.Skip()
+#            return
+#        keycode = event.GetKeyCode()
+#        if keycode == 73:
+#            # print "Zoom in"
+#            self.signifNumBins += 1
+#            self.Refresh()
+#
+#        if keycode == 77:
+#            # print "Zoom out"
+#            if self.signifNumBins > 2:
+#                self.signifNumBins -= 1
+#            self.Refresh()
+#
+#        if keycode == 48:
+#            self.signifNumBins = signifNumBins
+#            self.Refresh()
+#
+#        if keycode==83:
+#            fileName=""
+#            if platform != "win32":
+#                filetypes = fileTypesLinMac
+#                extensions= extensionsLinMac
+#                automaticExtensions = automaticExtensionsLinMac
+#            else:
+#                filetypes = fileTypesWin
+#                extensions= extensionsWin
+#                automaticExtensions = automaticExtensionsWin
+#                
+#            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=self.dm.GetName()+"_SIG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
+#            result = dial.ShowModal()
+#            if result == wx.ID_OK:
+#                fileName=dial.GetPath()
+#                fileExt = os.path.splitext(fileName)[1][1:].strip()
+#                if fileExt not in extensions:
+#                    fileName = fileName + "." + automaticExtensions[dial.GetFilterIndex()]
+#                    # print "Saving ",fileName
+#                try:
+#                    self.canvas.print_figure(fileName)
+#                except:
+#                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
+#            dial.Destroy()
+#
+#        self.canvas.SetFocus()
 
         # event.Skip()
 
@@ -262,11 +262,12 @@ class SignificanceWindow(wx.Frame):
     def OnTag(self,event):
         self.ActiveTagLeft = event.GetEventObject().GetLabel()
         self.Refresh()
-
-    def Refresh(self):
-        # print "Valor left: ", self.ActiveTagLeft
-        # print "Valor right: ",self.ActiveTagRight
-        # print "Param: ",self.ActiveParam
+        
+        
+    def Refresh(self):        
+        valuesLeft,valuesRight = self.dm.CreatePlotSignifEmbedded(self.fig,self.ActiveTagLeft,self.ActiveTagRight,self.ActiveParam)
+        numValuesLeft=len(valuesLeft)
+        numValuesRight=len(valuesRight)
 
         cad = self.ActiveParam+":  "
         if self.ActiveTagRight:
@@ -274,68 +275,30 @@ class SignificanceWindow(wx.Frame):
         else: 
             cad = cad + self.ActiveTagLeft + " (inside vs. outside)\n"
 
-        ActiveParamTmp = self.ActiveParam
-        if ActiveParamTmp=="LF/HF":
-            ActiveParamTmp="LFHF"
-        valuesleft = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTagLeft)[1]
-        if not self.ActiveTagRight:
-            valuesright = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTagLeft)[2]
-        else:
-            valuesright = self.dm.GetFrameBasedData(ActiveParamTmp,self.ActiveTagRight)[1]
-
         cad=cad+"No. points: "
+        
         if not self.ActiveTagRight:
-            cad = cad + str(len(valuesleft)) +" (inside), "+str(len(valuesright))+" (outside)\n"
+            cad = cad + str(numValuesLeft) +" (inside), "+str(numValuesRight)+" (outside)\n"
         else:
-            cad = cad + str(len(valuesleft)) +" ("+self.ActiveTagLeft+"), "
-            cad = cad + str(len(valuesright))+" ("+self.ActiveTagRight+")\n"
-        # print "Length valuesleft: ",len(valuesleft)
-        # print "Length valuesright: ",len(valuesright)
+            cad = cad + str(numValuesLeft) +" ("+self.ActiveTagLeft+"), "
+            cad = cad + str(numValuesRight)+" ("+self.ActiveTagRight+")\n"
+            
 
-        valuesleftweight=np.ones_like(valuesleft)/len(valuesleft)
-        valuesrightweight=np.ones_like(valuesright)/len(valuesright)
+        if (numValuesLeft>signifNumMinValues) and (numValuesRight>signifNumMinValues):
+            cad=cad+ "Mean  -  in: %.3f, out: %.3f\n" % (np.mean(valuesLeft),np.mean(valuesRight))
 
-        self.axes.clear()
-
-        if (len(valuesleft)>signifNumMinValues) and (len(valuesright)>signifNumMinValues):
-            self.EnoughData=True
-            self.sb.SetStatusText(self.sbSignifText)
-            if self.ActiveTagRight:
-                labels= [self.ActiveTagLeft, self.ActiveTagRight]
-            else: 
-                labels= ["Inside " +self.ActiveTagLeft, "Outside " +self.ActiveTagLeft]
-            self.axes.hist([valuesleft,valuesright], self.signifNumBins, 
-                            weights = [valuesleftweight,valuesrightweight],
-                            normed=False, histtype='bar',
-                            color=['red', 'cyan'],
-                            label=labels)
-            self.axes.set_title('Histogram: '+self.ActiveParam)
-
-            self.axes.legend(bbox_to_anchor=(1., -0.1), loc=1,
-                            ncol=2, borderaxespad=0.)
-            self.axes.grid()
-            cad=cad+ "Mean  -  in: %.3f, out: %.3f\n" % (np.mean(valuesleft),np.mean(valuesright))
-
-            pvalue = self.GetPValue(valuesleft,valuesright,signifAlpha)[0]
-            # print "Dev1 ",np.std(valuesleft)
-            # print "Dev2 ",np.std(valuesright)
+            pvalue = self.GetPValue(valuesLeft,valuesRight,signifAlpha)[0]
+#            # print "Dev1 ",np.std(valuesleft)
+#            # print "Dev2 ",np.std(valuesright)
             cad=cad+ "Welch's t-test: "
             if pvalue:
                 cad=cad+ "significative differences found!!" 
             else:
                 cad=cad+ "significative differences not found"
-            
+#            
         else:
-            self.EnoughData=False
-            self.sb.SetStatusText("")
-            cad=cad+"Insufficient data\n"
-            self.axes.set_xlim(-1,1)
-            self.axes.set_ylim(-1,1)
-            self.axes.text(0.0, 0.0, "Insufficient data", size=20,
-                            horizontalalignment='center',
-                            verticalalignment='center',
-                            bbox=dict(boxstyle='round',facecolor='red', alpha=0.5))
-            
+            cad=cad+"Not enough data: minimum no. of points is "+str(signifNumMinValues)
+#            
         self.textOutput.SetValue(cad)
         self.canvas.draw()
 
