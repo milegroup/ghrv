@@ -27,7 +27,7 @@
 #   ----------------------------------------------------------------------
 
 Verbose = True
-DebugMode = True
+DebugMode = False
 ReportVersion = False
 ColoredButtons = True
 ColoredBGPlots = True
