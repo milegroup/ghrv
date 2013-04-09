@@ -103,6 +103,8 @@ class SignificanceWindow(wx.Frame):
         self.AllTags = self.dm.GetVisibleEpisodes()[0]
         self.ActiveTagLeft = self.AllTags[0]
         self.ActiveTagRight = None
+        self.dm.SetSignifPlotParams(self.ActiveTagLeft,self.ActiveTagRight,self.ActiveParam)
+        
         self.cbComboLeft=wx.ComboBox(panel,
             choices=self.AllTags,
             value=self.ActiveTagLeft,
@@ -176,7 +178,7 @@ class SignificanceWindow(wx.Frame):
         self.Show(True)
         self.Layout()
         self.Refresh()
-        self.canvas.SetFocus()
+#         self.canvas.SetFocus()
 
 #    def OnKeyPress(self,event):
 #        if not self.EnoughData:
@@ -239,10 +241,13 @@ class SignificanceWindow(wx.Frame):
         self.Destroy()
 
     def OnParam(self,event):
+        (ATL,ATR,AP) = self.dm.GetSignifPlotParams()
         self.ActiveParam = event.GetEventObject().GetLabel()
+        self.dm.SetSignifPlotParams(ATL,ATR,self.ActiveParam)
         self.Refresh()
 
     def OnComboLeft(self,event):
+        (ATL,ATR,AP) = self.dm.GetSignifPlotParams()
         self.ActiveTagLeft = self.cbComboLeft.GetValue()
         self.cbComboRight.Clear()
         ChoicesRight = ["Outside "+self.ActiveTagLeft]+self.AllTags
@@ -251,21 +256,26 @@ class SignificanceWindow(wx.Frame):
             self.cbComboRight.Append(item)
         self.cbComboRight.SetValue("Outside "+self.ActiveTagLeft)
         self.ActiveTagRight = None
+        self.dm.SetSignifPlotParams(self.ActiveTagLeft,self.ActiveTagRight,AP)
         self.Refresh()
 
     def OnComboRight(self,event):
+        (ATL,ATR,AP) = self.dm.GetSignifPlotParams()
         self.ActiveTagRight = self.cbComboRight.GetValue()
         if self.ActiveTagRight[0:7] == "Outside":
             self.ActiveTagRight=None
+        self.dm.SetSignifPlotParams(ATL,self.ActiveTagRight,AP)
         self.Refresh()
 
-    def OnTag(self,event):
-        self.ActiveTagLeft = event.GetEventObject().GetLabel()
-        self.Refresh()
+#     def OnTag(self,event):
+#         self.ActiveTagLeft = event.GetEventObject().GetLabel()
+#         self.Refresh()
         
         
     def Refresh(self):        
-        valuesLeft,valuesRight = self.dm.CreatePlotSignifEmbedded(self.fig,self.ActiveTagLeft,self.ActiveTagRight,self.ActiveParam)
+        
+        
+        valuesLeft,valuesRight = self.dm.CreatePlotSignifEmbedded(self.fig)
         numValuesLeft=len(valuesLeft)
         numValuesRight=len(valuesRight)
 

@@ -28,8 +28,6 @@
 #   ----------------------------------------------------------------------
     
 #   TODO: 
-#   - cambiar interacción con las figuras (cambiadas HR y FB)
-#   - check overwrite in plot save
 #   - seleccionar tipos de latidos cargados en ficheros physionet
 #   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
 #   - report con un fichero grande es muy lento
@@ -38,6 +36,7 @@
 #   - Yo hubiese empleado el icono de la herramienta (el dibujo de Leonardo) como icono de todas las ventanas, y no ese icono con forma de libreta de notas que tienen.
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 #   - Problema cuando se usa espacio como separador al exportar datos: los nombres de las columnas cambiar " " por "_"
+#   - Problema creando plot de FB y Signif: la leyenda no entra en el fichero
 
 
 import wx

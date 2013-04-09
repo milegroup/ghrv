@@ -69,5 +69,19 @@ def ErrorWindow(messageStr,captionStr="ERROR"):
     dial = wx.MessageDialog(None, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
     result = dial.ShowModal()
     dial.Destroy()
-
-
+    
+def OverwriteConfirm(filename):
+	dial = wx.MessageDialog(None,message=filename+" already exists.\nDo you want to replace it?",caption="Warning",style=wx.YES|wx.NO|wx.ICON_QUESTION)
+	if dial.ShowModal() != wx.ID_YES:
+		dial.Destroy()
+		return False
+	else:
+		dial.Destroy()
+		return True
+	
+def InformCorrectFile(filename):
+	dial = wx.MessageDialog(None,message="Plot saved: " +filename, caption="Result ok",style=wx.OK|wx.ICON_INFORMATION)
+	if dial.ShowModal() != wx.ID_YES:
+		dial.Destroy()
+		return
+	

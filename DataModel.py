@@ -1421,6 +1421,16 @@ class DM:
             self.data["Power"],self.data["Mean HR"], self.data["HR STD"], self.data["pNN50"],
             self.data["rMSSD"], self.data["ApEn"], self.data["FracDim"], self.data["HR"])
         
+    def SetSignifPlotParams(self,ActiveTagLeft,ActiveTagRight,ActiveParam):
+        self.SignifPlotParam={}
+        self.SignifPlotParam["ActiveTagLeft"]=ActiveTagLeft
+        self.SignifPlotParam["ActiveTagRight"]=ActiveTagRight
+        self.SignifPlotParam["ActiveParam"]=ActiveParam
+        
+    def GetSignifPlotParams(self):
+        return (self.SignifPlotParam["ActiveTagLeft"],self.SignifPlotParam["ActiveTagRight"],self.SignifPlotParam["ActiveParam"])
+    
+        
     def GetFrameBasedData(self,param,tag):
         """Returns values of a parameter inside episodes, outside episodes and total"""
         total = self.data[param]
@@ -1470,6 +1480,12 @@ class DM:
         fig = Figure()
         if not automatic:
             fig.set_size_inches((width/plotDPI,height/plotDPI))
+            
+        if os.path.exists(filename):
+            confirm = Utils.OverwriteConfirm(filename)
+            if not confirm:
+                return
+            
         
         if plotType=="HR":
             self.CreatePlotHREmbedded(fig,zoomReset,interactive=False)
@@ -1481,11 +1497,15 @@ class DM:
             self.CreatePlotFBEmbedded(fig,zoomReset,interactive=False)
         if plotType=="Poincare":
             self.CreatePlotPoincareEmbedded(fig,interactive=False)  
+        if plotType=="Signif":
+            self.CreatePlotSignifEmbedded(fig,interactive=False)
         canvas = FigureCanvasAgg(fig)
 
         if automatic:
             try:
                 canvas.print_figure(filename)
+                if automatic:
+                    Utils.InformCorrectFile(filename)
             except:
                 Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
         else:
@@ -1580,7 +1600,7 @@ class DM:
                 fileName = Utils.SavePlotFileName(self.GetName()+"_PP")
                 if fileName != None:
                     if self.data["Verbose"]:
-                        print("** HR Saving figure in file: "+fileName)
+                        print("** Poincare Saving figure in file: "+fileName)
                     self.CreatePlotFile('Poincare',fileName,zoomReset=False,automatic=True)
         
         print "Creating poincaré plot with",ActiveTagLeft,"and",ActiveTagRight
@@ -1638,11 +1658,108 @@ class DM:
 
         matplotlib.pyplot.show()
         
-    def CreatePlotSignifEmbedded(self,fig,ActiveTagLeft,ActiveTagRight,ActiveParam):
-        self.ActiveTagLeftSignif = ActiveTagLeft
-        self.ActiveTagRightSignif = ActiveTagRight
-        self.ActiveParamSignif = ActiveParam
-        self.signifNumBins=signifNumBins
+    def CreatePlotSignifEmbedded(self,fig,interactive=True):
+        
+        def CreateHistogram():
+            fig.clear()
+            SignifAxes = fig.add_subplot(1,1,1)    
+            SignifAxes.hist([valuesleft,valuesright], self.signifNumBins, 
+                            weights = [valuesleftweight,valuesrightweight],
+                            normed=False, histtype='bar',
+                            color=['red', 'cyan'],
+                            label=labels)
+            SignifAxes.set_title('Histogram: '+self.ActiveParamSignif)
+
+            SignifAxes.legend(bbox_to_anchor=(1., -0.1), loc=1,
+                            ncol=2, borderaxespad=0.)
+            SignifAxes.grid()
+           
+        
+            
+                
+        self.ActiveTagLeftSignif, self.ActiveTagRightSignif, self.ActiveParamSignif = self.GetSignifPlotParams()
+        if interactive:
+            self.signifNumBins=signifNumBins
+        
+        if interactive:
+            def morebins(event):
+                if self.data["Verbose"]:
+                    print("  Significance plot: increasing number of bins")
+                self.signifNumBins += 1
+#                 self.CreatePlotSignifEmbedded(fig, interactive=True)
+                CreateHistogram()
+                CreateButtons()
+                fig.canvas.draw()
+                
+            def lessbins(event):
+                if self.signifNumBins <= 2:
+                    return
+                if self.data["Verbose"]:
+                    print("  Significance plot: decreasing number of bins")
+                self.signifNumBins -= 1
+#                 self.CreatePlotSignifEmbedded(fig, interactive=True)
+                CreateHistogram()
+                CreateButtons()
+                fig.canvas.draw()
+            
+            def resetbins(event):
+                if self.data["Verbose"]:
+                    print("  Significance plot: reseting number of bins")
+                self.signifNumBins = signifNumBins
+#                 self.CreatePlotSignifEmbedded(fig, interactive=True)
+                CreateHistogram()
+                CreateButtons()
+                fig.canvas.draw()
+
+            def saveplot(event):
+                # from matplotlib.backends.backend_agg import FigureCanvasAgg
+                fileName = Utils.SavePlotFileName(self.GetName()+"_Hist")
+                if fileName != None:
+                    if self.data["Verbose"]:
+                        print("** Significance histogram figure in file: "+fileName)
+                    self.CreatePlotFile('Signif',fileName,zoomReset=False,automatic=True)
+                    
+        def CreateButtons():
+            newaxmorebins = fig.add_axes(SignifAxes.get_position())
+            newaxmorebins.set_position([
+               1.0-1.5*plotFormat['savebuttonwidth']-2*plotFormat['buttonsmargin'],
+               1.0-2*plotFormat['littlebuttonsize']-plotFormat['buttonsmargin'],
+               1.5*plotFormat['savebuttonwidth'],
+               1.5*plotFormat['littlebuttonsize']
+            ])
+            self.Signifbtmorebins=Button(newaxmorebins,"+ bins")
+            self.Signifbtmorebins.on_clicked(morebins)
+
+            newaxlessbins = fig.add_axes(SignifAxes.get_position())
+            newaxlessbins.set_position([
+               1.0-1.5*plotFormat['savebuttonwidth']-2*plotFormat['buttonsmargin'],
+               1.0-3*plotFormat['littlebuttonsize']-6*plotFormat['buttonsmargin'],
+               1.5*plotFormat['savebuttonwidth'],
+               1.5*plotFormat['littlebuttonsize']
+            ])
+            self.Signifbtlessbins=Button(newaxlessbins,"- bins")
+            self.Signifbtlessbins.on_clicked(lessbins)
+            
+            newaxresetbins = fig.add_axes(SignifAxes.get_position())
+            newaxresetbins.set_position([
+               1.0-1.5*plotFormat['savebuttonwidth']-2*plotFormat['buttonsmargin'],
+               1.0-4*plotFormat['littlebuttonsize']-11*plotFormat['buttonsmargin'],
+               1.5*plotFormat['savebuttonwidth'],
+               1.5*plotFormat['littlebuttonsize']
+            ])
+            self.Signifbtresetbins=Button(newaxresetbins,"Reset")
+            self.Signifbtresetbins.on_clicked(resetbins)
+            
+            newaxsaveplot = fig.add_axes(SignifAxes.get_position())
+            newaxsaveplot.set_position([
+                1.0-1.5*plotFormat['savebuttonwidth']-2*plotFormat['buttonsmargin'],
+                1.0-5*plotFormat['littlebuttonsize']-16*plotFormat['buttonsmargin'],
+                1.5*plotFormat['savebuttonwidth'],
+                1.5*plotFormat['littlebuttonsize']
+            ])
+            self.Signifbtsaveplot=Button(newaxsaveplot,"Save")
+            self.Signifbtsaveplot.on_clicked(saveplot)
+            # End of CreateButtons
         
         ActiveParamTmp = self.ActiveParamSignif
         if ActiveParamTmp=="LF/HF":
@@ -1670,16 +1787,11 @@ class DM:
                 labels= [self.ActiveTagLeftSignif, self.ActiveTagRightSignif]
             else: 
                 labels= ["Inside " +self.ActiveTagLeftSignif, "Outside " +self.ActiveTagLeftSignif]
-            SignifAxes.hist([valuesleft,valuesright], self.signifNumBins, 
-                            weights = [valuesleftweight,valuesrightweight],
-                            normed=False, histtype='bar',
-                            color=['red', 'cyan'],
-                            label=labels)
-            SignifAxes.set_title('Histogram: '+self.ActiveParamSignif)
-
-            SignifAxes.legend(bbox_to_anchor=(1., -0.1), loc=1,
-                            ncol=2, borderaxespad=0.)
-            SignifAxes.grid()
+            
+            CreateHistogram()
+            if interactive:
+                CreateButtons()
+                    
         else:
             self.EnoughDataSignif=False
             
