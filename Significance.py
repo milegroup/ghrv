@@ -178,56 +178,8 @@ class SignificanceWindow(wx.Frame):
         self.Show(True)
         self.Layout()
         self.Refresh()
-#         self.canvas.SetFocus()
 
-#    def OnKeyPress(self,event):
-#        if not self.EnoughData:
-#            # event.Skip()
-#            return
-#        keycode = event.GetKeyCode()
-#        if keycode == 73:
-#            # print "Zoom in"
-#            self.signifNumBins += 1
-#            self.Refresh()
-#
-#        if keycode == 77:
-#            # print "Zoom out"
-#            if self.signifNumBins > 2:
-#                self.signifNumBins -= 1
-#            self.Refresh()
-#
-#        if keycode == 48:
-#            self.signifNumBins = signifNumBins
-#            self.Refresh()
-#
-#        if keycode==83:
-#            fileName=""
-#            if platform != "win32":
-#                filetypes = fileTypesLinMac
-#                extensions= extensionsLinMac
-#                automaticExtensions = automaticExtensionsLinMac
-#            else:
-#                filetypes = fileTypesWin
-#                extensions= extensionsWin
-#                automaticExtensions = automaticExtensionsWin
-#                
-#            dial = wx.FileDialog(self, message="Save figure as...", defaultFile=self.dm.GetName()+"_SIG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, wildcard=filetypes)
-#            result = dial.ShowModal()
-#            if result == wx.ID_OK:
-#                fileName=dial.GetPath()
-#                fileExt = os.path.splitext(fileName)[1][1:].strip()
-#                if fileExt not in extensions:
-#                    fileName = fileName + "." + automaticExtensions[dial.GetFilterIndex()]
-#                    # print "Saving ",fileName
-#                try:
-#                    self.canvas.print_figure(fileName)
-#                except:
-#                    self.ErrorWindow(messageStr="Error saving figure to file: "+fileName,captionStr="Error saving figure    ")
-#            dial.Destroy()
-#
-#        self.canvas.SetFocus()
 
-        # event.Skip()
 
     def ErrorWindow(self,messageStr,captionStr="ERROR"):
         """Generic error window"""
@@ -266,15 +218,9 @@ class SignificanceWindow(wx.Frame):
             self.ActiveTagRight=None
         self.dm.SetSignifPlotParams(ATL,self.ActiveTagRight,AP)
         self.Refresh()
-
-#     def OnTag(self,event):
-#         self.ActiveTagLeft = event.GetEventObject().GetLabel()
-#         self.Refresh()
         
         
     def Refresh(self):        
-        
-        
         valuesLeft,valuesRight = self.dm.CreatePlotSignifEmbedded(self.fig)
         numValuesLeft=len(valuesLeft)
         numValuesRight=len(valuesRight)

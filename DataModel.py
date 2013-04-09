@@ -1481,7 +1481,7 @@ class DM:
         if not automatic:
             fig.set_size_inches((width/plotDPI,height/plotDPI))
             
-        if os.path.exists(filename):
+        if os.path.exists(filename) and platform!="darwin":
             confirm = Utils.OverwriteConfirm(filename)
             if not confirm:
                 return
@@ -1507,6 +1507,7 @@ class DM:
                 if automatic:
                     Utils.InformCorrectFile(filename)
             except:
+#                print str(e)
                 Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
         else:
             try:

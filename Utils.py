@@ -41,16 +41,7 @@ class FewFramesException(Error):
 
 def SavePlotFileName(fileNameTmp):
 	fileName=""
-	if platform != "win32":
-		filetypes = fileTypesLinMac
-		extensions= extensionsLinMac
-		automaticExtensions = automaticExtensionsLinMac
-	else:
-		filetypes = fileTypesWin
-		extensions= extensionsWin
-		automaticExtensions = automaticExtensionsWin
-
-	dial = wx.FileDialog(None, message="Save figure as...", defaultFile=fileNameTmp, style=wx.FD_SAVE, wildcard=filetypes)
+	dial = wx.FileDialog(None, message="Save figure as...", defaultFile=fileNameTmp, style=wx.FD_SAVE, wildcard=fileTypes)
 	result = dial.ShowModal()
 	if result == wx.ID_OK:
 		fileName=dial.GetPath()
