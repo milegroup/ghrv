@@ -37,6 +37,8 @@
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 #   - Problema cuando se usa espacio como separador al exportar datos: los nombres de las columnas cambiar " " por "_"
 #   - Problema creando plot de FB y Signif: la leyenda no entra en el fichero
+#   - ERROR saving plot to jpeg in mac
+#   - Check plot overwriting in mac, linux and windows
 
 
 import wx
