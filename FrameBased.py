@@ -376,6 +376,7 @@ class FrameBasedExportSettings(wx.Frame):
                 fileName=dial.GetPath()
                 try:
                     self.dm.SaveFrameBasedData(fileName,listOfBands,SepChar,self.RowHeader.GetValue(),self.ColumnHeader.GetValue()) 
+                    Utils.InformCorrectFile(fileName)
                 except:
                     Utils.ErrorWindow(messageStr="Error saving data to file: "+fileName,captionStr="Error saving data file")
                     self.Raise()

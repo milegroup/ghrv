@@ -415,7 +415,7 @@ class DM:
             self.ClearBands()
             if self.HasFrameBasedParams():
                 self.ClearFrameBasedParams()
-                self.CalculateFrameBasedParams()
+                self.CalculateFrameBasedParams(showProgress=True)
             self.data["version"]=Version
 
         if self.data["version"]<Version:
@@ -426,7 +426,7 @@ class DM:
             self.ClearBands()
             if self.HasFrameBasedParams():
                 self.ClearFrameBasedParams()
-                self.CalculateFrameBasedParams()
+                self.CalculateFrameBasedParams(showProgress=True)
             self.data["version"]=Version
               
         shutil.rmtree(tempDir)
@@ -501,7 +501,7 @@ class DM:
                     FirstColumn=False
                 else:
                     File.write(SepChar)
-                File.write(Band)
+                File.write(Band.replace(" ","_"))
             File.write("\n")
         
         for x in range(NumFrames):
@@ -1504,8 +1504,7 @@ class DM:
         if automatic:
             try:
                 canvas.print_figure(filename)
-                if automatic:
-                    Utils.InformCorrectFile(filename)
+                Utils.InformCorrectFile(filename)
             except:
 #                print str(e)
                 Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
@@ -1578,14 +1577,14 @@ class DM:
  
              
  
-            if self.data["Verbose"]==True:
-                if titlestr:
-                    print ("** Creating Poincare Plot  -  " + titlestr)
-                else:
-                    print ("** Creating Poincare Plot")
-                print("   SD1: {0:.3f}".format(sd1))
-                print("   SD2: {0:.3f}".format(sd2))
-         
+#             if self.data["Verbose"]==True:
+#                 if titlestr:
+#                     print ("** Creating Poincare Plot  -  " + titlestr)
+#                 else:
+#                     print ("** Creating Poincare Plot")
+#                 print("   SD1: {0:.3f}".format(sd1))
+#                 print("   SD2: {0:.3f}".format(sd2))
+#          
             ell=Ellipse(xy=(meanx,meany),width=2*sd1,height=2*sd2,angle=-45,linewidth=1, color='k', fc="none")
             axes.add_artist(ell)
             # ell.set_alpha(0.7)
@@ -1603,9 +1602,7 @@ class DM:
                     if self.data["Verbose"]:
                         print("** Poincare Saving figure in file: "+fileName)
                     self.CreatePlotFile('Poincare',fileName,zoomReset=False,automatic=True)
-        
-        print "Creating poincaré plot with",ActiveTagLeft,"and",ActiveTagRight
-        
+                
         fig.clear()
         
                 
@@ -1638,9 +1635,7 @@ class DM:
         else:
             cad +=CreateSubplot(axes1, xvector1, yvector1, titlestr=self.PPActiveTagLeft)
             cad +=CreateSubplot(axes2, xvector2, yvector2, titlestr=self.PPActiveTagRight, pos="right")
- 
-        print(cad)
-         
+          
         
         if interactive:
             if self.PPActiveTagRight=="None":
@@ -1658,6 +1653,8 @@ class DM:
             self.PPbtsaveplot.on_clicked(saveplot)
 
         matplotlib.pyplot.show()
+        
+        return cad
         
     def CreatePlotSignifEmbedded(self,fig,interactive=True):
         
@@ -1792,6 +1789,9 @@ class DM:
             CreateHistogram()
             if interactive:
                 CreateButtons()
+                
+            if not interactive:
+                fig.subplots_adjust(bottom=0.15,left=0.07,right=0.97,top=0.94)
                     
         else:
             self.EnoughDataSignif=False
@@ -2208,7 +2208,9 @@ class DM:
         } 
 
         if hasEpisodes:
-            plotFormat['right']=0.84
+            plotFormat['right']=0.86
+            if not interactive:
+                plotFormat['right']=0.80
         else:
             plotFormat['right']=0.98
 

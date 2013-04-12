@@ -195,9 +195,10 @@ class PoincarePlotWindow(wx.Frame):
         
     def Refresh(self):
         if not self.HasTwoPlots:
-            self.dm.CreatePlotPoincareEmbedded(self.fig,self.ActiveTagLeft,"None")
+            cad = self.dm.CreatePlotPoincareEmbedded(self.fig,self.ActiveTagLeft,"None")
         else:
-            self.dm.CreatePlotPoincareEmbedded(self.fig,self.ActiveTagLeft,self.ActiveTagRight)
+            cad = self.dm.CreatePlotPoincareEmbedded(self.fig,self.ActiveTagLeft,self.ActiveTagRight)
+        self.textOutput.SetValue(cad)
         self.canvas.draw()
 
 

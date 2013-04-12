@@ -71,7 +71,7 @@ def OverwriteConfirm(filename):
 		return True
 	
 def InformCorrectFile(filename):
-	dial = wx.MessageDialog(None,message="Plot saved: " +filename, caption="Result ok",style=wx.OK|wx.ICON_INFORMATION)
+	dial = wx.MessageDialog(None,message="File saved: " +filename, caption="Result ok",style=wx.OK|wx.ICON_INFORMATION)
 	if dial.ShowModal() != wx.ID_YES:
 		dial.Destroy()
 		return

@@ -29,12 +29,9 @@
     
 #   TODO: 
 #   - seleccionar tipos de latidos cargados en ficheros physionet
-#   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
 #   - report con un fichero grande es muy lento
 #   - colores/monocromo
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
-#   - Problema cuando se usa espacio como separador al exportar datos: los nombres de las columnas cambiar " " por "_"
-#   - Problema creando plot de FB y Signif: la leyenda no entra en el fichero
 #   - Check icon in child windows in Mac and Windows
 
 
@@ -351,11 +348,11 @@ class MainWindow(wx.Frame):
         
         
         if DebugMode:
-            dm.LoadFileAscii("./beats.txt", self.settings)
+            dm.LoadFileAscii("../beats.txt", self.settings)
             
             dm.FilterNIHR()
 
-            dm.LoadEpisodesAscii("./beats_ep.txt")
+            dm.LoadEpisodesAscii("../beats_ep.txt")
             EpisodesTags=dm.GetEpisodesTags()
             for Tag in EpisodesTags:
                 dm.AssignEpisodeColor(Tag)
@@ -735,6 +732,7 @@ class MainWindow(wx.Frame):
             fileName=dial.GetPath()
             try:
                 dm.SaveProject(str(unicode(fileName)))
+                Utils.InformCorrectFile(fileName)
             except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error saving project file")
