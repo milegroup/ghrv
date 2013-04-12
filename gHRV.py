@@ -32,7 +32,7 @@
 #   - report con un fichero grande es muy lento
 #   - colores/monocromo
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
-#   - Check icon in child windows in Windows
+#   - Definir icono en todas las ventanas en windows
 
 
 import wx
