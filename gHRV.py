@@ -87,7 +87,7 @@ class MainWindow(wx.Frame):
             self.SetIcon(icon)
                 
         self.Bind(wx.EVT_CLOSE,self.OnExit)
-        
+         
         self.MainPanel=wx.Panel(self)
         self.fbWindowPresent=False
         self.configWindowPresent=False
