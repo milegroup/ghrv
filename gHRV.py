@@ -32,7 +32,7 @@
 #   - report con un fichero grande es muy lento
 #   - colores/monocromo
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
-#   - Check icon in child windows in Mac and Windows
+#   - Check icon in child windows in Windows
 
 
 import wx
@@ -82,8 +82,9 @@ class MainWindow(wx.Frame):
                         
         wx.Frame.__init__(self, parent, id, title)
         
-        icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
-        self.SetIcon(icon)
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
                 
         self.Bind(wx.EVT_CLOSE,self.OnExit)
         
