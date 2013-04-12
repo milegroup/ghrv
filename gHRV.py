@@ -32,11 +32,10 @@
 #   - cuando se importa un fichero de una versión anterior se recalculan parámetros por trama. Usar progress bar
 #   - report con un fichero grande es muy lento
 #   - colores/monocromo
-#   - Las ventanas que lanza la aplicación son bastante anchas. En mi equipo no cogen a lo ancho. Idealmente, la aplicación debería comprobar el tamaño de la pantalla antes de lanzar la ventana y asegurarse que el tamaño de ventana que usa inicial es menor que el tamaño de ventana.
-#   - Yo hubiese empleado el icono de la herramienta (el dibujo de Leonardo) como icono de todas las ventanas, y no ese icono con forma de libreta de notas que tienen.
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 #   - Problema cuando se usa espacio como separador al exportar datos: los nombres de las columnas cambiar " " por "_"
 #   - Problema creando plot de FB y Signif: la leyenda no entra en el fichero
+#   - Check icon in child windows in Mac and Windows
 
 
 import wx
@@ -84,10 +83,11 @@ class MainWindow(wx.Frame):
 
         self.ConfigInit()
                         
-        wx.Frame.__init__(self, parent, id, title, size=mainWindowSize)
-
+        wx.Frame.__init__(self, parent, id, title)
         
-        
+        icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
+                
         self.Bind(wx.EVT_CLOSE,self.OnExit)
         
         self.MainPanel=wx.Panel(self)
@@ -340,8 +340,9 @@ class MainWindow(wx.Frame):
         self.sb = self.CreateStatusBar()
         self.sb.SetStatusText(self.sbDefaultText)
  
-        
-        self.SetMinSize(mainWindowMinSize)
+        defSize,minSize=Utils.RecalculateWindowSizes(mainWindowSize,mainWindowMinSize)
+        self.SetSize(defSize)
+        self.SetMinSize(minSize)
         self.SetTitle('gHRV')
         self.Centre()
         self.MainPanel.SetSizer(self.sizer)

@@ -47,7 +47,7 @@ class FrameBasedEvolutionWindow(wx.Frame):
 
         self.dm = dm
         
-        wx.Frame.__init__(self, parent, -1, title, size=mainWindowSize)
+        wx.Frame.__init__(self, parent, -1, title)
         
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
                         
@@ -115,7 +115,10 @@ class FrameBasedEvolutionWindow(wx.Frame):
         self.dm.CreatePlotFBEmbedded(self.fig)
         self.canvas.draw()
         
-        self.SetMinSize(mainWindowMinSize)
+        defSize,minSize=Utils.RecalculateWindowSizes(mainWindowSize,mainWindowMinSize)
+        self.SetSize(defSize)
+        self.SetMinSize(minSize)
+                
         self.Show(True)
         self.Layout()
         self.canvas.SetFocus()

@@ -75,4 +75,11 @@ def InformCorrectFile(filename):
 	if dial.ShowModal() != wx.ID_YES:
 		dial.Destroy()
 		return
-	
+
+def RecalculateWindowSizes(DefaultSize,MinSize):
+	screenWidth,screenHeight = wx.GetDisplaySize()
+	if screenWidth < DefaultSize[0]:
+		factor = float(DefaultSize[0])/screenWidth
+		DefaultSize = int(DefaultSize[0]/factor),DefaultSize[1]
+		MinSize = int(MinSize[0]/factor),MinSize[1]
+	return DefaultSize,MinSize

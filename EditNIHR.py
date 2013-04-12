@@ -29,6 +29,7 @@
 
 import wx
 from configvalues import *
+import Utils
 import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
@@ -40,7 +41,7 @@ class EditNIHRWindow(wx.Frame):
     NumRemovedPoints=0
     
     def __init__(self,parent,id,title, dm):
-        wx.Frame.__init__(self, parent, -1, title, size=mainWindowSize)
+        wx.Frame.__init__(self, parent, -1, title)
 
         self.dm = dm
         
@@ -99,7 +100,10 @@ class EditNIHRWindow(wx.Frame):
         self.sb = self.CreateStatusBar()
         self.sb.SetStatusText("Selected: 0 points  -  Removed: 0 points")
         
-        self.SetMinSize(mainWindowMinSize)
+        defSize,minSize=Utils.RecalculateWindowSizes(mainWindowSize,mainWindowMinSize)
+        self.SetSize(defSize)
+        self.SetMinSize(minSize)
+        
         self.Show(True)
         
         self.Layout()
