@@ -463,7 +463,7 @@ class MainWindow(wx.Frame):
             platformString = "src"
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/src.txt"
 
-        if platform=="linux2" and argv[0]=="/usr/share/ghrv/gHRV.pyc":
+        if platform=="linux2" and argv[0]=="/usr/share/ghrv/gHRV.py":
             string = string + "Running gHRV deb package. Version: " + Version + "\n"
             platformString = "deb"
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/deb.txt"
