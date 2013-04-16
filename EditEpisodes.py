@@ -44,6 +44,11 @@ class EditEpisodesWindow(wx.Frame):
     
     def __init__(self,parent,id,title,dm):
         wx.Frame.__init__(self, parent, -1, title)
+        
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
+            
         self.dm = dm
         self.manualEditorPresent=False
         
@@ -330,6 +335,10 @@ class ManualEditionWindow(wx.Frame):
     def __init__(self,parent,id,title,dm):
 
         wx.Frame.__init__(self, parent, -1, title)
+        
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
 
         self.dm = dm
         self.Bind(wx.EVT_CLOSE,self.OnEnd)  
@@ -659,6 +668,11 @@ class EpisodeEditWindow(wx.Frame):
             wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSize, title=title)
         else:
             wx.Frame.__init__(self, parent, wx.ID_ANY, size=addEpWinSizeMac, title=title)
+            
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
+            
         self.WindowParent=parent
         self.EpToEdit = EpToEdit
         # self.Bind(wx.EVT_CLOSE,self.OnEnd)

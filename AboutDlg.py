@@ -42,6 +42,10 @@ class AboutDlg(wx.Frame):
             wx.Frame.__init__(self, parent, size=aboutWindowSize)
         else:
             wx.Frame.__init__(self, parent, size=aboutWindowSizeMac)
+            
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
         
         self.WindowParent=parent
         self.Bind(wx.EVT_CLOSE,self.OnEnd)

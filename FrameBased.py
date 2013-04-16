@@ -49,6 +49,10 @@ class FrameBasedEvolutionWindow(wx.Frame):
         
         wx.Frame.__init__(self, parent, -1, title)
         
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
+        
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
                         
         self.panel = wx.Panel(self)
@@ -213,6 +217,10 @@ class FrameBasedExportSettings(wx.Frame):
             WindowMinSize=exportSettingsWindowMinSizeMac
         
         wx.Frame.__init__(self, parent, wx.ID_ANY, size=WindowSize)
+        
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
         
         self.Bind(wx.EVT_CLOSE,self.OnEnd)
         

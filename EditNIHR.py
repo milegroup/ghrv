@@ -34,6 +34,7 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
 import numpy as np
+from sys import platform
 
 class EditNIHRWindow(wx.Frame):  
     """ Window for outliers removal in non interpolated HR"""
@@ -42,6 +43,10 @@ class EditNIHRWindow(wx.Frame):
     
     def __init__(self,parent,id,title, dm):
         wx.Frame.__init__(self, parent, -1, title)
+        
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
 
         self.dm = dm
         

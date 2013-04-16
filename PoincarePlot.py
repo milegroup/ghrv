@@ -46,6 +46,10 @@ class PoincarePlotWindow(wx.Frame):
     def __init__(self,parent,id,title,dm):
 
         wx.Frame.__init__(self, parent, -1, title, size=poincareWindowSize)
+        
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
 
         # wx.Frame.__init__(self, parent, -1, title)
 

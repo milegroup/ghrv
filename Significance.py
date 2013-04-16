@@ -45,6 +45,10 @@ class SignificanceWindow(wx.Frame):
 
     def __init__(self,parent,id,title,dm):
         wx.Frame.__init__(self, parent, -1, title, size=signifWindowSize)
+        
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
 
         self.signifNumBins=signifNumBins
         self.dm = dm
