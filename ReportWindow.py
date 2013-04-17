@@ -29,6 +29,7 @@
 
 import wx
 from configvalues import *
+from sys import platform
 
 class ReportWindow(wx.Frame):  
     """ Window for Report"""
