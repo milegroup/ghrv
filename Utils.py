@@ -56,11 +56,11 @@ def SavePlotFileName(fileNameTmp):
 		return None
 
 def ErrorWindow(messageStr,captionStr="ERROR"):
-    """Generic error window"""
-    dial = wx.MessageDialog(None, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
-    result = dial.ShowModal()
-    dial.Destroy()
-    
+	"""Generic error window"""
+	dial = wx.MessageDialog(None, caption=captionStr, message=messageStr, style=wx.OK | wx.ICON_ERROR)
+	result = dial.ShowModal()
+	dial.Destroy()
+	
 def OverwriteConfirm(filename):
 	dial = wx.MessageDialog(None,message=filename+" already exists.\nDo you want to replace it?",caption="Warning",style=wx.YES|wx.NO|wx.ICON_QUESTION)
 	if dial.ShowModal() != wx.ID_YES:
@@ -83,3 +83,35 @@ def RecalculateWindowSizes(DefaultSize,MinSize):
 		DefaultSize = int(DefaultSize[0]/factor),DefaultSize[1]
 		MinSize = int(MinSize[0]/factor),MinSize[1]
 	return DefaultSize,MinSize
+
+
+
+class SelectAnnotator(wx.Frame):
+
+	def __init__(self,extensionsFound):
+		# wx.Frame.__init__(self, None, wx.ID_ANY,
+		#                   "SingleChoiceDialog Tutorial")
+		# panel = wx.Panel(self, wx.ID_ANY)
+		# b = wx.Button(panel, label="Create and Show a SingleChoiceDialog")
+		# b.Bind(wx.EVT_BUTTON, self.onButton)
+ 
+		# sizer = wx.BoxSizer(wx.VERTICAL)
+		# sizer.Add(b, 0, wx.ALL|wx.CENTER, 5)
+		# panel.SetSizer(sizer)
+
+		self.result=''
+
+		self.dlg = wx.SingleChoiceDialog(
+				None, "Please, select annotator", 'WFDB format annotation loading',
+				extensionsFound, 
+				wx.CHOICEDLG_STYLE
+				)
+ 
+		if self.dlg.ShowModal() == wx.ID_OK:
+			self.result = self.dlg.GetStringSelection()
+
+	def GetValue(self):
+		self.dlg.Destroy()
+		return self.result
+ 
+		

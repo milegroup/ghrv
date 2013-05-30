@@ -657,7 +657,8 @@ class MainWindow(wx.Frame):
                     Utils.ErrorWindow(messageStr="Problem loading WFDB file:\n"+fileName,
                                      captionStr="Error loading WFDB file")
                 else:
-                    self.RefreshMainWindow()
+                    if dm.HasHR():
+                        self.RefreshMainWindow()
             else:
                 try:
                     dm.LoadFileAscii(str(unicode(fileName)),self.settings)

@@ -239,7 +239,10 @@ class DM:
 
         lineFields = line.split(" ")
         if len(lineFields)>2:
-            samplingFrequency = float(lineFields[2])
+            try:
+                samplingFrequency = float(lineFields[2])
+            except:
+                samplingFrequency = 250.0
         else:
             samplingFrequency = 250.0
 
@@ -249,8 +252,12 @@ class DM:
         filesfound = glob.glob(wfdbheaderfile[:-4]+".*")
         extensionsfound=[]
         for filefound in filesfound:
-            extensionsfound.append(filefound[-3:])
+            extension = os.path.splitext(filefound)[1][1:]
+            extensionsfound.append(extension)
         extensionsfound.remove('hea')
+
+        if 'dat' in extensionsfound:
+            extensionsfound.remove('dat')
 
         if 'atr' in extensionsfound:
             extensionsfound.remove('atr')
@@ -258,67 +265,73 @@ class DM:
         if 'qrs' in extensionsfound:
             extensionsfound.remove('qrs')
             extensionsfound.insert(0,'qrs')
+
+        if len(extensionsfound)>1:
+            AnnotatorSelection=Utils.SelectAnnotator(extensionsfound)
+            extensionSelected = AnnotatorSelection.GetValue()
+            if extensionSelected == '':
+                return
+        else:
+            extensionSelected=extensionsfound[0]
+
+        
             # 'qrs' in first place, then 'atr'
 
-        # print "Extensions: ",str(extensionsfound)
-        for extension in extensionsfound:
 
-            wfdbdatafile=wfdbheaderfile[:-4]+"."+extension
-
-            if (self.data["Verbose"]==True):
-                print("   Trying data file: "+wfdbdatafile)
-
-            try:
-
-                datafile = open(wfdbdatafile,'rb')
-                accumulator=0.0
-                beats=[]
-
-                while True:
-                    value = ord(datafile.read(1))+ord(datafile.read(1))*256
-                    code = value >> 10
-                    time = value % 1024
-                    
-                    # print ("Value: "+str(int(value)))
-                    # print ("Code: "+str(code))
-                    # print ("Time: "+str(time))
-
-                    if code==0 and time==0:
-                        break
-
-                    # Original code:
-                    # if code==1: # Only normal beats
-
-                    # Modified code:
-                    if code<50: 
-                        accumulator = accumulator+time
-                        # print "Sec: ",accumulator/samplingFrequency
-                        beats.append(accumulator/samplingFrequency)
-                    else:
-                        if code==63:
-                            # Modified code:
-                            jump = int(time) + int(time)%2
-                            x = datafile.read(jump)
-                            value = ord(datafile.read(1))+ord(datafile.read(1))*256
-                            # Original code:    
-                            # jump = int(time)/2 + int(time)%2
-                            # for i in range(jump):
-                            #     value = ord(datafile.read(1))+ord(datafile.read(1))*256
-                        else:
-                            if code==59 and time==0:
-                                for i in range(2):
-                                    value = ord(datafile.read(1))+ord(datafile.read(1))*256
-                            else:
-                                if code!=60 and code!=61 and code!=62 and code!=22 and code!=0:
-                                    accumulator = accumulator+time
-            except:
-                if (self.data["Verbose"]==True):
-                    print("   File "+wfdbdatafile+" didn't work")
-            else:
-                break
+        wfdbdatafile=wfdbheaderfile[:-4]+"."+extensionSelected
 
         if (self.data["Verbose"]==True):
-            print("   File "+wfdbdatafile+" has been loaded")
+            print("   Trying data file: "+wfdbdatafile)
+
+        try:
+
+            datafile = open(wfdbdatafile,'rb')
+            accumulator=0.0
+            beats=[]
+
+            while True:
+                value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                code = value >> 10
+                time = value % 1024
+                
+                # print ("Value: "+str(int(value)))
+                # print ("Code: "+str(code))
+                # print ("Time: "+str(time))
+
+                if code==0 and time==0:
+                    break
+
+                # Original code:
+                # if code==1: # Only normal beats
+
+                # Modified code:
+                if code<50: 
+                    accumulator = accumulator+time
+                    # print "Sec: ",accumulator/samplingFrequency
+                    beats.append(accumulator/samplingFrequency)
+                else:
+                    if code==63:
+                        # Modified code:
+                        jump = int(time) + int(time)%2
+                        x = datafile.read(jump)
+                        value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                        # Original code:    
+                        # jump = int(time)/2 + int(time)%2
+                        # for i in range(jump):
+                        #     value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                    else:
+                        if code==59 and time==0:
+                            for i in range(2):
+                                value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                        else:
+                            if code!=60 and code!=61 and code!=62 and code!=22 and code!=0:
+                                accumulator = accumulator+time
+        except:
+            if (self.data["Verbose"]==True):
+                print("   File "+wfdbdatafile+" didn't work")
+        else:
+            if (self.data["Verbose"]==True):
+                print("   File "+wfdbdatafile+" has been loaded")
 
         self.LoadBeatSec(np.array(beats),settings)
         
@@ -2360,8 +2373,8 @@ class DM:
         # end of "if interactive"
 
     # End of CreatePlotFBEmbedded
-        
-        
+
+
                 
                     
         
