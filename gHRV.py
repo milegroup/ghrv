@@ -672,36 +672,39 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow() 
         self.canvas.SetFocus()
         
-        
-        
+                
     def OnLoadEpisodes(self,event):
         fileName=""
-        filetypes = "TXT episodes files (*.txt)|*.txt|" "All files (*.*)|*.*"
+        filetypes = "Supported episodes files (*.txt;*.hea)|*.txt;*.TXT;*.hea;*.HEA|TXT ascii files (*.txt)|*.txt;*.TXT|WFDB header files (*.hea)|*.hea;*.HEA|All files (*.*)|*.*"
         dial = wx.FileDialog(self, message="Load episodes file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
         if result == wx.ID_OK:
             fileName=dial.GetPath()
+            ext = os.path.splitext(fileName)[1][1:].strip()
             dial.Destroy()
-            try:
-                dm.LoadEpisodesAscii(str(unicode(fileName)))
-            except UnicodeEncodeError:
-                    Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
-                                     captionStr="Error loading episodes file")
-            except:
-                Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid episodes file",captionStr="Error loading episodes file")
-            else:
-                EpisodesTags=dm.GetEpisodesTags()
-                for Tag in EpisodesTags:
-                    dm.AssignEpisodeColor(Tag)
-                self.RefreshMainWindow()
-                if self.fbWindowPresent:
-                    self.fbWindow.Refresh()
-                EpInit = dm.GetEpisodes()[1]
-                EpDur = dm.GetEpisodes()[2]
-                EpFin = [float(EpInit[x])+float(EpDur[x]) for x in range(len(EpInit))]
-                EpFinMax = max(EpFin)
-                if EpFinMax > dm.GetHRDataPlot()[0][-1]:
-                    self.WarningWindow(messageStr="WARNING: one or more episodes are outside of time axis",captionStr="Episodes warning")
+            if ext=="txt":
+                try:
+                    dm.LoadEpisodesAscii(str(unicode(fileName)))
+                except UnicodeEncodeError:
+                        Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                         captionStr="Error loading episodes file")
+                except:
+                    Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid episodes file",captionStr="Error loading episodes file")
+                else:
+                    EpisodesTags=dm.GetEpisodesTags()
+                    for Tag in EpisodesTags:
+                        dm.AssignEpisodeColor(Tag)
+                    self.RefreshMainWindow()
+                    if self.fbWindowPresent:
+                        self.fbWindow.Refresh()
+                    EpInit = dm.GetEpisodes()[1]
+                    EpDur = dm.GetEpisodes()[2]
+                    EpFin = [float(EpInit[x])+float(EpDur[x]) for x in range(len(EpInit))]
+                    EpFinMax = max(EpFin)
+                    if EpFinMax > dm.GetHRDataPlot()[0][-1]:
+                        self.WarningWindow(messageStr="WARNING: one or more episodes are outside of time axis",captionStr="Episodes warning")
+            elif ext=="hea":
+                print "Voy a cargar episodios de wfdb"
 
         self.canvas.SetFocus()
         
