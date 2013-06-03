@@ -703,8 +703,17 @@ class MainWindow(wx.Frame):
                     EpFinMax = max(EpFin)
                     if EpFinMax > dm.GetHRDataPlot()[0][-1]:
                         self.WarningWindow(messageStr="WARNING: one or more episodes are outside of time axis",captionStr="Episodes warning")
+                        
             elif ext=="hea":
-                print "Voy a cargar episodios de wfdb"
+                try:
+                    dm.LoadEpisodesWFDB(str(unicode(fileName)))
+                except UnicodeEncodeError:
+                        Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
+                                         captionStr="Error loading episodes file")
+                except:
+                    Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid episodes file",captionStr="Error loading episodes file")
+                else:
+                    print "Cargados..."
 
         self.canvas.SetFocus()
         

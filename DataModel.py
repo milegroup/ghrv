@@ -376,6 +376,62 @@ class DM:
         if (self.data["Verbose"]):
             print("   Read "+str(len(self.data["EpisodesType"]))+" episodes from file")
             print("   Read "+str(len(self.data["EpisodesVisible"]))+" types of episodes")
+
+
+    def LoadEpisodesWFDB(self,wfdbheaderfile):
+        """Loads episodes from physionet files"""
+        import glob
+
+        if (self.data["Verbose"]==True):
+            print("** Loading episodes from WFDB file "+wfdbheaderfile)
+
+        heaFile = open(wfdbheaderfile,'r')
+        line=heaFile.readline()
+        heaFile.close()
+
+        lineFields = line.split(" ")
+        if len(lineFields)>2:
+            try:
+                samplingFrequency = float(lineFields[2])
+            except:
+                samplingFrequency = 250.0
+        else:
+            samplingFrequency = 250.0
+
+        if (self.data["Verbose"]==True):
+            print("   Sampling frequency: "+str(samplingFrequency))
+
+        filesfound = glob.glob(wfdbheaderfile[:-4]+".*")
+        extensionsfound=[]
+        for filefound in filesfound:
+            extension = os.path.splitext(filefound)[1][1:]
+            extensionsfound.append(extension)
+        extensionsfound.remove('hea')
+
+        if 'dat' in extensionsfound:
+            extensionsfound.remove('dat')
+
+        if 'atr' in extensionsfound:
+            extensionsfound.remove('atr')
+            extensionsfound.append('atr')
+        if 'qrs' in extensionsfound:
+            extensionsfound.remove('qrs')
+            extensionsfound.append('qrs')
+
+        if len(extensionsfound)>1:
+            AnnotatorSelection=Utils.SelectAnnotator(extensionsfound)
+            extensionSelected = AnnotatorSelection.GetValue()
+            if extensionSelected == '':
+                return
+        else:
+            extensionSelected=extensionsfound[0]
+
+        wfdbdatafile=wfdbheaderfile[:-4]+"."+extensionSelected
+
+        if (self.data["Verbose"]==True):
+            print("   Trying data file: "+wfdbdatafile)
+
+
                     
     def LoadProject(self,datamodelFile):
         """Loads the data model from a zip file"""
