@@ -76,6 +76,12 @@ def InformCorrectFile(filename):
 		dial.Destroy()
 		return
 
+def InformEpisodesFile(filename,num):
+	dial = wx.MessageDialog(None,message=str(num)+" episodes loaded from file " +filename, caption="Result ok",style=wx.OK|wx.ICON_INFORMATION)
+	if dial.ShowModal() != wx.ID_YES:
+		dial.Destroy()
+		return
+
 def RecalculateWindowSizes(DefaultSize,MinSize):
 	screenWidth,screenHeight = wx.GetDisplaySize()
 	if screenWidth < DefaultSize[0]:
@@ -87,30 +93,32 @@ def RecalculateWindowSizes(DefaultSize,MinSize):
 
 
 class SelectAnnotator(wx.Frame):
-
 	def __init__(self,extensionsFound):
-		# wx.Frame.__init__(self, None, wx.ID_ANY,
-		#                   "SingleChoiceDialog Tutorial")
-		# panel = wx.Panel(self, wx.ID_ANY)
-		# b = wx.Button(panel, label="Create and Show a SingleChoiceDialog")
-		# b.Bind(wx.EVT_BUTTON, self.onButton)
- 
-		# sizer = wx.BoxSizer(wx.VERTICAL)
-		# sizer.Add(b, 0, wx.ALL|wx.CENTER, 5)
-		# panel.SetSizer(sizer)
-
 		self.result=''
-
 		self.dlg = wx.SingleChoiceDialog(
 				None, "Please, select annotator", 'WFDB format annotation loading',
 				extensionsFound, 
 				wx.CHOICEDLG_STYLE
 				)
- 
 		if self.dlg.ShowModal() == wx.ID_OK:
 			self.result = self.dlg.GetStringSelection()
-
 	def GetValue(self):
+		self.dlg.Destroy()
+		return self.result
+
+
+class SelectEpisodesTags(wx.Frame):
+	def __init__(self,tagsFound):
+		self.result=''
+		self.dlg = wx.MultiChoiceDialog(
+				None, "Please, select Tags to load", 'WFDB episodes loading',
+				choices=tagsFound, 
+				style=wx.CHOICEDLG_STYLE
+				)
+ 
+		if self.dlg.ShowModal() == wx.ID_OK:
+			self.result = self.dlg.GetSelections()
+	def GetValues(self):
 		self.dlg.Destroy()
 		return self.result
  
