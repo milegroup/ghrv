@@ -705,18 +705,19 @@ class MainWindow(wx.Frame):
                     Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid episodes file",captionStr="Error loading episodes file")
                     return
 
-            EpisodesTags=dm.GetEpisodesTags()
-            for Tag in EpisodesTags:
-                dm.AssignEpisodeColor(Tag)
-            self.RefreshMainWindow()
-            if self.fbWindowPresent:
-                self.fbWindow.Refresh()
-            EpInit = dm.GetEpisodes()[1]
-            EpDur = dm.GetEpisodes()[2]
-            EpFin = [float(EpInit[x])+float(EpDur[x]) for x in range(len(EpInit))]
-            EpFinMax = max(EpFin)
-            if EpFinMax > dm.GetHRDataPlot()[0][-1]:
-                self.WarningWindow(messageStr="WARNING: one or more episodes are outside of time axis",captionStr="Episodes warning")
+            EpisodesTags=dm.GetEpisodesTags() # New episodes were added
+            if len(EpisodesTags)!=0:
+                for Tag in EpisodesTags:
+                    dm.AssignEpisodeColor(Tag)
+                self.RefreshMainWindow()
+                if self.fbWindowPresent:
+                    self.fbWindow.Refresh()
+                EpInit = dm.GetEpisodes()[1]
+                EpDur = dm.GetEpisodes()[2]
+                EpFin = [float(EpInit[x])+float(EpDur[x]) for x in range(len(EpInit))]
+                EpFinMax = max(EpFin)
+                if EpFinMax > dm.GetHRDataPlot()[0][-1]:
+                    self.WarningWindow(messageStr="WARNING: one or more episodes are outside of time axis",captionStr="Episodes warning")
 
         self.canvas.SetFocus()
         
