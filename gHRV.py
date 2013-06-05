@@ -28,10 +28,12 @@
 #   ----------------------------------------------------------------------
     
 #   TODO: 
-#   - seleccionar tipos de latidos cargados en ficheros physionet
 #   - report con un fichero grande es muy lento
 #   - colores/monocromo
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
+#   - Extra column for the frame based results export which shows give the episode (if any) for that frame.
+#   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
+#   - Save my ibi and episodes files given the edits the user made
 
 
 import wx

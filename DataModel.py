@@ -442,58 +442,82 @@ class DM:
             print("   Trying data file: "+wfdbdatafile)
 
         try:
+            ApneaTag="Apnea"
 
             datafile = open(wfdbdatafile,'rb')
 
             accumulator=0.0
-            beats=[]
-
             ActiveTags=[]
             ActiveTagsOnsets=[]
             EpisodesTypes=[]
             EpisodesInits=[]
             EpisodesEnds=[]
 
+            if extensionSelected=="apn":
+                while True:
+                    value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                    code = value >> 10
+                    time = value % 1024
 
-            while True:
-                value = ord(datafile.read(1))+ord(datafile.read(1))*256
-                code = value >> 10
-                time = value % 1024
-                
-                if code==0 and time==0:
-                    break
+                    if code==0 and time==0:
+                        break
 
-                if code <= 49:
-                    next
+                    if code==8 and ApneaTag not in ActiveTags:
+                        ActiveTags.append(ApneaTag)
+                        ActiveTagsOnsets.append(accumulator)
 
-                if code == 59:
-                    interval = (ord(datafile.read(1))+ord(datafile.read(1))*256)*65536+(ord(datafile.read(1))+ord(datafile.read(1))*256)
-                    accumulator=accumulator+interval/samplingFrequency
-                    next
+                    if code==1 and ApneaTag in ActiveTags:
+                        EpisodesTypes.append(ApneaTag)
+                        EpisodesInits.append(ActiveTagsOnsets[0])
+                        EpisodesEnds.append(accumulator)
+                        del ActiveTags[0]
+                        del ActiveTagsOnsets[0]
 
-                if code==22:
-                    ll = ord(datafile.read(1))
-                    datafile.read(1)  # value 252
-                    comment = datafile.read(ll)
-                    # print "  String: ",comment
-                    Tags=comment.split()
+                    if code == 59:
+                        interval = (ord(datafile.read(1))+ord(datafile.read(1))*256)*65536+(ord(datafile.read(1))+ord(datafile.read(1))*256)
+                        accumulator=accumulator+interval/samplingFrequency
+                        next
 
-                    if (ll%2):
-                        datafile.read(1)
+            else:
+                while True:
+                    value = ord(datafile.read(1))+ord(datafile.read(1))*256
+                    code = value >> 10
+                    time = value % 1024
+                    
+                    if code==0 and time==0:
+                        break
 
-                    for ActiveTag in ActiveTags:
-                        if ActiveTag not in Tags:
-                            ii=ActiveTags.index(ActiveTag)
-                            EpisodesTypes.append(ActiveTag)
-                            EpisodesInits.append(ActiveTagsOnsets[ii])
-                            EpisodesEnds.append(accumulator)
-                            del ActiveTags[ii]
-                            del ActiveTagsOnsets[ii]
+                    if code <= 49:
+                        next
 
-                    for Tag in Tags:
-                        if Tag not in ActiveTags:
-                            ActiveTags.append(Tag)
-                            ActiveTagsOnsets.append(accumulator)
+                    if code == 59:
+                        interval = (ord(datafile.read(1))+ord(datafile.read(1))*256)*65536+(ord(datafile.read(1))+ord(datafile.read(1))*256)
+                        accumulator=accumulator+interval/samplingFrequency
+                        next
+
+                    if code==22:
+                        ll = ord(datafile.read(1))
+                        datafile.read(1)  # value 252
+                        comment = datafile.read(ll)
+                        # print "  String: ",comment
+                        Tags=comment.split()
+
+                        if (ll%2):
+                            datafile.read(1)
+
+                        for ActiveTag in ActiveTags:
+                            if ActiveTag not in Tags:
+                                ii=ActiveTags.index(ActiveTag)
+                                EpisodesTypes.append(ActiveTag)
+                                EpisodesInits.append(ActiveTagsOnsets[ii])
+                                EpisodesEnds.append(accumulator)
+                                del ActiveTags[ii]
+                                del ActiveTagsOnsets[ii]
+
+                        for Tag in Tags:
+                            if Tag not in ActiveTags:
+                                ActiveTags.append(Tag)
+                                ActiveTagsOnsets.append(accumulator)
 
 
             for ActiveTag in ActiveTags:
@@ -518,14 +542,17 @@ class DM:
             Utils.ErrorWindow(messageStr="No valid episodes found in: "+wfdbdatafile,captionStr="Error loading episodes    ")
             return
 
-        TagsDetected=sorted(list(set(EpisodesTypes)))
-        TagsSelection=Utils.SelectEpisodesTags(TagsDetected)
-        IndexTagsSelected = TagsSelection.GetValues()
-        if len(IndexTagsSelected) == 0:
-            return
-        TagsSelected=[]
-        for indexTag in IndexTagsSelected:
-            TagsSelected.append(TagsDetected[indexTag])
+        if extensionSelected=="apn":
+            TagsSelected=[ApneaTag]
+        else:
+            TagsDetected=sorted(list(set(EpisodesTypes)))
+            TagsSelection=Utils.SelectEpisodesTags(TagsDetected)
+            IndexTagsSelected = TagsSelection.GetValues()
+            if len(IndexTagsSelected) == 0:
+                return
+            TagsSelected=[]
+            for indexTag in IndexTagsSelected:
+                TagsSelected.append(TagsDetected[indexTag])
 
         numAddedEpisodes=0
         for indexEpisode in range(len(EpisodesTypes)):
