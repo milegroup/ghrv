@@ -245,7 +245,10 @@ class SignificanceWindow(wx.Frame):
             
 
         if (numValuesLeft>signifNumMinValues) and (numValuesRight>signifNumMinValues):
-            cad=cad+ "Mean  -  in: %.3f, out: %.3f\n" % (np.mean(valuesLeft),np.mean(valuesRight))
+            if self.ActiveTagRight:
+                cad=cad+ "Mean  -  %s: %.3f, %s: %.3f\n" % (self.ActiveTagLeft,np.mean(valuesLeft),self.ActiveTagRight,np.mean(valuesRight))
+            else:
+                cad=cad+ "Mean  -  in: %.3f, out: %.3f\n" % (np.mean(valuesLeft),np.mean(valuesRight))
 
             pvalue = self.GetPValue(valuesLeft,valuesRight,signifAlpha)[0]
 #            # print "Dev1 ",np.std(valuesleft)
@@ -263,7 +266,7 @@ class SignificanceWindow(wx.Frame):
         self.canvas.draw()
 
     def GetPValue(self,a,b,alpha):
-        import scipy
+        import scipy.stats
         n1=len(a)
         n2=len(b)
         mean1 = np.mean(a)
