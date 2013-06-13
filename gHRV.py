@@ -34,6 +34,7 @@
 #   - Extra column for the frame based results export which shows give the episode (if any) for that frame.
 #   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
 #   - Save my ibi and episodes files given the edits the user made
+#   - Double Poincaré plot to file generates a single one 
 
 
 import wx
