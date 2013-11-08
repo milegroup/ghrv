@@ -35,6 +35,7 @@
 #   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
 #   - Save my ibi and episodes files given the edits the user made
 #   - Double Poincaré plot to file generates a single one 
+#   - Double Poincaré plot uses different axis (they should be the same, visually)
 
 
 import wx
