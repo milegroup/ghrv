@@ -36,6 +36,9 @@
 #   - Save my ibi and episodes files given the edits the user made
 #   - Double Poincaré plot to file generates a single one 
 #   - Double Poincaré plot uses different axis (they should be the same, visually)
+#
+#   Changelog (1.5)
+#   - Results in power bands now match the ones obtained with rhrv
 
 
 import wx
