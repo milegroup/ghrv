@@ -847,26 +847,11 @@ class DM:
             print ("** Interpolating instantaneous heart rate (method: linear interpolation)")
             print ("   Frequency: "+str(self.data["interpfreq"])+" Hz")
 
-
-        
-        xmin=int(self.data["BeatTime"][0])
-        xmax=int(self.data["BeatTime"][-1])+1
+        xmin=self.data["BeatTime"][0]
+        xmax=self.data["BeatTime"][-1]
         step=1.0/self.data["interpfreq"]
         
-        if platform == "darwin":  # Solves problem with np.insert in Mac
-            BeatTmp = np.concatenate((np.array([self.data["BeatTime"][0]-1]),self.data["BeatTime"]))
-        else:
-            BeatTmp = np.insert(self.data["BeatTime"],0,self.data["BeatTime"][0]-1)
-        BeatTmp = np.append(BeatTmp,BeatTmp[-1]+1)
-
-        if platform == "darwin": # Solves problem with np.insert in Mac
-            niHRTmp = np.concatenate((np.array([self.data["niHR"][0]]),self.data["niHR"]))
-        else:
-            niHRTmp = np.insert(self.data["niHR"],0,self.data["niHR"][0])
-        niHRTmp = np.append(niHRTmp,niHRTmp[-1])
-        
-        
-        tck = interpolate.interp1d(BeatTmp,niHRTmp)
+        tck = interpolate.interp1d(self.data["BeatTime"],self.data["niHR"])
         xnew = np.arange(xmin,xmax,step)
 
         if self.data["Verbose"]:
@@ -896,7 +881,7 @@ class DM:
 
 
         def power(spec,freq,fmin,fmax):
-            band = [spec[i] for i in range(len(spec)) if freq[i] >= fmin and freq[i]<=fmax]
+            band = [spec[i] for i in range(len(spec)) if freq[i] >= fmin and freq[i]<fmax]
             powerinband = hammingfactor*np.sum(band)/(2*len(spec)**2)
             return powerinband
                                 
@@ -909,6 +894,8 @@ class DM:
         sizesamp=self.data['windowsize']*self.data["interpfreq"]
         
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
+
+        lenZeroPadding=2**np.ceil(np.log2(sizesamp))-int(sizesamp)
         
         if (numframes < minNumFrames):
             raise Utils.FewFramesException(numframes)
@@ -969,8 +956,9 @@ class DM:
             begtime=indexframe*self.data['windowshift']
             endtime=begtime+self.data['windowsize'] # seconds
             
-            frame=frame*hw
             frame=frame-np.mean(frame)
+            frame=frame*hw
+            frame = np.append(frame,np.zeros(lenZeroPadding))
             
             # print("-----------------------")
             # print("Frame "+str(indexframe))
