@@ -1171,6 +1171,15 @@ class DM:
             yvector = self.data["niHR"]
         return (xvector,yvector)
 
+
+    def GetHRBeatTimes(self):
+        return self.data["BeatTime"]
+
+    def GetHR_RR(self):
+        return self.data["RR"]
+
+
+
     def GetPoincareDataPlot(self,tag):
         if tag=="Global":
             data=self.data["RR"]

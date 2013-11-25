@@ -33,12 +33,12 @@
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 #   - Extra column for the frame based results export which shows give the episode (if any) for that frame.
 #   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
-#   - Save my ibi and episodes files given the edits the user made
 #   - Double Poincaré plot to file generates a single one 
 #   - Double Poincaré plot uses different axis (they should be the same, visually)
 #
 #   Changelog (1.5)
 #   - Results in power bands now match the ones obtained with rhrv
+#   - Saves hr, rr and beats files given the edits the user made
 
 
 import wx
@@ -194,9 +194,17 @@ class MainWindow(wx.Frame):
         if platform != 'darwin' and ColoredButtons:
             self.buttonEditHR.SetBackgroundColour(EditBGColor)
         self.buttonEditHR.Disable()
+
+        sbBeatsButtonsSizerRow2=wx.BoxSizer(wx.HORIZONTAL)
+        self.buttonExportHR = wx.Button(self.MainPanel, -1, label="Export...")
+        sbBeatsButtonsSizerRow2.Add(self.buttonExportHR, flag=wx.ALL, border=borderSmall) 
+        self.Bind(wx.EVT_BUTTON, self.OnExportHR, id=self.buttonExportHR.GetId())
+        self.buttonExportHR.SetToolTip(wx.ToolTip("Export beats/HR/RR"))
+        self.buttonExportHR.Disable()
                 
         
         sbBeatsButtonsSizer.Add(sbBeatsButtonsSizerRow1, flag=wx.EXPAND)
+        sbBeatsButtonsSizer.Add(sbBeatsButtonsSizerRow2, flag=wx.EXPAND)
         
         vboxLeft.Add(sbBeatsButtonsSizer, flag=wx.EXPAND | wx.TOP, border=borderVeryBig)
         
@@ -529,6 +537,7 @@ class MainWindow(wx.Frame):
         self.buttonLoadBeats.Disable()
         self.buttonFilterHR.Disable()
         self.buttonEditHR.Disable()
+        self.buttonExportHR.Disable()
         self.buttonAnalyze.Disable()
         self.buttonLoadEpisodes.Disable()
         self.buttonEditEpisodes.Disable()
@@ -558,6 +567,7 @@ class MainWindow(wx.Frame):
                 self.buttonOptionsProject.Enable()
             self.buttonEditEpisodes.Enable()
             self.buttonPoincare.Enable()
+            self.buttonExportHR.Enable()
             if not self.reportWindowPresent:
                 self.buttonReport.Enable()
         else:
@@ -813,8 +823,14 @@ class MainWindow(wx.Frame):
     def OnNIHREditEnded(self):
         self.editNIHRWindowPresent=False
         self.RefreshMainWindow()
+
+    def OnExportHR(self,event):
+        self.buttonExportHR.Disable()
+        exportSettingsWindow=HRExportSettings(self,-1,"Export options", dm)
+
+    def OnExportHREnded(self):
+        self.buttonExportHR.Enable()
         
-    
     def OnInterpolateNIHR(self,event):
         dm.InterpolateNIHR()
         self.RefreshMainWindow()
@@ -1408,6 +1424,129 @@ class UpdateSoftwareWindow(wx.Frame):
     #     w, h = self.GetSize()
     #     print "Width, height: ",w,", ",h
     #     event.Skip()
+
+
+class HRExportSettings(wx.Frame):
+    
+    """Export options for HR"""
+
+    def __init__(self, parent, id, title, dm):
+
+        self.dm = dm
+        
+        if platform != 'darwin':
+            WindowSize=exportHRWindowSize
+            WindowMinSize=exportHRWindowMinSize
+        else:
+            WindowSize=exportHRWindowSizeMac
+            WindowMinSize=exportHRWindowMinSizeMac
+        
+        wx.Frame.__init__(self, parent, wx.ID_ANY, size=WindowSize)
+        
+        if platform != "darwin":
+            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon)
+        
+        self.Bind(wx.EVT_CLOSE,self.OnEnd)
+        
+        panel=wx.Panel(self)
+        self.WindowParent=parent
+        self.SetTitle("Export options")        
+        
+
+        sizer=wx.BoxSizer(wx.VERTICAL)
+
+        sizer.AddStretchSpacer(1)
+
+# ----------------- Beginning of sizer for data to export
+
+        sbSepData = wx.StaticBox(panel, label="Select which data to export")
+        sbSepDataSizer = wx.StaticBoxSizer(sbSepData, wx.VERTICAL)
+
+        
+        self.scRRValuesS = wx.RadioButton(panel,label="Sequence of RR intervals (sec.)",style=wx.RB_GROUP)
+        sbSepDataSizer.Add(self.scRRValuesS,wx.EXPAND)
+
+        self.scRRValuesMS = wx.RadioButton(panel,label="Sequence of RR intervals (msec.)")
+        sbSepDataSizer.Add(self.scRRValuesMS,wx.EXPAND)
+
+        self.scBeatsPositions = wx.RadioButton(panel,label="Positions of beats (sec.)")
+        sbSepDataSizer.Add(self.scBeatsPositions,wx.EXPAND)
+
+        self.scHRValues = wx.RadioButton(panel,label="Interpolated HR values (bps.)")
+        sbSepDataSizer.Add(self.scHRValues,wx.EXPAND)
+        if not dm.HasInterpolatedHR():
+            self.scHRValues.Disable()
+
+        sizer.Add(sbSepDataSizer,flag=wx.EXPAND|wx.ALL,border=borderBig)
+
+
+# ----------------- End of sizer for data to export
+
+        sizer.AddStretchSpacer(1)
+        
+# ----------------- Beginning of sizer for buttons
+
+        sbButtonsSizer=wx.BoxSizer(wx.HORIZONTAL)
+        
+        buttonCancel = wx.Button(panel, -1, label="Cancel")
+        sbButtonsSizer.Add(buttonCancel, flag=wx.ALL, border=borderSmall)
+        self.Bind(wx.EVT_BUTTON, self.OnEnd, id=buttonCancel.GetId())
+        buttonCancel.SetToolTip(wx.ToolTip("Click to cancel"))
+        
+        sbButtonsSizer.AddStretchSpacer(1)
+
+        buttonOk = wx.Button(panel, -1, label="Ok")
+        sbButtonsSizer.Add(buttonOk, flag=wx.ALL, border=borderSmall)
+        self.Bind(wx.EVT_BUTTON, self.OnOk, id=buttonOk.GetId())
+        buttonOk.SetToolTip(wx.ToolTip("Click to proceed"))
+
+        sizer.Add(sbButtonsSizer,flag=wx.ALL|wx.EXPAND, border=borderSmall)
+        
+# ----------------- End of sizer for buttons
+        
+        
+        panel.SetSizer(sizer)
+        
+        self.SetMinSize(WindowMinSize)
+        self.Center()
+        self.Show()
+        
+    def OnEnd(self,event):
+        self.WindowParent.OnExportHREnded()
+        self.Destroy()
+        
+    def OnOk(self,event):
+        
+        if self.scBeatsPositions.GetValue():
+            dataToWrite=self.dm.GetHRBeatTimes()
+            fileToWrite=self.dm.GetName()+".beats.txt"
+        elif self.scRRValuesS.GetValue():
+            dataToWrite=self.dm.GetHR_RR()/1000.0
+            fileToWrite=self.dm.GetName()+".rr.txt"
+        elif self.scRRValuesMS.GetValue():
+            dataToWrite=self.dm.GetHR_RR()
+            fileToWrite=self.dm.GetName()+".rr.txt"
+        elif self.scHRValues.GetValue():
+            xvector, yvector=self.dm.GetHRDataPlot()
+            dataToWrite=np.column_stack((xvector,yvector))
+            fileToWrite=self.dm.GetName()+".hr.txt"
+                    
+        dial = wx.FileDialog(self, message="Save data as...", defaultFile=fileToWrite, style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        result = dial.ShowModal()
+
+
+        if result == wx.ID_OK:
+            fileName=dial.GetPath()
+            try:
+                np.savetxt(fileName,dataToWrite,fmt='%.6f')
+                Utils.InformCorrectFile(fileName)
+            except:
+                Utils.ErrorWindow(messageStr="Error saving data to file: "+fileName,captionStr="Error saving data file")
+                self.Raise()
+        dial.Destroy()
+        self.WindowParent.OnExportHREnded()
+        self.Destroy()
 
 
   

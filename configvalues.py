@@ -76,9 +76,13 @@ addEpWinMinSizeMac=(250,280)
 
 exportSettingsWindowSize=(500,350)
 exportSettingsWindowMinSize=exportSettingsWindowSize
-
 exportSettingsWindowSizeMac=(500,375)
 exportSettingsWindowMinSizeMac=exportSettingsWindowSizeMac
+
+exportHRWindowSize=(350,200)
+exportHRWindowMinSize=exportHRWindowSize
+exportHRWindowSizeMac=(350,225)
+exportHRWindowMinSizeMac=exportHRWindowSizeMac
 
 updateWindowSize=(500,280)
 updateWindowSizeMac=(410,240)
