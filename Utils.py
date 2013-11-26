@@ -121,5 +121,21 @@ class SelectEpisodesTags(wx.Frame):
 	def GetValues(self):
 		self.dlg.Destroy()
 		return self.result
+
+class ConfigPoincarePlot(wx.Dialog):
+    def __init__(self, parent, id, title):
+        wx.Dialog.__init__(self, parent, id, title)
+
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        stline = wx.StaticText(self, 11, 'Discipline ist Macht.')
+        vbox.Add(stline, 1, wx.ALIGN_CENTER|wx.TOP, 45)
+        self.TextBox=wx.TextCtrl(self,-1)
+        self.TextBox.SetValue('asdfajsdlfk')
+        vbox.Add(self.TextBox,1)
+        sizer =  self.CreateButtonSizer(wx.CANCEL|wx.OK)
+        vbox.Add(sizer, 0, wx.ALIGN_CENTER)
+        self.SetSizer(vbox)
+
+
  
 		

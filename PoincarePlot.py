@@ -195,7 +195,7 @@ class PoincarePlotWindow(wx.Frame):
         self.Destroy()
         
     def Refresh(self):
-        cad = self.dm.CreatePlotPoincareEmbedded(self.fig)
+        cad = self.dm.CreatePlotPoincareEmbedded(self.fig,parentWindow=self)
         self.textOutput.SetValue(cad)
         self.canvas.draw()
 

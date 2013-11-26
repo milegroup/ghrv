@@ -1627,7 +1627,6 @@ class DM:
     def SetPoincarePlotTagRight(self,tag):
         self.data["PPActiveTagRight"]=tag
 
-        
     def SetVisibleBands(self,ListOfBands):
         """Changes the list of bands visible in plot"""
         self.data["VisibleBands"]=ListOfBands
@@ -1732,10 +1731,11 @@ class DM:
                 Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
                 
 
-    def CreatePlotPoincareEmbedded(self,fig,interactive=True):
+    def CreatePlotPoincareEmbedded(self,fig,interactive=True,parentWindow=None):
     # def CreatePlotPoincareEmbedded(self,fig,interactive=True):
 
         from matplotlib.patches import Ellipse
+        import wx
                 
         def CreateSubplot(axes, xdata, ydata, titlestr=None, pos="left"):
             if pos=="left":
@@ -1817,7 +1817,18 @@ class DM:
                     if self.data["Verbose"]:
                         print("** Poincare Saving figure in file: "+fileName)
                     self.CreatePlotFile('Poincare',fileName,zoomReset=False,automatic=True)
-                
+
+            def configplot(event):
+                print "Config..."
+                dia = Utils.ConfigPoincarePlot(parentWindow, -1, '')
+                if dia.ShowModal() == wx.ID_OK :
+                    val2 = dia.TextBox.GetValue()
+
+                    print "OK!!!"
+                    print val2
+                    print "----------"
+                dia.Destroy()
+                        
         fig.clear()
         
                 
@@ -1855,8 +1866,10 @@ class DM:
         if interactive:
             if self.GetPoincarePlotTagRight()=="None":
                 newaxsaveplot = fig.add_axes(axes.get_position())
+                newaxconfigplot = fig.add_axes(axes.get_position())
             else:
                 newaxsaveplot = fig.add_axes(axes1.get_position())
+                newaxconfigplot = fig.add_axes(axes1.get_position())
      
             newaxsaveplot.set_position([
                   2*plotFormat['buttonsmargin'],
@@ -1866,6 +1879,17 @@ class DM:
               ])
             self.PPbtsaveplot=Button(newaxsaveplot,"Save")
             self.PPbtsaveplot.on_clicked(saveplot)
+
+            newaxconfigplot.set_position([
+                  2*plotFormat['buttonsmargin'],
+                  1.0-4*plotFormat['littlebuttonsize']-2*plotFormat['buttonsmargin'],
+                  1.5*plotFormat['savebuttonwidth'],
+                  1.5*plotFormat['littlebuttonsize']
+              ])
+            self.PPbtconfigplot=Button(newaxconfigplot,"Config")
+            self.PPbtconfigplot.on_clicked(configplot)
+
+
 
         matplotlib.pyplot.show()
         
@@ -2581,3 +2605,6 @@ class DM:
                     
         
         
+
+
+
