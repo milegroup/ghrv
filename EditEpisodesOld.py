@@ -35,8 +35,6 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from DataModel import DM
 import wx.grid as gridlib
 from sys import platform
-import wx.lib.scrolledpanel as scrolled
-
 
 
 class EditEpisodesWindow(wx.Frame):
@@ -356,15 +354,9 @@ class ManualEditionWindow(wx.Frame):
 
         vboxLeft = wx.BoxSizer(wx.VERTICAL)
 
-        scrolledPanel = scrolled.ScrolledPanel(self.panel, size=(500,400))
-
-        self.__CreateGrid(scrolledPanel)
+        self.__CreateGrid()
 
         self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.OnRangeSelect)
-
-        scrolledPanel.SetSizer(vboxLeft)
-        scrolledPanel.Layout()
-        scrolledPanel.SetupScrolling(scroll_x=False)
 
         vboxLeft.Add(self.myGrid)
 
@@ -400,27 +392,22 @@ class ManualEditionWindow(wx.Frame):
 
         # ------------ End of buttons boxsizer
 
-        box = wx.StaticBox(self.panel,-1,"Parameters: ")
-        sizer2 = wx.StaticBoxSizer(box,wx.VERTICAL)
-        sizer2.Add(scrolledPanel,1,wx.EXPAND)
 
-        #sizer.Add(sizer2, 0, flag=wx.ALL, border=borderBig)
-        sizer.AddStretchSpacer(prop=1)  
-        sizer.Add(vboxRight, 0, flag=wx.ALL|wx.EXPAND, border=borderBig)
-             
+        sizer.Add(vboxLeft, 0, flag=wx.ALL, border=borderBig)  
+        sizer.AddStretchSpacer(prop=1)      
+        sizer.Add(vboxRight, 0, flag=wx.ALL|wx.EXPAND, border=borderBig)        
 
         self.panel.SetSizer(sizer)
 
-        self.SetSize(manualEdWindowSize)
+        # self.SetSize(manualEdWindowSize)
         
         defSize,minSize=Utils.RecalculateWindowSizes(manualEdWindowSize,manualEdWindowMinSize)
         self.SetSize(defSize)
         self.SetMinSize(minSize)
 
         self.Show(True)
-        # self.Layout()
+        self.Layout()
         self.Refresh()
-        self.Fit()
 
     def __GetEpisodesInfo(self):
         self.Episodes = []
@@ -436,13 +423,13 @@ class ManualEditionWindow(wx.Frame):
             self.Episodes.sort(key = lambda x: x[1])
         # print str(self.Episodes)
 
-    def __CreateGrid(self,parent):
+    def __CreateGrid(self):
 
         #Estimates brightness of colours. If it is dark, changes text color to white
 
 
 
-        self.myGrid = gridlib.Grid(parent)
+        self.myGrid = gridlib.Grid(self.panel)
 
         self.myGrid.CreateGrid(len(self.Episodes)+5, 4, selmode=wx.grid.Grid.wxGridSelectRows)
 
@@ -778,9 +765,9 @@ class EpisodeEditWindow(wx.Frame):
         panel.SetSizer(sizer)
 
         if platform != 'darwin':
-           self.SetMinSize(addEpWinMinSize)
+            self.SetMinSize(addEpWinMinSize)
         else:
-           self.SetMinSize(addEpWinMinSizeMac)
+            self.SetMinSize(addEpWinMinSizeMac)
         
         self.Show()
         self.Center()
@@ -829,4 +816,6 @@ class EpisodeEditWindow(wx.Frame):
     def OnEnd(self,event):
         self.WindowParent.RefreshButtons()
         self.Destroy()
+
+
 
