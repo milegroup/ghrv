@@ -356,7 +356,10 @@ class ManualEditionWindow(wx.Frame):
 
         vboxLeft = wx.BoxSizer(wx.VERTICAL)
 
-        scrolledPanel = scrolled.ScrolledPanel(self.panel, size=(500,400))
+        scrolledPanel = scrolled.ScrolledPanel(self.panel, style = wx.EXPAND,
+            size = (manualEdWindowMinSize[0]-buttonSizeManualEd[0]-borderVeryBig*4,manualEdWindowSize[1]-borderVeryBig*4))
+        scrolledPanel.SetAutoLayout(1)
+        scrolledPanel.SetupScrolling(scroll_x=False)
 
         self.__CreateGrid(scrolledPanel)
 
@@ -364,7 +367,9 @@ class ManualEditionWindow(wx.Frame):
 
         scrolledPanel.SetSizer(vboxLeft)
         scrolledPanel.Layout()
-        scrolledPanel.SetupScrolling(scroll_x=False)
+        
+        
+
 
         vboxLeft.Add(self.myGrid)
 
@@ -400,11 +405,11 @@ class ManualEditionWindow(wx.Frame):
 
         # ------------ End of buttons boxsizer
 
-        box = wx.StaticBox(self.panel,-1,"Parameters: ")
+        box = wx.StaticBox(self.panel,-1,"Episodes information: ")
         sizer2 = wx.StaticBoxSizer(box,wx.VERTICAL)
-        sizer2.Add(scrolledPanel,1,wx.EXPAND)
+        sizer2.Add(scrolledPanel,1,flag=wx.ALL|wx.EXPAND, border=borderBig)
 
-        #sizer.Add(sizer2, 0, flag=wx.ALL, border=borderBig)
+        sizer.Add(sizer2, 0, flag=wx.ALL, border=borderBig)
         sizer.AddStretchSpacer(prop=1)  
         sizer.Add(vboxRight, 0, flag=wx.ALL|wx.EXPAND, border=borderBig)
              
@@ -413,9 +418,9 @@ class ManualEditionWindow(wx.Frame):
 
         self.SetSize(manualEdWindowSize)
         
-        defSize,minSize=Utils.RecalculateWindowSizes(manualEdWindowSize,manualEdWindowMinSize)
-        self.SetSize(defSize)
-        self.SetMinSize(minSize)
+        # defSize,minSize=Utils.RecalculateWindowSizes(manualEdWindowSize,manualEdWindowMinSize)
+        # self.SetSize(defSize)
+        # self.SetMinSize(minSize)
 
         self.Show(True)
         # self.Layout()

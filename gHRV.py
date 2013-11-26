@@ -363,11 +363,11 @@ class MainWindow(wx.Frame):
         
         
         if DebugMode:
-            dm.LoadFileAscii("../../16265.segment.txt", self.settings)
+            dm.LoadFileAscii("../data/beat_ascii.txt", self.settings)
             
             dm.FilterNIHR()
 
-            dm.LoadEpisodesAscii("../../apnea_ascii.txt")
+            dm.LoadEpisodesAscii("../data/apnea_ascii.txt")
             EpisodesTags=dm.GetEpisodesTags()
             for Tag in EpisodesTags:
                 dm.AssignEpisodeColor(Tag)
