@@ -39,6 +39,7 @@
 #   - Results in power bands now match the ones obtained with rhrv
 #   - Saves hr, rr and beats files given the edits the user made
 #   - Double Poincaré plot to file generates a double one
+#   - Edit episodes manually now has scrollbars
 
 
 import wx
