@@ -66,7 +66,7 @@ class PoincarePlotWindow(wx.Frame):
         panel = wx.Panel(self)
 
         if not self.dm.HasVisibleEpisodes():
-            self.ActiveTagLeft = "Global"
+            self.dm.SetPoincarePlotTagLeft("Global")
 
 
         if self.dm.HasVisibleEpisodes():
@@ -80,11 +80,11 @@ class PoincarePlotWindow(wx.Frame):
 
             # tagsRB = []
             ChoicesLeft = self.GetChoicesLeft()
-            self.ActiveTagLeft = ChoicesLeft[0]
-            self.ActiveTagRight = "None"
+            self.dm.SetPoincarePlotTagLeft(ChoicesLeft[0])
+            self.dm.SetPoincarePlotTagRight("None")
             self.cbComboLeft=wx.ComboBox(panel,
                 choices=ChoicesLeft,
-                value=self.ActiveTagLeft,
+                value=self.dm.GetPoincarePlotTagLeft(),
                 style=wx.CB_DROPDOWN|wx.CB_READONLY
                 )
             sbTagsSizer.Add(self.cbComboLeft,flag=wx.ALL | wx.EXPAND, border=borderSmall)
@@ -95,12 +95,9 @@ class PoincarePlotWindow(wx.Frame):
 
             ChoicesRight=self.GetChoicesRight()
 
-            # ChoicesRight = ["None"]+self.AllTags
-            # ChoicesRight.remove(self.ActiveTagLeft)
-
             self.cbComboRight=wx.ComboBox(panel,
                 choices=ChoicesRight, 
-                value=self.ActiveTagRight, 
+                value=self.dm.GetPoincarePlotTagRight(), 
                 style=wx.CB_DROPDOWN|wx.CB_READONLY
                 )
             sbTagsSizer.Add(self.cbComboRight,flag=wx.ALL | wx.EXPAND, border=borderSmall)
@@ -161,7 +158,7 @@ class PoincarePlotWindow(wx.Frame):
 
 
     def OnComboLeft(self,event):
-        self.ActiveTagLeft = self.cbComboLeft.GetValue()
+        self.dm.SetPoincarePlotTagLeft(self.cbComboLeft.GetValue())
         self.cbComboRight.Clear()
         ch = self.GetChoicesRight()
         for item in ch:
@@ -180,13 +177,13 @@ class PoincarePlotWindow(wx.Frame):
         for Tag in self.AllTags:
             Choices += [Tag]
             Choices += ["Outside "+Tag]
-        if self.ActiveTagLeft != "Global":
-            Choices.remove(self.ActiveTagLeft)
+        if self.dm.GetPoincarePlotTagLeft() != "Global":
+            Choices.remove(self.dm.GetPoincarePlotTagLeft())
         return Choices
 
     def OnComboRight(self,event):
-        self.ActiveTagRight = self.cbComboRight.GetValue()
-        if self.ActiveTagRight=="None":
+        self.dm.SetPoincarePlotTagRight(self.cbComboRight.GetValue())
+        if self.dm.GetPoincarePlotTagRight()=="None":
             self.HasTwoPlots=False
         else:
             self.HasTwoPlots=True
@@ -198,10 +195,7 @@ class PoincarePlotWindow(wx.Frame):
         self.Destroy()
         
     def Refresh(self):
-        if not self.HasTwoPlots:
-            cad = self.dm.CreatePlotPoincareEmbedded(self.fig,self.ActiveTagLeft,"None")
-        else:
-            cad = self.dm.CreatePlotPoincareEmbedded(self.fig,self.ActiveTagLeft,self.ActiveTagRight)
+        cad = self.dm.CreatePlotPoincareEmbedded(self.fig)
         self.textOutput.SetValue(cad)
         self.canvas.draw()
 

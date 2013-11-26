@@ -63,9 +63,10 @@ class DM:
         #self.data["version"]=Version
         self.ClearColors()
         self.ClearBands()
+        self.ClearPP()
         if (self.data["Verbose"]==True):
             print("** Clearing all data")
-            
+
                 
     def ClearColors(self):
         """Resets colors for episodes"""
@@ -76,6 +77,10 @@ class DM:
         self.data["Bands"]=["LF/HF","ULF","VLF","LF","HF","Power","Mean HR","HR STD","pNN50","rMSSD","ApEn","FracDim","Heart rate"]
         self.data["VisibleBands"]=["LF/HF","ULF","VLF","LF","HF","Heart rate"]
         self.data["FixedBands"]=["Heart rate"]
+
+    def ClearPP(self):
+        self.data["PPActiveTagLeft"]="Global"
+        self.data["PPActiveTagRight"]="None"
         
          
     def AssignEpisodeColor(self,Tag):
@@ -1606,6 +1611,22 @@ class DM:
 
     def GetPoincarePlotTitle(self):
         return (self.data["name"] + u" - Poincaré Plot")
+
+    def GetPoincarePlotTags(self):
+        return (self.data["PPActiveTagLeft"],self.data["PPActiveTagRight"])
+
+    def GetPoincarePlotTagLeft(self):
+        return (self.data["PPActiveTagLeft"])
+
+    def GetPoincarePlotTagRight(self):
+        return (self.data["PPActiveTagRight"])
+
+    def SetPoincarePlotTagLeft(self,tag):
+        self.data["PPActiveTagLeft"]=tag
+
+    def SetPoincarePlotTagRight(self,tag):
+        self.data["PPActiveTagRight"]=tag
+
         
     def SetVisibleBands(self,ListOfBands):
         """Changes the list of bands visible in plot"""
@@ -1711,13 +1732,11 @@ class DM:
                 Utils.ErrorWindow(messageStr="Error saving figure to file: "+filename,captionStr="Error saving figure    ")
                 
 
-    def CreatePlotPoincareEmbedded(self,fig,ActiveTagLeft="Global",ActiveTagRight="None",interactive=True):
-        from matplotlib.patches import Ellipse
-        
-        self.PPActiveTagLeft=ActiveTagLeft
-        self.PPActiveTagRight=ActiveTagRight
+    def CreatePlotPoincareEmbedded(self,fig,interactive=True):
+    # def CreatePlotPoincareEmbedded(self,fig,interactive=True):
 
-        
+        from matplotlib.patches import Ellipse
+                
         def CreateSubplot(axes, xdata, ydata, titlestr=None, pos="left"):
             if pos=="left":
                 color=".r"
@@ -1732,7 +1751,7 @@ class DM:
  
             cad =""
  
-            if self.PPActiveTagRight!="None":
+            if self.GetPoincarePlotTagRight()!="None":
                 cad += " "+titlestr+" - "
                 cad += "SD1: %.2f ms. - SD2: %.2f ms." % (sd1,sd2)
                 if pos=="left":
@@ -1761,11 +1780,11 @@ class DM:
             if pos=="left":
                 axes.set_ylabel("$RR_{i+1} (msec.)$")
  
-            if self.PPActiveTagRight=="None":
-                if self.PPActiveTagLeft=="Global":
+            if self.GetPoincarePlotTagRight()=="None":
+                if self.GetPoincarePlotTagLeft()=="Global":
                     axes.set_title(self.GetPoincarePlotTitle())
                 else:
-                    axes.set_title(self.PPActiveTagLeft)
+                    axes.set_title(self.GetPoincarePlotTagLeft())
  
             else:
                 axes.set_title(titlestr)
@@ -1804,16 +1823,16 @@ class DM:
                 
         cad =""
  
-        if self.PPActiveTagRight=="None":
+        if self.GetPoincarePlotTagRight()=="None":
             axes = fig.add_subplot(111, aspect='equal')
-            xvector,yvector = self.GetPoincareDataPlot(tag=self.PPActiveTagLeft)
+            xvector,yvector = self.GetPoincareDataPlot(tag=self.GetPoincarePlotTagLeft())
             maxval=max(max(xvector),max(yvector))
             minval=min(min(xvector),min(yvector))
         else:
             axes1 = fig.add_subplot(121, aspect='equal')
             axes2 = fig.add_subplot(122, aspect='equal')
-            xvector1,yvector1 = self.GetPoincareDataPlot(tag=self.PPActiveTagLeft)
-            xvector2,yvector2 = self.GetPoincareDataPlot(tag=self.PPActiveTagRight)
+            xvector1,yvector1 = self.GetPoincareDataPlot(tag=self.GetPoincarePlotTagLeft())
+            xvector2,yvector2 = self.GetPoincareDataPlot(tag=self.GetPoincarePlotTagRight())
             minval=min(min(xvector1),min(yvector1),min(xvector2),min(yvector2))
             maxval=max(max(xvector1),max(yvector1),max(xvector2),max(yvector2))
  
@@ -1826,15 +1845,15 @@ class DM:
         mincoord=minval*0.9
  
  
-        if self.PPActiveTagRight=="None":
+        if self.GetPoincarePlotTagRight()=="None":
             cad += CreateSubplot(axes, xvector, yvector)
         else:
-            cad +=CreateSubplot(axes1, xvector1, yvector1, titlestr=self.PPActiveTagLeft)
-            cad +=CreateSubplot(axes2, xvector2, yvector2, titlestr=self.PPActiveTagRight, pos="right")
+            cad +=CreateSubplot(axes1, xvector1, yvector1, titlestr=self.GetPoincarePlotTagLeft())
+            cad +=CreateSubplot(axes2, xvector2, yvector2, titlestr=self.GetPoincarePlotTagRight(), pos="right")
           
         
         if interactive:
-            if self.PPActiveTagRight=="None":
+            if self.GetPoincarePlotTagRight()=="None":
                 newaxsaveplot = fig.add_axes(axes.get_position())
             else:
                 newaxsaveplot = fig.add_axes(axes1.get_position())

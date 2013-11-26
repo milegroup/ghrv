@@ -33,12 +33,12 @@
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 #   - Extra column for the frame based results export which shows give the episode (if any) for that frame.
 #   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
-#   - Double Poincaré plot to file generates a single one 
-#   - Double Poincaré plot uses different axis (they should be the same, visually)
+#   - Poincaré plots should allow to set the axis manually to get visually similar plots across different records
 #
 #   Changelog (1.5)
 #   - Results in power bands now match the ones obtained with rhrv
 #   - Saves hr, rr and beats files given the edits the user made
+#   - Double Poincaré plot to file generates a double one
 
 
 import wx
@@ -363,14 +363,14 @@ class MainWindow(wx.Frame):
         
         
         if DebugMode:
-            dm.LoadFileAscii("../beats.txt", self.settings)
+            dm.LoadFileAscii("../../16265.segment.txt", self.settings)
             
             dm.FilterNIHR()
 
-            dm.LoadEpisodesAscii("../beats_ep.txt")
-            EpisodesTags=dm.GetEpisodesTags()
-            for Tag in EpisodesTags:
-                dm.AssignEpisodeColor(Tag)
+            # dm.LoadEpisodesAscii("../beats_ep.txt")
+            # EpisodesTags=dm.GetEpisodesTags()
+            # for Tag in EpisodesTags:
+            #     dm.AssignEpisodeColor(Tag)
             dm.InterpolateNIHR()
             self.RefreshMainWindow()
             # PoincarePlotWindow(self,-1,'Poincaré plot',dm)
@@ -796,6 +796,7 @@ class MainWindow(wx.Frame):
             self.fbWindow.Refresh()
 
     def OnPoincare(self,event):
+        dm.ClearPP()
         PoincarePlotWindow(self,-1,'Poincare plot',dm)
         self.poincareWindowPresent=True
         self.RefreshMainWindowButtons()
