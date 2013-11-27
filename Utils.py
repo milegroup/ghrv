@@ -123,17 +123,44 @@ class SelectEpisodesTags(wx.Frame):
 		return self.result
 
 class ConfigPoincarePlot(wx.Dialog):
-    def __init__(self, parent, id, title):
-        wx.Dialog.__init__(self, parent, id, title)
+    def __init__(self, parent, id, MinPrev, MaxPrev):
+        wx.Dialog.__init__(self, parent, id, u"Poincaré Plot configuration")
 
         vbox = wx.BoxSizer(wx.VERTICAL)
-        stline = wx.StaticText(self, 11, 'Discipline ist Macht.')
-        vbox.Add(stline, 1, wx.ALIGN_CENTER|wx.TOP, 45)
-        self.TextBox=wx.TextCtrl(self,-1)
-        self.TextBox.SetValue('asdfajsdlfk')
-        vbox.Add(self.TextBox,1)
+
+        sbLimits = wx.StaticBox(self,label='')
+
+        sbLimitsSizer=wx.StaticBoxSizer(sbLimits,wx.VERTICAL)
+        
+        sbLimitsSizer1=wx.GridBagSizer(hgap=5,vgap=5)
+
+        sbLimitsSizer1.Add(wx.StaticText(self,
+        	label="Axes minimum (msec.)"),
+        	pos=(0,0),flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL,
+        	border=borderVeryBig)
+        self.AxesMin = wx.TextCtrl(self,-1,size=textCtrlSize)
+        self.AxesMin.SetValue(str(MinPrev))
+        if platform != 'darwin': 
+            self.AxesMin.SetWindowStyleFlag(wx.TE_RIGHT)
+        sbLimitsSizer1.Add(self.AxesMin, pos=(0,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
+
+        sbLimitsSizer1.Add(wx.StaticText(self,
+        	label="Axes maximum (msec.)"),
+        	pos=(1,0),flag=wx.LEFT|wx.ALIGN_CENTER_VERTICAL,
+        	border=borderVeryBig)
+        self.AxesMax = wx.TextCtrl(self,-1,size=textCtrlSize)
+        self.AxesMax.SetValue(str(MaxPrev))
+        if platform != 'darwin': 
+            self.AxesMax.SetWindowStyleFlag(wx.TE_RIGHT)
+        sbLimitsSizer1.Add(self.AxesMax, pos=(1,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL, border=borderSmall)
+
+        sbLimitsSizer.Add(sbLimitsSizer1, flag=wx.ALL|wx.EXPAND, border=borderSmall)
+        vbox.Add(sbLimitsSizer,0, flag=wx.ALIGN_CENTER|wx.ALL, border=borderVeryBig)
+
+        vbox.AddStretchSpacer(1)
+        
         sizer =  self.CreateButtonSizer(wx.CANCEL|wx.OK)
-        vbox.Add(sizer, 0, wx.ALIGN_CENTER)
+        vbox.Add(sizer, 0, flag=wx.ALIGN_CENTER|wx.ALL, border=borderVeryBig)
         self.SetSizer(vbox)
 
 

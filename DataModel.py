@@ -1819,15 +1819,34 @@ class DM:
                     self.CreatePlotFile('Poincare',fileName,zoomReset=False,automatic=True)
 
             def configplot(event):
-                print "Config..."
-                dia = Utils.ConfigPoincarePlot(parentWindow, -1, '')
+                if self.GetPoincarePlotTagRight()=="None":
+                    minAxisPrev,maxAxisPrev = axes.get_xlim()
+                else:
+                    minAxisPrev,maxAxisPrev = axes1.get_xlim()
+                dia = Utils.ConfigPoincarePlot(parentWindow, -1,
+                    int(minAxisPrev),
+                    int(maxAxisPrev))
                 if dia.ShowModal() == wx.ID_OK :
-                    val2 = dia.TextBox.GetValue()
+                    error=False
+                    try:
+                        minAxisNew = float(dia.AxesMin.GetValue())
+                        maxAxisNew = float(dia.AxesMax.GetValue())
+                        assert minAxisNew<maxAxisNew
+                    except:
+                        error = True
+                        Utils.ErrorWindow(u"Invalid limits for Poincaré plot")
+                    if not error:
+                        if self.GetPoincarePlotTagRight()=="None":
+                            axes.set_xlim(float(minAxisNew),float(maxAxisNew))
+                            axes.set_ylim(float(minAxisNew),float(maxAxisNew))
+                        else:
+                            axes1.set_xlim(float(minAxisNew),float(maxAxisNew))
+                            axes1.set_ylim(float(minAxisNew),float(maxAxisNew))
+                            axes2.set_xlim(float(minAxisNew),float(maxAxisNew))
+                            axes2.set_ylim(float(minAxisNew),float(maxAxisNew))
+                        fig.canvas.draw()
 
-                    print "OK!!!"
-                    print val2
-                    print "----------"
-                dia.Destroy()
+                    dia.Destroy()
                         
         fig.clear()
         
