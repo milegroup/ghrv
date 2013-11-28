@@ -740,6 +740,7 @@ class MainWindow(wx.Frame):
         self.canvas.SetFocus()
         
     def OnProjectLoad(self,event):
+
         filetypes = "gHRV project files (*.ghrv)|*.ghrv|" "All files (*.*)|*.*"
         fileName=""
         dial = wx.FileDialog(self, message="Load ghrv project", wildcard=filetypes, style=wx.FD_OPEN)
@@ -754,6 +755,8 @@ class MainWindow(wx.Frame):
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading project file")
             except:
+                import sys
+                print sys.exc_info()
                 Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid project file",captionStr="Error loading project file")
             else:
                 self.RefreshMainWindow()                

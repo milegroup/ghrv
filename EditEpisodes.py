@@ -343,7 +343,7 @@ class ManualEditionWindow(wx.Frame):
             self.SetIcon(icon)
 
         self.dm = dm
-        self.Bind(wx.EVT_CLOSE,self.OnEnd)  
+        self.Bind(wx.EVT_CLOSE,self.OnEnd) 
         self.WindowParent=parent
         self.panel = wx.Panel(self)
         self.EpisodesChanged=False
@@ -563,6 +563,7 @@ class ManualEditionWindow(wx.Frame):
             EpSelectedInfo = None
         # print "Selected: ",len(EpSelected)
         EpisodeEditWindow(self,-1,"New episode", EpTags,EpSelectedInfo)
+
 
     
     def OnNewEditEnded(self,values,EpToEdit=None):

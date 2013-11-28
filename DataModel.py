@@ -588,7 +588,7 @@ class DM:
                 # print("   Length: "+str(len(self.data[dataName])))
             else:
                 tempF = open(fileName,'r')
-                if dataName=="name":
+                if dataName=="name" or dataName=='PPActiveTagLeft' or dataName=='PPActiveTagRight':
                     self.data[dataName]=tempF.read()
                 else:
                     self.data[dataName]=eval(tempF.read())
@@ -669,6 +669,7 @@ class DM:
                 tempFName=tempDir+os.sep+"#"+str(kData)
                 np.savetxt(tempFName,self.data[kData])
             else:
+                # print kData, ": ", type(self.data[kData])
                 tempFName=tempDir+os.sep+"%"+str(kData)
                 tempF = open(tempFName,'w')
                 tempF.write(str(self.data[kData]))
