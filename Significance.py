@@ -224,7 +224,7 @@ class SignificanceWindow(wx.Frame):
         self.Refresh()
         
         
-    def Refresh(self):        
+    def Refresh(self):
         valuesLeft,valuesRight = self.dm.CreatePlotSignifEmbedded(self.fig)
         numValuesLeft=len(valuesLeft)
         numValuesRight=len(valuesRight)
@@ -249,6 +249,22 @@ class SignificanceWindow(wx.Frame):
                 cad=cad+ "Mean  -  %s: %.3f, %s: %.3f\n" % (self.ActiveTagLeft,np.mean(valuesLeft),self.ActiveTagRight,np.mean(valuesRight))
             else:
                 cad=cad+ "Mean  -  in: %.3f, out: %.3f\n" % (np.mean(valuesLeft),np.mean(valuesRight))
+
+            from scipy.stats import normaltest   
+            z,pval = normaltest(valuesLeft)
+            if(pval < 0.055):
+                print self.ActiveTagLeft, "- not normal distribution"
+            else:
+                print self.ActiveTagLeft, "- Ok!"
+            z,pval = normaltest(valuesRight)
+            if(pval < 0.055):
+                print self.ActiveTagRight, "- not normal distribution"
+            else:
+                print self.ActiveTagRight, "- Ok!"
+
+
+
+
 
             pvalue = self.GetPValue(valuesLeft,valuesRight,signifAlpha)[0]
 #            # print "Dev1 ",np.std(valuesleft)
