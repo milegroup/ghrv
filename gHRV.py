@@ -40,6 +40,7 @@
 #   - Double Poincaré plot to file generates a double one
 #   - Edit episodes manually now has scrollbars
 #   - Poincaré plots allow the user to select the axis limits
+#   - Renaming of episodes
 
 
 import wx

@@ -120,15 +120,17 @@ class EditEpisodesWindow(wx.Frame):
         
         # End of AddEpisode staticbox
 
-        self.renButton = wx.Button(self.panel, -1, "Rename", size=buttonSizeEditEpisodes)
-        self.Bind(wx.EVT_BUTTON, self.OnRen, self.renButton)
-        self.vboxEditEpRightColumn.Add(self.renButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_CENTER)
-        if not self.dm.HasEpisodes():
-            self.renButton.Disable()
         
         
         
         self.vboxEditEpRightColumn.AddStretchSpacer(prop=1)
+
+        self.renButton = wx.Button(self.panel, -1, "Rename", size=buttonSizeEditEpisodes)
+        self.Bind(wx.EVT_BUTTON, self.OnRen, self.renButton)
+        self.vboxEditEpRightColumn.Add(self.renButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_RIGHT)
+        if not self.dm.HasEpisodes():
+            self.renButton.Disable()
+        
 
         self.manualButton = wx.Button(self.panel, -1, "Manual...", size=buttonSizeEditEpisodes)
         self.Bind(wx.EVT_BUTTON, self.OnManual, id=self.manualButton.GetId())
@@ -905,7 +907,7 @@ class RenameEpisodesWindow(wx.Dialog):
         self.NewTag.SetValue('')
         if platform != 'darwin': 
             self.NewTag.SetWindowStyleFlag(wx.TE_RIGHT)
-        gridbox.Add(self.NewTag, pos=(1,1), flag=wx.ALL|wx.ALIGN_LEFT, border=borderSmall)
+        gridbox.Add(self.NewTag, pos=(1,1), flag=wx.ALL|wx.EXPAND, border=borderSmall)
 
         sbLimitsSizer.Add(gridbox,0, flag=wx.EXPAND|wx.ALL, border=borderSmall)
 
