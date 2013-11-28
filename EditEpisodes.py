@@ -358,20 +358,34 @@ class ManualEditionWindow(wx.Frame):
 
         scrolledPanel = scrolled.ScrolledPanel(self.panel, style = wx.EXPAND,
             size = (manualEdWindowMinSize[0]-buttonSizeManualEd[0]-borderVeryBig*4,manualEdWindowSize[1]-borderVeryBig*4))
-        scrolledPanel.SetAutoLayout(1)
-        scrolledPanel.SetupScrolling(scroll_x=False)
+        
+
+        # self.__CreateGrid(scrolledPanel)
+
+        # scrolledPanel.SetAutoLayout(1)
+        # scrolledPanel.SetupScrolling(scroll_x=False)
+
+        # self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.OnRangeSelect)
+
+        # scrolledPanel.SetSizer(vboxLeft)
+        # scrolledPanel.Layout()
 
         self.__CreateGrid(scrolledPanel)
+        vboxLeft.Add(self.myGrid)
+        scrolledPanel.SetSizer(vboxLeft)
+        scrolledPanel.Layout()
+        #scrolledPanel.SetAutoLayout(1)
+        scrolledPanel.SetupScrolling(scroll_x=False)
 
         self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.OnRangeSelect)
 
-        scrolledPanel.SetSizer(vboxLeft)
-        scrolledPanel.Layout()
+        
+        # 
         
         
 
 
-        vboxLeft.Add(self.myGrid)
+        
 
         # ------------ End of episodes grid
 
