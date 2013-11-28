@@ -1595,6 +1595,12 @@ class DM:
         else:
             return([])
 
+    def RenameEpisodes(self, OldTag, NewTag): 
+        self.data["EpisodesType"] = [NewTag  if w == OldTag else w for w in self.data["EpisodesType"]]
+        self.data["EpisodesVisible"] = [NewTag if w == OldTag else w for w in self.data["EpisodesVisible"] ]
+        self.data["DictColors"][NewTag] = self.data["DictColors"].pop(OldTag)
+
+
     def GetVisibleBands(self):
         """Gets information of bands to plot"""
         return (self.data["Bands"],self.data["VisibleBands"])

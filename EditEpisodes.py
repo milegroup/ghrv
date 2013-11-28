@@ -119,6 +119,12 @@ class EditEpisodesWindow(wx.Frame):
         self.vboxEditEpRightColumn.Add(sbAddSizer, flag=wx.ALL, border=borderSmall)
         
         # End of AddEpisode staticbox
+
+        self.renButton = wx.Button(self.panel, -1, "Rename", size=buttonSizeEditEpisodes)
+        self.Bind(wx.EVT_BUTTON, self.OnRen, self.renButton)
+        self.vboxEditEpRightColumn.Add(self.renButton, 0, border=borderSmall, flag=wx.ALL | wx.ALIGN_CENTER)
+        if not self.dm.HasEpisodes():
+            self.renButton.Disable()
         
         
         
@@ -279,7 +285,19 @@ class EditEpisodesWindow(wx.Frame):
         if hasattr(self, 'cbList'):
             self.cbList.Enable()
         self.RefreshStatus()
-        
+
+    def OnRen(self,event):
+        dia = RenameEpisodesWindow(self,-1, self.EpTypes)
+        if dia.ShowModal() == wx.ID_OK:
+            OldTag = dia.OldTag.GetValue()
+            NewTag = str(dia.NewTag.GetValue())
+            dia.Destroy()
+            OldTags,OldVisibleTags = self.dm.GetVisibleEpisodes()
+            if NewTag in self.dm.GetVisibleEpisodes()[0]:
+                Utils.ErrorWindow("New tag already in use")
+            else:
+                self.dm.RenameEpisodes(OldTag,NewTag)
+                self.RefreshStatus()
         
     def OnEnd(self,event):
         self.Destroy()
@@ -314,6 +332,9 @@ class EditEpisodesWindow(wx.Frame):
         self.endButton.Enable()
         self.manualButton.Enable()
         self.addButton.Disable()
+        self.renButton.Disable()
+        if len(self.dm.GetVisibleEpisodes()[0]) != 0:
+            self.renButton.Enable()
         strMessage=""
         self.sb.SetStatusText(strMessage)
         self.NumClicks=0
@@ -409,6 +430,7 @@ class ManualEditionWindow(wx.Frame):
         self.delButton.SetToolTip(wx.ToolTip("Click to delete selected episodes"))
         vboxRight.Add(self.delButton, 0, border=borderSmall, flag=wx.ALL)
         self.delButton.Disable()
+
 
         vboxRight.AddStretchSpacer(prop=1)
 
@@ -850,3 +872,47 @@ class EpisodeEditWindow(wx.Frame):
         self.WindowParent.RefreshButtons()
         self.Destroy()
 
+
+class RenameEpisodesWindow(wx.Dialog):
+    def __init__(self, parent, id, EpTypes):
+        wx.Dialog.__init__(self, parent, id, "Rename episodes")
+
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        sbLimits = wx.StaticBox(self,label='')
+        sbLimitsSizer=wx.StaticBoxSizer(sbLimits,wx.VERTICAL)
+
+        
+
+        gridbox = wx.GridBagSizer(hgap=5,vgap=5)
+
+        gridbox.Add(wx.StaticText(self,
+            label="Select tag to rename:"),
+            pos=(0,0),flag=wx.RIGHT|wx.ALIGN_CENTER_VERTICAL,
+            border=borderSmall)
+
+
+        self.OldTag=wx.ComboBox(self,choices=EpTypes, value=EpTypes[0], style=wx.CB_DROPDOWN)
+
+
+        gridbox.Add(self.OldTag,pos=(0,1),flag=wx.ALL | wx.EXPAND, border=borderSmall)
+
+        gridbox.Add(wx.StaticText(self,
+            label="Type new tag name:"),
+            pos=(1,0),flag=wx.RIGHT|wx.ALIGN_CENTER_VERTICAL,
+            border=borderSmall)
+
+        self.NewTag = wx.TextCtrl(self,-1,size=textCtrlSize)
+        self.NewTag.SetValue('')
+        if platform != 'darwin': 
+            self.NewTag.SetWindowStyleFlag(wx.TE_RIGHT)
+        gridbox.Add(self.NewTag, pos=(1,1), flag=wx.ALL|wx.ALIGN_LEFT, border=borderSmall)
+
+        sbLimitsSizer.Add(gridbox,0, flag=wx.EXPAND|wx.ALL, border=borderSmall)
+
+        vbox.Add(sbLimitsSizer, 0, flag=wx.ALIGN_CENTER|wx.ALL, border=borderVeryBig)
+
+        vbox.AddStretchSpacer(1)
+        
+        sizer =  self.CreateButtonSizer(wx.CANCEL|wx.OK)
+        vbox.Add(sizer, 0, flag=wx.ALIGN_CENTER|wx.ALL, border=borderVeryBig)
+        self.SetSizer(vbox)
