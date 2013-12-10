@@ -33,6 +33,7 @@
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 #   - Extra column for the frame based results export which shows give the episode (if any) for that frame.
 #   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
+#   - Main window in Mac has to be bigger
 #
 #   Changelog (1.5)
 #   - Results in power bands now match the ones obtained with rhrv
