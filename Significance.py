@@ -250,30 +250,30 @@ class SignificanceWindow(wx.Frame):
             else:
                 cad=cad+ u"In: %.3f\u00b1%.3f, Out: %.3f\u00b1%.3f\n" % (np.mean(valuesLeft),np.std(valuesLeft,ddof=1),np.mean(valuesRight),np.std(valuesRight,ddof=1))
 
-            from scipy.stats import normaltest   
-            z,pval = normaltest(valuesLeft)
-            if(pval < 0.055):
-                print self.ActiveTagLeft, "- not normal distribution"
+            # from scipy.stats import normaltest   
+            # z,pval = normaltest(valuesLeft)
+            # if(pval < 0.055):
+            #     print self.ActiveTagLeft, "- not normal distribution"
+            # else:
+            #     print self.ActiveTagLeft, "- Ok!"
+            # z,pval = normaltest(valuesRight)
+            # if(pval < 0.055):
+            #     print self.ActiveTagRight, "- not normal distribution"
+            # else:
+            #     print self.ActiveTagRight, "- Ok!"
+
+            from scipy.stats import ks_2samp
+
+            pvalue = ks_2samp(valuesLeft,valuesRight)[1]
+
+            cad=cad+ "Kolmogorov-Smirnov test: "
+            if pvalue<0.01:
+                cad=cad+ "significative differences found!!\n" 
+                cad=cad+"  (p-value=%.3e < 0.01)" % pvalue
             else:
-                print self.ActiveTagLeft, "- Ok!"
-            z,pval = normaltest(valuesRight)
-            if(pval < 0.055):
-                print self.ActiveTagRight, "- not normal distribution"
-            else:
-                print self.ActiveTagRight, "- Ok!"
-
-
-
-
-
-            pvalue = self.GetPValue(valuesLeft,valuesRight,signifAlpha)[0]
-#            # print "Dev1 ",np.std(valuesleft)
-#            # print "Dev2 ",np.std(valuesright)
-            cad=cad+ "Welch's t-test: "
-            if pvalue:
-                cad=cad+ "significative differences found!!" 
-            else:
-                cad=cad+ "significative differences not found"
+                cad=cad+ "significative differences not found\n"
+                cad=cad+"  (p-value=%.3f >= 0.01)" % pvalue
+            
 #            
         else:
             cad=cad+"Not enough data: minimum no. of points is "+str(signifNumMinValues)
@@ -281,23 +281,3 @@ class SignificanceWindow(wx.Frame):
         self.textOutput.SetValue(cad)
         self.canvas.draw()
 
-    def GetPValue(self,a,b,alpha):
-        import scipy.stats
-        n1=len(a)
-        n2=len(b)
-        mean1 = np.mean(a)
-        mean2 = np.mean(b)
-        sem1 = scipy.stats.sem(a,ddof=1)
-        sem2 = scipy.stats.sem(b,ddof=1)
-        svm1 = sem1**2 * n1
-        svm2 = sem2**2 * n2
-        t_s_prime = (mean1 - mean2)/np.sqrt(svm1/n1+svm2/n2)
-        t_alpha_df1 = scipy.stats.t.ppf(1-alpha/2, n1 - 1)
-        t_alpha_df2 = scipy.stats.t.ppf(1-alpha/2, n2 - 1)
-        t_alpha_prime = (t_alpha_df1 * sem1**2 + t_alpha_df2 * sem2**2) / (sem1**2 + sem2**2)
-        return abs(t_s_prime) > t_alpha_prime, t_s_prime, t_alpha_prime
-
-    def GetPValueOld(self,valuesleft,valuesright,alpha):
-        from scipy.stats import ttest_ind
-        pvalue=ttest_ind(valuesleft,valuesright)[1]
-        return (pvalue<alpha),pvalue
