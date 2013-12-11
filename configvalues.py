@@ -43,8 +43,8 @@ mainWindowMinSize=(1000,700)
 signifWindowSize=(800,700)
 signifWindowMinSize=(640,700)
 signifNumMinValues = 10
+signifPMaxValue = 0.01
 signifNumBins = 10
-signifAlpha = 0.01
 
 poincareWindowSize=(650,700)
 poincareWindowMinSize=(590,640)

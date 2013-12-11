@@ -229,26 +229,17 @@ class SignificanceWindow(wx.Frame):
         numValuesLeft=len(valuesLeft)
         numValuesRight=len(valuesRight)
 
-        cad = self.ActiveParam+":  "
+        cad = ""
         if self.ActiveTagRight:
-            cad = cad + self.ActiveTagLeft + " vs. " + self.ActiveTagRight+"\n"
+            cad = cad + "%s: %s (%d points) vs. %s  (%d points)\n" % (self.ActiveParam, self.ActiveTagLeft, numValuesLeft, self.ActiveTagRight, numValuesRight)
         else: 
-            cad = cad + self.ActiveTagLeft + " (inside vs. outside)\n"
-
-        cad=cad+"No. points: "
-        
-        if not self.ActiveTagRight:
-            cad = cad + str(numValuesLeft) +" (inside), "+str(numValuesRight)+" (outside)\n"
-        else:
-            cad = cad + str(numValuesLeft) +" ("+self.ActiveTagLeft+"), "
-            cad = cad + str(numValuesRight)+" ("+self.ActiveTagRight+")\n"
-            
+            cad = cad + "%s: %s  -  inside (%d points) vs. outside  (%d points)\n" % (self.ActiveParam, self.ActiveTagLeft, numValuesLeft, numValuesRight)
 
         if (numValuesLeft>signifNumMinValues) and (numValuesRight>signifNumMinValues):
             if self.ActiveTagRight:
-                cad=cad+ u"%s: %.3f\u00b1%.3f, %s: %.3f\u00b1%.3f\n" % (self.ActiveTagLeft,np.mean(valuesLeft),np.std(valuesLeft,ddof=1),self.ActiveTagRight,np.mean(valuesRight),np.std(valuesRight,ddof=1))
+                cad=cad+ u"%s: %g\u00b1%g, %s: %g\u00b1%g\n" % (self.ActiveTagLeft,np.mean(valuesLeft),np.std(valuesLeft,ddof=1),self.ActiveTagRight,np.mean(valuesRight),np.std(valuesRight,ddof=1))
             else:
-                cad=cad+ u"In: %.3f\u00b1%.3f, Out: %.3f\u00b1%.3f\n" % (np.mean(valuesLeft),np.std(valuesLeft,ddof=1),np.mean(valuesRight),np.std(valuesRight,ddof=1))
+                cad=cad+ u"Inside: %g\u00b1%g, Outside: %g\u00b1%g\n" % (np.mean(valuesLeft),np.std(valuesLeft,ddof=1),np.mean(valuesRight),np.std(valuesRight,ddof=1))
 
             # from scipy.stats import normaltest   
             # z,pval = normaltest(valuesLeft)
@@ -266,13 +257,13 @@ class SignificanceWindow(wx.Frame):
 
             pvalue = ks_2samp(valuesLeft,valuesRight)[1]
 
-            cad=cad+ "Kolmogorov-Smirnov test: "
-            if pvalue<0.01:
-                cad=cad+ "significative differences found!!\n" 
-                cad=cad+"  (p-value=%.3e < 0.01)" % pvalue
+            cad=cad+ "KS test: "
+            if pvalue<signifPMaxValue:
+                cad=cad+ "significative differences found!!" 
+                cad=cad+"  (p-value=%g < %g)" % (pvalue, signifPMaxValue)
             else:
-                cad=cad+ "significative differences not found\n"
-                cad=cad+"  (p-value=%.3f >= 0.01)" % pvalue
+                cad=cad+ "significative differences not found"
+                cad=cad+"  (p-value=%g >= %g)" % (pvalue, signifPMaxValue)
             
 #            
         else:
