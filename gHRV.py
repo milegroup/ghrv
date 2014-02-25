@@ -34,14 +34,7 @@
 #   - Extra column for the frame based results export which shows give the episode (if any) for that frame.
 #   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
 #
-#   Changelog (1.5)
-#   - Results in power bands now match the ones obtained with rhrv
-#   - Saves hr, rr and beats files given the edits the user made
-#   - Double Poincaré plot to file generates a double one
-#   - Edit episodes manually now has scrollbars
-#   - Poincaré plots allow the user to select the axis limits
-#   - Renaming of episodes
-#   - Now it uses KS test for independence in Significance window
+
 
 
 import wx

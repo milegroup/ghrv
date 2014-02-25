@@ -31,7 +31,7 @@ DebugMode = False
 ReportVersion = False
 ColoredButtons = True
 ColoredBGPlots = True
-Version="1.5" # Things like 1.0.5 are not valid
+Version="1.6" # Things like 1.0.5 are not valid
 
 borderBig=10
 borderSmall=5
@@ -141,7 +141,7 @@ plotFBWidth=740.0
 plotFBHeight=500.0
 
 fileTypes="EPS file (*.eps)|*.eps;*EPS|PDF file (*.pdf)|*.pdf;*.PDF|PNG file (*.png)|*.png;*.PNG|SVG file (*.svg)|*.svg;*.SVG"
-automaticExtensions = {0:"eps",1:"pdf",3:"png",4:"svg"}
+automaticExtensions = {0:"eps",1:"pdf",2:"png",3:"svg"}
 extensions=["eps","pdf","png","svg"]
 
 plotFormat={

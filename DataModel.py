@@ -1770,16 +1770,13 @@ class DM:
  
             coordarrow1 =np.sqrt(sd2*sd2/2)
             coordarrow2 =np.sqrt(sd1*sd1/2)
- 
+
             axes.arrow(meanx,meany,coordarrow1,coordarrow1,
-                lw=1, head_width=(maxcoord-mincoord)/100,
-                head_length=(maxcoord-mincoord)/50,
-                length_includes_head=True, fc='k', zorder=3)
- 
+                lw=1, length_includes_head=True, fc='k', zorder=3)
+
             axes.arrow(meanx, meany, -coordarrow2, coordarrow2,
-                lw=1, head_width=(maxcoord-mincoord)/100,
-                head_length=(maxcoord-mincoord)/50,
-                length_includes_head=True, fc='k', zorder=4)
+                lw=1, length_includes_head=True, fc='k', zorder=4)
+ 
  
             axes.set_xlim(mincoord,maxcoord)
             axes.set_ylim(mincoord,maxcoord)
@@ -1851,6 +1848,8 @@ class DM:
                             axes1.set_ylim(float(minAxisNew),float(maxAxisNew))
                             axes2.set_xlim(float(minAxisNew),float(maxAxisNew))
                             axes2.set_ylim(float(minAxisNew),float(maxAxisNew))
+                        self.data["PlotPPMin"] = float(minAxisNew)
+                        self.data["PlotPPMax"] = float(maxAxisNew)
                         fig.canvas.draw()
 
                     dia.Destroy()
@@ -1872,14 +1871,17 @@ class DM:
             xvector2,yvector2 = self.GetPoincareDataPlot(tag=self.GetPoincarePlotTagRight())
             minval=min(min(xvector1),min(yvector1),min(xvector2),min(yvector2))
             maxval=max(max(xvector1),max(yvector1),max(xvector2),max(yvector2))
+
+
  
  
-         
-        maxplot=maxval*1.05
-        maxcoord=maxval*1.1
- 
-        minplot=minval*0.95
         mincoord=minval*0.9
+        maxcoord=maxval*1.1
+        
+        if interactive:
+            self.data["PlotPPMin"]=mincoord
+            self.data["PlotPPMax"]=maxcoord
+ 
  
  
         if self.GetPoincarePlotTagRight()=="None":
@@ -1915,6 +1917,15 @@ class DM:
             self.PPbtconfigplot=Button(newaxconfigplot,"Config")
             self.PPbtconfigplot.on_clicked(configplot)
 
+        else:  # Exporting to file reads the axis limits to create the plot
+            if self.GetPoincarePlotTagRight()=="None":
+                axes.set_xlim(self.data["PlotPPMin"],self.data["PlotPPMax"])
+                axes.set_ylim(self.data["PlotPPMin"],self.data["PlotPPMax"])
+            else:
+                axes1.set_xlim(self.data["PlotPPMin"],self.data["PlotPPMax"])
+                axes1.set_ylim(self.data["PlotPPMin"],self.data["PlotPPMax"])
+                axes2.set_xlim(self.data["PlotPPMin"],self.data["PlotPPMax"])
+                axes2.set_ylim(self.data["PlotPPMin"],self.data["PlotPPMax"])
 
 
         matplotlib.pyplot.show()
