@@ -33,6 +33,9 @@
 #   - Yo veo muy interesante el poder especificar una fecha base para el registro, y visualizar sobre el eje horizontal fechas absolutas y no sólo el tiempo en segundos. Esto es muy importante para añadir episodios manualmente
 #   - Extra column for the frame based results export which shows give the episode (if any) for that frame.
 #   - To have separate main reports (and comparison reports like the poincare plots) for different episodes.
+#   - Seria util si junto con SD1 y SD2 fuera posibil saber el valor del centroid, el punto de encuentro entre los dos SD
+#   - Report: bpm en vez de bps
+#   - Poincaré: SD1 and SD2 in float point format
 #
 
 
