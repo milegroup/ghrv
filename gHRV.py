@@ -36,6 +36,8 @@
 #   - Seria util si junto con SD1 y SD2 fuera posibil saber el valor del centroid, el punto de encuentro entre los dos SD
 #   - Report: bpm en vez de bps
 #   - Poincaré: SD1 and SD2 in float point format
+#   - Time-domain TINN differs from Kubios
+#   - Report before Poincaré throws an error
 #
 
 
