@@ -38,6 +38,7 @@
 #   - Poincaré: SD1 and SD2 in float point format
 #   - Time-domain TINN differs from Kubios
 #   - Report before Poincaré throws an error
+#   - In Linux Mint it depends on python-tk package
 #
 
 
