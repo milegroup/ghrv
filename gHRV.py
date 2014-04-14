@@ -39,7 +39,9 @@
 #   - Time-domain TINN differs from Kubios
 #   - Report before Poincaré throws an error
 #   - In Linux Mint it depends on python-tk package
-#
+#   - In certain linux systems these lines must be included:
+#       import wxversion
+#       wxversion.select("2.8")
 
 
 
