@@ -42,6 +42,7 @@
 #   - In certain linux systems these lines must be included:
 #       import wxversion
 #       wxversion.select("2.8")
+#   - URGENT: press "skip" does funny things with version in ghrv.cfg
 
 
 
