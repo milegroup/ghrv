@@ -53,6 +53,9 @@ class DM:
 
         if (self.data["Verbose"]==True):
             print("** Creating data model")
+
+    def SetVerbose(self,verboseValue):
+        self.data["Verbose"] = verboseValue
         
             
     def ClearAll(self):

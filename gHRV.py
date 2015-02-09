@@ -365,22 +365,88 @@ class MainWindow(wx.Frame):
         self.MainPanel.SetSizer(self.sizer)
         self.MainPanel.Layout()
 
-        
-        
-        if DebugMode:
-            dm.LoadFileAscii("../data/beat_ascii.txt", self.settings)
-            
-            dm.FilterNIHR()
+        import sys
 
-            dm.LoadEpisodesAscii("../data/apnea_ascii.txt")
-            EpisodesTags=dm.GetEpisodesTags()
-            for Tag in EpisodesTags:
-                dm.AssignEpisodeColor(Tag)
-            dm.InterpolateNIHR()
-            self.RefreshMainWindow()
+        if (len(sys.argv) != 1 and sys.platform=='linux2'):
+            arguments = sys.argv[1:]
+            # arguments = [sys.argv[x].lower() for x in range(1,len(sys.argv))]
+            # print arguments
+            print ("\n** gHRV: terminal mode **\n")
+            dm.SetVerbose(True)
+            BeatTXTFilePresent = False
+            EpisodesAsciiFilePresent = False
+            InterpolationFlagPresent = False
+            FilterFlagPresent = False
+            HelpString = (
+                "\n    Terminal mode works only on GNU/Linux systems\n"
+                "      -help: shows this information\n"
+                "      -loadBeatTXT beatfile: loads beat file (TXT format)\n"
+                "      -loadEpisodesAscii episodesfile: loads episodes (TXT format)\n"
+                "      -filter: filters the HR sequence\n"
+                "      -interpolate: interpolates the HR sequence\n"
+                )
+
+            if "-help" in arguments:
+                print HelpString
+
+            else:
+                if "-loadBeatTXT" in arguments:
+                    BeatTXTFile = arguments[arguments.index("-loadBeatTXT")+1]
+                    BeatTXTFilePresent = True
+                if "-loadEpisodesAscii" in arguments:
+                    EpisodesAsciiFile = arguments[arguments.index("-loadEpisodesAscii")+1]
+                    EpisodesAsciiFilePresent = True
+                if "-interpolate" in arguments:
+                    InterpolationFlagPresent = True
+                if "-filter" in arguments:
+                    FilterFlagPresent = True
+
+                if (EpisodesAsciiFilePresent and not BeatTXTFilePresent):
+                    print "\nERROR: cannot load episodes without beats!\n"
+                    sys.exit()
+                if (FilterFlagPresent and not BeatTXTFilePresent):
+                    print "\nERROR: filtering without beats file is not possible!\n"
+                    sys.exit()
+                if (InterpolationFlagPresent and not BeatTXTFilePresent):
+                    print "\nERROR: interpolation without beats file is not possible!\n"
+                    sys.exit()
+
+                dm.LoadFileAscii(BeatTXTFile, self.settings)
+                if FilterFlagPresent:
+                    dm.FilterNIHR()
+                if InterpolationFlagPresent:   
+                    dm.InterpolateNIHR()
+                if EpisodesAsciiFilePresent:
+                    dm.LoadEpisodesAscii(EpisodesAsciiFile)
+                    EpisodesTags=dm.GetEpisodesTags()
+                    for Tag in EpisodesTags:
+                        dm.AssignEpisodeColor(Tag)
+                self.RefreshMainWindow()
+                self.RefreshMainWindowButtons()
+
+
+                
+
+
+
+            # sys.exit(1)
+
+        
+        
+        # if DebugMode:
+            # dm.LoadFileAscii("../data/beat_ascii.txt", self.settings)
+            
+            # dm.FilterNIHR()
+
+            # dm.LoadEpisodesAscii("../data/apnea_ascii.txt")
+            # EpisodesTags=dm.GetEpisodesTags()
+            # for Tag in EpisodesTags:
+            #     dm.AssignEpisodeColor(Tag)
+            # dm.InterpolateNIHR()
+            # self.RefreshMainWindow()
             # PoincarePlotWindow(self,-1,'Poincaré plot',dm)
             # self.poincareWindowPresent=True
-            self.RefreshMainWindowButtons()
+            # self.RefreshMainWindowButtons()
 
             # if dm.HasFrameBasedParams()==False:
             #     dm.CalculateFrameBasedParams(showProgress=True)
