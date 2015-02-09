@@ -46,7 +46,6 @@
 #   - URGENT: press "skip" does funny things with version in ghrv.cfg
 
 
-
 import wx
 import matplotlib
 # matplotlib.use('WXAgg')
