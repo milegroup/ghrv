@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
 #   Copyright (C) 2013  Milegroup - Dpt. Informatics
