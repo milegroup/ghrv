@@ -367,34 +367,48 @@ class MainWindow(wx.Frame):
 
         import sys
 
+        HelpString = (
+            "      -help: shows this information\n"
+            "      -loadBeatTXT beatfile: loads beats file (TXT format)\n"
+            "      -loadEpTXT episodesfile: loads episodes (TXT format)\n"
+            "      -filter: filters the HR sequence\n"
+            "      -interp: interpolates the HR sequence\n"
+            )
+
         if (len(sys.argv) != 1 and sys.platform=='linux2'):
             arguments = sys.argv[1:]
             # arguments = [sys.argv[x].lower() for x in range(1,len(sys.argv))]
             # print arguments
-            print ("\n** gHRV: terminal mode **\n")
-            dm.SetVerbose(True)
-            BeatTXTFilePresent = False
-            EpisodesAsciiFilePresent = False
-            InterpolationFlagPresent = False
-            FilterFlagPresent = False
-            HelpString = (
-                "\n    Terminal mode works only on GNU/Linux systems\n"
-                "      -help: shows this information\n"
-                "      -loadBeatTXT beatfile: loads beat file (TXT format)\n"
-                "      -loadEpisodesAscii episodesfile: loads episodes (TXT format)\n"
-                "      -filter: filters the HR sequence\n"
-                "      -interpolate: interpolates the HR sequence\n"
-                )
+            
+            possibleArguments = ['-help','-loadBeatTXT','-loadEpTXT',
+            '-filter','-interp']
+
+            for argument in arguments:
+            	if argument[0] == '-':
+            		if argument not in possibleArguments:
+            			print "\n** ERROR: command '"+argument+"' not recognized **\n"
+            			print "** gHRV terminal mode commands:"
+            			print HelpString
+            			sys.exit(0)
 
             if "-help" in arguments:
+            	print ("\n** gHRV: terminal mode **\n")
                 print HelpString
+                sys.exit(0)
 
             else:
+            	print ("\n** gHRV: terminal mode **\n")
+            	dm.SetVerbose(True)
+            	BeatTXTFilePresent = False
+            	EpisodesAsciiFilePresent = False
+            	InterpolationFlagPresent = False
+            	FilterFlagPresent = False
+
                 if "-loadBeatTXT" in arguments:
                     BeatTXTFile = arguments[arguments.index("-loadBeatTXT")+1]
                     BeatTXTFilePresent = True
-                if "-loadEpisodesAscii" in arguments:
-                    EpisodesAsciiFile = arguments[arguments.index("-loadEpisodesAscii")+1]
+                if "-loadEpTXT" in arguments:
+                    EpisodesAsciiFile = arguments[arguments.index("-loadEpTXT")+1]
                     EpisodesAsciiFilePresent = True
                 if "-interpolate" in arguments:
                     InterpolationFlagPresent = True
@@ -402,25 +416,33 @@ class MainWindow(wx.Frame):
                     FilterFlagPresent = True
 
                 if (EpisodesAsciiFilePresent and not BeatTXTFilePresent):
-                    print "\nERROR: cannot load episodes without beats!\n"
+                    print "** ERROR: trying to load episodes without beats! **\n"
                     sys.exit()
                 if (FilterFlagPresent and not BeatTXTFilePresent):
-                    print "\nERROR: filtering without beats file is not possible!\n"
+                    print "** ERROR: trying to filter without beats! **\n"
                     sys.exit()
                 if (InterpolationFlagPresent and not BeatTXTFilePresent):
-                    print "\nERROR: interpolation without beats file is not possible!\n"
+                    print "** ERROR: trying to interpolate without beats! **\n"
                     sys.exit()
 
-                dm.LoadFileAscii(BeatTXTFile, self.settings)
+                try:
+                	dm.LoadFileAscii(BeatTXTFile, self.settings)
+                except:
+                	print "** ERROR: the file does not seem to be a valid beats file **"
+                	sys.exit(1)
                 if FilterFlagPresent:
                     dm.FilterNIHR()
                 if InterpolationFlagPresent:   
                     dm.InterpolateNIHR()
                 if EpisodesAsciiFilePresent:
-                    dm.LoadEpisodesAscii(EpisodesAsciiFile)
-                    EpisodesTags=dm.GetEpisodesTags()
-                    for Tag in EpisodesTags:
-                        dm.AssignEpisodeColor(Tag)
+                	try:
+            			dm.LoadEpisodesAscii(EpisodesAsciiFile)
+	                except:
+	                    print "** ERROR: the file does not seem to be a valid episodes file **"
+	                    sys.exit(1)
+	                EpisodesTags=dm.GetEpisodesTags()
+	                for Tag in EpisodesTags:
+	                	dm.AssignEpisodeColor(Tag)
                 self.RefreshMainWindow()
                 self.RefreshMainWindowButtons()
 
