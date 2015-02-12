@@ -2,7 +2,7 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2013  Milegroup - Dpt. Informatics
+#   Copyright (C) 2015  Milegroup - Dpt. Informatics
 #      University of Vigo - Spain
 #      www.milegroup.net
 #
@@ -31,7 +31,7 @@ DebugMode = False
 ReportVersion = False
 ColoredButtons = True
 ColoredBGPlots = True
-Version="1.6" # Things like 1.0.5 are not valid
+Version="1.7" # Things like 1.0.5 are not valid
 
 borderBig=10
 borderSmall=5
