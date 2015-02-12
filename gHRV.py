@@ -44,6 +44,7 @@
 #       import wxversion
 #       wxversion.select("2.8")
 #   - URGENT: press "skip" does funny things with version in ghrv.cfg
+#   - Terminal mode in linux needs full paths of files to find them
 
 
 import wx
