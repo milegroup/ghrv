@@ -3,7 +3,7 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2015  Milegroup - Dpt. Informatics
+#   Copyright (C) 2016  Milegroup - Dpt. Informatics
 #      University of Vigo - Spain
 #      www.milegroup.net
 #
@@ -64,7 +64,7 @@ class AboutDlg(wx.Frame):
             <p><img src="LogoSmall.png"/></p>
             <h3>gHRV %s</h3>
             <p><b>gHRV: a graphical application for Heart Rate Variability analysis</b></p>
-            <p>Copyright (C) 2015  Milegroup - Dpt. Informatics - University of Vigo - Spain</p>
+            <p>Copyright (C) 2016  Milegroup - Dpt. Informatics - University of Vigo - Spain</p>
             <p><i>http://www.milegroup.net</i></p>
             </center>
             <hr/>
