@@ -709,7 +709,7 @@ class MainWindow(wx.Frame):
 
 
     def OnLoadBeat(self, event):
-        filetypes = "Supported files (*.txt;*.hrm;*sdf;*.hea)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF;*.hea;*.HEA|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|WFDB header files (*.hea)|*.hea;*.HEA|All files (*.*)|*.*"
+        filetypes = "Supported files (*.txt;*.hrm;*sdf;*.hea;*.ibi)|*.txt;*.TXT;*.hrm;*.HRM;*.sdf;*.SDF;*.hea;*.HEA;*.ibi;*.IBI|TXT ascii files (*.txt)|*.txt;*.TXT|Polar files (*.hrm)|*.hrm;*.HRM|Suunto files (*.sdf)|*.sdf;*.SDF|WFDB header files (*.hea)|*.hea;*.HEA|Inter Beat Interval files (*.ibi)|*.ibi;*.IBI|All files (*.*)|*.*"
         fileName=""
         dial = wx.FileDialog(self, message="Load file", wildcard=filetypes, style=wx.FD_OPEN)
         result = dial.ShowModal()
