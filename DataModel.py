@@ -3,9 +3,8 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2016  Milegroup - Dpt. Informatics
+#   Copyright (C) 2018 LIA2 Research Group - Dpt. Informatics
 #      University of Vigo - Spain
-#      www.milegroup.net
 #
 #   Authors:
 #     - Leandro Rodríguez-Liñares
@@ -904,7 +903,7 @@ class DM:
         
         numframes=int(((len(signal)-sizesamp)/shiftsamp)+1.0)
 
-        lenZeroPadding=2**np.ceil(np.log2(sizesamp))-int(sizesamp)
+        lenZeroPadding=2**int(np.ceil(np.log2(sizesamp)))-int(sizesamp)
         
         if (numframes < minNumFrames):
             raise Utils.FewFramesException(numframes)
@@ -1921,7 +1920,12 @@ class DM:
             self.PPbtconfigplot.on_clicked(configplot)
 
         else:  # Exporting to file reads the axis limits to create the plot
+
             if self.GetPoincarePlotTagRight()=="None":
+                if "PlotPPMin" not in self.data.keys():
+                    self.data["PlotPPMin"] = min(min(xvector), min(yvector))*0.9
+                if "PlotPPMax" not in self.data.keys():
+                    self.data["PlotPPMax"] = max(max(xvector),max(yvector))*1.1
                 axes.set_xlim(self.data["PlotPPMin"],self.data["PlotPPMax"])
                 axes.set_ylim(self.data["PlotPPMin"],self.data["PlotPPMax"])
             else:

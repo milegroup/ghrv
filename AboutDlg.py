@@ -3,9 +3,8 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2016  Milegroup - Dpt. Informatics
+#   Copyright (C) 2018 LIA2 Research Group - Dpt. Informatics
 #      University of Vigo - Spain
-#      www.milegroup.net
 #
 #   Authors:
 #     - Leandro Rodríguez-Liñares
@@ -64,8 +63,8 @@ class AboutDlg(wx.Frame):
             <p><img src="LogoSmall.png"/></p>
             <h3>gHRV %s</h3>
             <p><b>gHRV: a graphical application for Heart Rate Variability analysis</b></p>
-            <p>Copyright (C) 2016  Milegroup - Dpt. Informatics - University of Vigo - Spain</p>
-            <p><i>http://www.milegroup.net</i></p>
+            <p>Copyright (C) 2018  2018 LIA2 Research Group - Dpt. Informatics - University of Vigo - Spain</p>
+            <p><i>http://lia.ei.uvigo.es</i></p>
             </center>
             <hr/>
             <p><b>Authors:</b></p>

@@ -2,9 +2,8 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2016  Milegroup - Dpt. Informatics
+#   Copyright (C) 2018 LIA2 Research Group - Dpt. Informatics
 #      University of Vigo - Spain
-#      www.milegroup.net
 #
 #   Authors:
 #     - Leandro Rodríguez-Liñares

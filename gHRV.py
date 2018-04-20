@@ -3,9 +3,8 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2016  Milegroup - Dpt. Informatics
+#   Copyright (C) 2018 LIA2 Research Group - Dpt. Informatics
 #      University of Vigo - Spain
-#      www.milegroup.net
 #
 #   Authors:
 #     - Leandro Rodríguez-Liñares
@@ -37,8 +36,6 @@
 #   - Report: bpm en vez de bps
 #   - Poincaré: SD1 and SD2 in float point format
 #   - Time-domain TINN differs from Kubios
-#   - Report before Poincaré throws an error
-#   - In Linux Mint it depends on python-tk package
 #	- In MAC problems with foreign characters in paths
 #   - In certain linux systems these lines must be included:
 #       import wxversion
