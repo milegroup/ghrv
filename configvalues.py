@@ -36,8 +36,8 @@ borderBig=10
 borderSmall=5
 borderVeryBig=20
 
-mainWindowSize=(1200,700)
-mainWindowMinSize=(1000,700)
+mainWindowSize=(1200,750)
+mainWindowMinSize=(1000,750)
 
 signifWindowSize=(800,700)
 signifWindowMinSize=(640,700)
