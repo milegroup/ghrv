@@ -30,7 +30,7 @@ DebugMode = False
 ReportVersion = False
 ColoredButtons = True
 ColoredBGPlots = True
-Version="1.10" # Things like 1.0.5 are not valid
+Version="1.91" # Things like 1.0.5 are not valid. This is string (1.10 < 1.9)
 
 borderBig=10
 borderSmall=5
