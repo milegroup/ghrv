@@ -103,7 +103,7 @@ class DM:
         
         
         if (self.data["Verbose"]==True):
-            print("** Loading ascii file "+asciiFile)
+            print(("** Loading ascii file "+asciiFile))
                 
                 
         asciiData = np.loadtxt(asciiFile)
@@ -131,7 +131,7 @@ class DM:
         self.data["name"]=os.path.splitext(os.path.basename(asciiFile))[0]
         
         if (self.data["Verbose"]):
-            print("   Project created: "+self.data["name"])
+            print(("   Project created: "+self.data["name"]))
             
         self.data["version"]=Version
         
@@ -148,11 +148,11 @@ class DM:
         self.data["RR"] = np.insert(self.data["RR"],[0],self.data["RR"][0])
         
         if (self.data["Verbose"]):
-            print("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")")
-            print("   niHR: "+str(len(self.data["niHR"]))+" points")
-            print("   RR: "+str(len(self.data["RR"]))+" points")
+            print(("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")"))
+            print(("   niHR: "+str(len(self.data["niHR"]))+" points"))
+            print(("   RR: "+str(len(self.data["RR"]))+" points"))
                 
-        for k in settings.keys():
+        for k in list(settings.keys()):
             self.data[k]=float(settings[k])
         if (self.data["Verbose"]):
             print("   Parameters set to default values")
@@ -166,11 +166,11 @@ class DM:
         self.data["niHR"]=60.0/(self.data["RR"]/1000.0)
         
         if (self.data["Verbose"]==True):
-            print("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")")
-            print("   RR: "+str(len(self.data["RR"]))+" points")
-            print("   niHR: "+str(len(self.data["niHR"]))+" points")
+            print(("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")"))
+            print(("   RR: "+str(len(self.data["RR"]))+" points"))
+            print(("   niHR: "+str(len(self.data["niHR"]))+" points"))
         
-        for k in settings.keys():
+        for k in list(settings.keys()):
             self.data[k]=float(settings[k])
         if (self.data["Verbose"]):
             print("   Parameters set to default values")
@@ -181,7 +181,7 @@ class DM:
         Polar files contain rr series, expresed in milliseconds"""
         
         if (self.data["Verbose"]==True):
-            print("** Loading polar file "+polarFile)
+            print(("** Loading polar file "+polarFile))
         
         dataMillisec=[]
         dataFound=False
@@ -200,7 +200,7 @@ class DM:
         self.data["name"]=os.path.splitext(os.path.basename(polarFile))[0]
         
         if (self.data["Verbose"]):
-            print("   Project created: "+self.data["name"])
+            print(("   Project created: "+self.data["name"]))
             
         self.data["version"]=Version
         
@@ -209,7 +209,7 @@ class DM:
         suunto files contain rr series, expresed in milliseconds"""
         
         if (self.data["Verbose"]==True):
-            print("** Loading suunto file "+suuntoFile)
+            print(("** Loading suunto file "+suuntoFile))
         
         dataMillisec=[]
         dataFound=False
@@ -228,7 +228,7 @@ class DM:
         self.data["name"]=os.path.splitext(os.path.basename(suuntoFile))[0]
         
         if (self.data["Verbose"]):
-            print("   Project created: "+self.data["name"])
+            print(("   Project created: "+self.data["name"]))
             
         self.data["version"]=Version
 
@@ -238,7 +238,7 @@ class DM:
         import glob
         
         if (self.data["Verbose"]==True):
-            print("** Loading WFDB file "+wfdbheaderfile)
+            print(("** Loading WFDB file "+wfdbheaderfile))
 
         heaFile = open(wfdbheaderfile,'r')
         line=heaFile.readline()
@@ -254,7 +254,7 @@ class DM:
             samplingFrequency = 250.0
 
         if (self.data["Verbose"]==True):
-            print("   Sampling frequency: "+str(samplingFrequency))
+            print(("   Sampling frequency: "+str(samplingFrequency)))
 
         filesfound = glob.glob(wfdbheaderfile[:-4]+".*")
         extensionsfound=[]
@@ -292,7 +292,7 @@ class DM:
         wfdbdatafile=wfdbheaderfile[:-4]+"."+extensionSelected
 
         if (self.data["Verbose"]==True):
-            print("   Trying data file: "+wfdbdatafile)
+            print(("   Trying data file: "+wfdbdatafile))
 
         try:
 
@@ -339,19 +339,19 @@ class DM:
                                 accumulator = accumulator+time
         except:
             if (self.data["Verbose"]==True):
-                print("   File "+wfdbdatafile+" didn't work")
+                print(("   File "+wfdbdatafile+" didn't work"))
             Utils.ErrorWindow(messageStr="Error loading file: "+wfdbdatafile,captionStr="Error loading beats    ")
             return
         else:
             if (self.data["Verbose"]==True):
-                print("   File "+wfdbdatafile+" has been loaded")
+                print(("   File "+wfdbdatafile+" has been loaded"))
 
         self.LoadBeatSec(np.array(beats),settings)
         
         self.data["name"]=os.path.splitext(os.path.basename(wfdbheaderfile))[0]
         
         if (self.data["Verbose"]):
-            print("   Project created: "+self.data["name"])
+            print(("   Project created: "+self.data["name"]))
             
         self.data["version"]=Version
                      
@@ -368,14 +368,14 @@ class DM:
             Duration in seconds"""
                 
         if (self.data["Verbose"]):
-            print("** Opening episodes file: "+episodesFile)
+            print(("** Opening episodes file: "+episodesFile))
                 
         epFile = open(episodesFile,'r')
         index=0
         for line in epFile:
             if index!=0:
                 linedata=line.strip().split()
-                if not self.data.has_key("EpisodesType"):
+                if "EpisodesType" not in self.data:
                     self.__CreatesEpisodesInfo()
                 self.data["EpisodesType"].append(linedata[1])
                 self.data["EpisodesDuration"].append(float(linedata[2]))
@@ -387,8 +387,8 @@ class DM:
         self.data["EpisodesVisible"]=list(set(self.data["EpisodesType"]))
                 
         if (self.data["Verbose"]):
-            print("   Read "+str(len(self.data["EpisodesType"]))+" episodes from file")
-            print("   Read "+str(len(self.data["EpisodesVisible"]))+" types of episodes")
+            print(("   Read "+str(len(self.data["EpisodesType"]))+" episodes from file"))
+            print(("   Read "+str(len(self.data["EpisodesVisible"]))+" types of episodes"))
 
 
     def LoadEpisodesWFDB(self,wfdbheaderfile):
@@ -396,7 +396,7 @@ class DM:
         import glob
 
         if (self.data["Verbose"]==True):
-            print("** Loading episodes from WFDB file "+wfdbheaderfile)
+            print(("** Loading episodes from WFDB file "+wfdbheaderfile))
 
         heaFile = open(wfdbheaderfile,'r')
         line=heaFile.readline()
@@ -412,7 +412,7 @@ class DM:
             samplingFrequency = 250.0
 
         if (self.data["Verbose"]==True):
-            print("   Sampling frequency: "+str(samplingFrequency))
+            print(("   Sampling frequency: "+str(samplingFrequency)))
 
         filesfound = glob.glob(wfdbheaderfile[:-4]+".*")
         extensionsfound=[]
@@ -446,7 +446,7 @@ class DM:
         wfdbdatafile=wfdbheaderfile[:-4]+"."+extensionSelected
 
         if (self.data["Verbose"]==True):
-            print("   Trying data file: "+wfdbdatafile)
+            print(("   Trying data file: "+wfdbdatafile))
 
         try:
             ApneaTag="Apnea"
@@ -535,12 +535,12 @@ class DM:
 
         except:
             if (self.data["Verbose"]==True):
-                print("   File "+wfdbdatafile+" didn't work")
+                print(("   File "+wfdbdatafile+" didn't work"))
             Utils.ErrorWindow(messageStr="Error loading file: "+wfdbdatafile,captionStr="Error loading episodes    ")
             return
         else:
             if (self.data["Verbose"]==True):
-                print("   File "+wfdbdatafile+" has been loaded")
+                print(("   File "+wfdbdatafile+" has been loaded"))
         # print EpisodesTypes
         # print EpisodesInits
         # print EpisodesEnds
@@ -575,8 +575,8 @@ class DM:
         import zipfile, tempfile, shutil
         tempDir = tempfile.mkdtemp(prefix="gHRV")
         if self.data["Verbose"]:
-            print("** Loading project: "+datamodelFile)
-            print("   Temporal directory: "+tempDir)
+            print(("** Loading project: "+datamodelFile))
+            print(("   Temporal directory: "+tempDir))
                 
         zf = zipfile.ZipFile(datamodelFile, mode='r')
     
@@ -598,7 +598,7 @@ class DM:
                 # print("   Data: "+str(self.data[dataName]))
         zf.close()
 
-        if "version" in self.data.keys():
+        if "version" in list(self.data.keys()):
             self.data["version"] = str(self.data["version"])
             # version needs to be a string for comparison purposes
         
@@ -606,16 +606,16 @@ class DM:
         
         #print self.data["name"]
         
-        if "interpfreq" not in self.data.keys(): # Project generated with gHRV 0.17
+        if "interpfreq" not in list(self.data.keys()): # Project generated with gHRV 0.17
             if self.data['Verbose']:
                 print("   Importing project from gHRV 0.17")
-            if 'FreqHR' in self.data.keys():
+            if 'FreqHR' in list(self.data.keys()):
                 del self.data['FreqHR']
-            for k in factorySettings.keys():
+            for k in list(factorySettings.keys()):
                 self.data[k]=float(factorySettings[k])
             self.data['name']='mygHRVproject'
             
-        if "version" not in self.data.keys(): # Project generated with gHRV 0.18 or older
+        if "version" not in list(self.data.keys()): # Project generated with gHRV 0.18 or older
             if self.data['Verbose']:
                 print("   Importing project from gHRV 0.18 or older")
             self.ClearBands()
@@ -626,8 +626,8 @@ class DM:
 
         if self.data["version"]<Version:
             if self.data['Verbose']:
-                print("   gHRV version: *"+Version+"*")
-                print("   Project build with gHRV version: *"+self.data["version"]+"*")
+                print(("   gHRV version: *"+Version+"*"))
+                print(("   Project build with gHRV version: *"+self.data["version"]+"*"))
                 print("   Importing project from an old version of gHRV")
             self.ClearBands()
             if self.HasFrameBasedParams():
@@ -663,10 +663,10 @@ class DM:
         
         
         if self.data["Verbose"]:
-            print("** Saving project: "+datamodelFile)
+            print(("** Saving project: "+datamodelFile))
             #print("   Temporal directory: "+tempDir)
                             
-        for kData in self.data.keys():
+        for kData in list(self.data.keys()):
             if type(self.data[kData])==np.ndarray:
                 tempFName=tempDir+os.sep+"#"+str(kData)
                 np.savetxt(tempFName,self.data[kData])
@@ -689,11 +689,11 @@ class DM:
     def SaveFrameBasedData(self,dataFile,listOfBands,SepChar,RHeader,CHeader):
             
         if self.data["Verbose"]:
-            print("** Saving frame-based data: "+dataFile)
-            print("   List of bands: "+str(listOfBands))
-            print("   Separator: '"+SepChar+"'")
-            print("   Row header: "+str(RHeader))
-            print("   Column header: "+str(CHeader))
+            print(("** Saving frame-based data: "+dataFile))
+            print(("   List of bands: "+str(listOfBands)))
+            print(("   Separator: '"+SepChar+"'"))
+            print(("   Row header: "+str(RHeader)))
+            print(("   Column header: "+str(CHeader)))
         
         NumFrames=len(self.data["ULF"])
         File = open(dataFile,'w')
@@ -730,7 +730,7 @@ class DM:
         File.close()
         
         if self.data["Verbose"]:
-            print("   No. of lines: "+str(NumFrames))
+            print(("   No. of lines: "+str(NumFrames)))
         
                                         
     def ClearEpisodes(self):
@@ -770,9 +770,9 @@ class DM:
     def AddEpisode(self,init,end,tag):
         """Adds information of one episode"""
         if (self.data["Verbose"]):
-            print("** Adding an episode ({0:.2f},{1:.2f}) with label {2:s}".format(init,end,tag))
+            print(("** Adding an episode ({0:.2f},{1:.2f}) with label {2:s}".format(init,end,tag)))
                 
-        if not self.data.has_key("EpisodesType"):
+        if "EpisodesType" not in self.data:
             self.__CreatesEpisodesInfo()
         
         self.data["EpisodesType"].append(tag)
@@ -803,7 +803,7 @@ class DM:
         self.data["EpisodesVisible"]=[Tag for Tag in EpVis if Tag in self.data["EpisodesType"]]
 
         if (self.data["Verbose"]):
-            print("   Number of episodes: "+str(len(Episodes)))
+            print(("   Number of episodes: "+str(len(Episodes))))
                         
     def ReplaceHRVectors(self,xvector,yvector,rrvector):
         """After EditNIHR the beats (Time, niHR and RR) are replaced"""
@@ -813,16 +813,16 @@ class DM:
         self.data["RR"]=rrvector
         if (self.data["Verbose"]):
             print("** HR vectors replaced")
-            print("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")")
-            print("   niHR: "+str(len(self.data["niHR"]))+" points")
-            print("   RR: "+str(len(self.data["RR"]))+" points")
+            print(("   BeatTime: "+str(len(self.data["BeatTime"]))+" points (max: "+str(self.data["BeatTime"][-1])+")"))
+            print(("   niHR: "+str(len(self.data["niHR"]))+" points"))
+            print(("   RR: "+str(len(self.data["RR"]))+" points"))
 
                                 
     def FilterNIHR(self,winlength=50,last=13,minbpm=24,maxbpm=198):
         """Removes outliers from non interpolated heart rate"""
         if (self.data["Verbose"]):
            print ("** Filtering non-interpolated heart rate")
-           print ("   Number of original beats: "+str(len(self.data["niHR"])))
+           print(("   Number of original beats: "+str(len(self.data["niHR"]))))
 
         # threshold initialization
         ulast=last
@@ -843,7 +843,7 @@ class DM:
                 self.data["RR"]=np.delete(self.data["RR"],index)
 
         if (self.data["Verbose"]):
-            print ("   Number of filtered beats: "+str(len(self.data["BeatTime"])))
+            print(("   Number of filtered beats: "+str(len(self.data["BeatTime"]))))
 
                             
     def InterpolateNIHR(self):
@@ -853,7 +853,7 @@ class DM:
 
         if self.data["Verbose"]:
             print ("** Interpolating instantaneous heart rate (method: linear interpolation)")
-            print ("   Frequency: "+str(self.data["interpfreq"])+" Hz")
+            print(("   Frequency: "+str(self.data["interpfreq"])+" Hz"))
 
         xmin=self.data["BeatTime"][0]
         xmax=self.data["BeatTime"][-1]
@@ -863,13 +863,13 @@ class DM:
         xnew = np.arange(xmin,xmax,step)
 
         if self.data["Verbose"]:
-            print ("   Original signal from: "+str(self.data["BeatTime"][0])+" to "+str(self.data["BeatTime"][-1]))
-            print ("   Interpolating from "+str(xmin)+" to "+str(xmax)+" seconds")
+            print(("   Original signal from: "+str(self.data["BeatTime"][0])+" to "+str(self.data["BeatTime"][-1])))
+            print(("   Interpolating from "+str(xmin)+" to "+str(xmax)+" seconds"))
            
         self.data["HR"] = tck(xnew)
 
         if self.data["Verbose"]:
-            print ("   Obtained "+str(len(self.data["HR"]))+" points")
+            print(("   Obtained "+str(len(self.data["HR"]))+" points"))
 
 
     def GetNumFrames(self,interfreq,windowsize,windowshift):
@@ -926,10 +926,10 @@ class DM:
         
         
         if self.data["Verbose"]:
-            print("   Signal length: "+str(len(signal))+" samples")
-            print("   Frame length: "+str(sizesamp)+" samples")
-            print("   Frame shift: "+str(shiftsamp)+" samples")
-            print("   Number of frames: "+str(numframes))
+            print(("   Signal length: "+str(len(signal))+" samples"))
+            print(("   Frame length: "+str(sizesamp)+" samples"))
+            print(("   Frame shift: "+str(shiftsamp)+" samples"))
+            print(("   Number of frames: "+str(numframes)))
             
         self.data["ULF"]=[]
         self.data["VLF"]=[]
@@ -1051,7 +1051,7 @@ class DM:
             N = len(Data)
             jump = tau
             maxjump=(m-1)*jump
-            jumpsvect=range(0,maxjump+1,jump)
+            jumpsvect=list(range(0,maxjump+1,jump))
             # print("jumpsvect: "+str(jumpsvect))
             numjumps=len(jumpsvect)
             numelem=N-maxjump
@@ -1247,7 +1247,7 @@ class DM:
         os.mkdir(DirName+os.sep+ReportSubDir)
         
         if (self.data["Verbose"]==True):
-            print("** Creating report in directory "+DirName)
+            print(("** Creating report in directory "+DirName))
 
         if self.HasInterpolatedHR():
             if self.HasFrameBasedParams()==False:
@@ -1521,7 +1521,7 @@ class DM:
     
     def HasVisibleEpisodes(self):
         """Checks if there are visible episodes in the data model"""
-        if not self.data.has_key("EpisodesType"):
+        if "EpisodesType" not in self.data:
             return(False)
         else:
             if (len(self.data["EpisodesVisible"])>0):
@@ -1531,28 +1531,28 @@ class DM:
             
     def HasEpisodes(self):
         """Checks if there are episodes in the data model"""
-        if self.data.has_key("EpisodesType"):
+        if "EpisodesType" in self.data:
             return(True)
         else:
             return(False)
                         
     def HasHR(self):
         """Checks if there are data for plotting HR (interpolated or not)"""
-        if self.data.has_key("niHR") or self.data.has_key("HR"):
+        if "niHR" in self.data or "HR" in self.data:
             return True
         else:
             return False
             
     def HasInterpolatedHR(self):
         """Checks if there are data of interpolated HR"""
-        if self.data.has_key("HR"):
+        if "HR" in self.data:
             return True
         else:
             return False
                         
     def HasFrameBasedParams(self):
         """Checks if there is information of power bands"""
-        if self.data.has_key("ULF"):
+        if "ULF" in self.data:
             return(True)
         else:
             return(False)
@@ -1613,13 +1613,13 @@ class DM:
     
     def GetHeartRatePlotTitle(self):
         """Gets title of Heart Rate Plot"""
-        if self.data.has_key("HR"):
+        if "HR" in self.data:
             return (self.data["name"] + " - Interpolated HR")
         else:
             return(self.data["name"] + " - Non interpolated HR")
 
     def GetPoincarePlotTitle(self):
-        return (self.data["name"] + u" - Poincaré Plot")
+        return (self.data["name"] + " - Poincaré Plot")
 
     def GetPoincarePlotTags(self):
         return (self.data["PPActiveTagLeft"],self.data["PPActiveTagRight"])
@@ -1821,7 +1821,7 @@ class DM:
                 fileName = Utils.SavePlotFileName(self.GetName()+"_PP")
                 if fileName != None:
                     if self.data["Verbose"]:
-                        print("** Poincare Saving figure in file: "+fileName)
+                        print(("** Poincare Saving figure in file: "+fileName))
                     self.CreatePlotFile('Poincare',fileName,zoomReset=False,automatic=True)
 
             def configplot(event):
@@ -1840,7 +1840,7 @@ class DM:
                         assert minAxisNew<maxAxisNew
                     except:
                         error = True
-                        Utils.ErrorWindow(u"Invalid limits for Poincaré plot")
+                        Utils.ErrorWindow("Invalid limits for Poincaré plot")
                     if not error:
                         if self.GetPoincarePlotTagRight()=="None":
                             axes.set_xlim(float(minAxisNew),float(maxAxisNew))
@@ -1922,9 +1922,9 @@ class DM:
         else:  # Exporting to file reads the axis limits to create the plot
 
             if self.GetPoincarePlotTagRight()=="None":
-                if "PlotPPMin" not in self.data.keys():
+                if "PlotPPMin" not in list(self.data.keys()):
                     self.data["PlotPPMin"] = min(min(xvector), min(yvector))*0.9
-                if "PlotPPMax" not in self.data.keys():
+                if "PlotPPMax" not in list(self.data.keys()):
                     self.data["PlotPPMax"] = max(max(xvector),max(yvector))*1.1
                 axes.set_xlim(self.data["PlotPPMin"],self.data["PlotPPMax"])
                 axes.set_ylim(self.data["PlotPPMin"],self.data["PlotPPMax"])
@@ -1997,7 +1997,7 @@ class DM:
                 fileName = Utils.SavePlotFileName(self.GetName()+"_Hist")
                 if fileName != None:
                     if self.data["Verbose"]:
-                        print("** Significance histogram figure in file: "+fileName)
+                        print(("** Significance histogram figure in file: "+fileName))
                     self.CreatePlotFile('Signif',fileName,zoomReset=False,automatic=True)
                     
         def CreateButtons():
@@ -2201,7 +2201,7 @@ class DM:
                 fileName = Utils.SavePlotFileName(self.GetName()+"_HR")
                 if fileName != None:
                     if self.data["Verbose"]:
-                        print("** HR Saving figure in file: "+fileName)
+                        print(("** HR Saving figure in file: "+fileName))
                     self.CreatePlotFile('HR',fileName,zoomReset=False,automatic=True)
                 
 
@@ -2444,7 +2444,7 @@ class DM:
                 fileName = Utils.SavePlotFileName(self.GetName()+"_FB")
                 if fileName != None:
                     if self.data["Verbose"]:
-                        print("** FB Saving figure in file: "+fileName)
+                        print(("** FB Saving figure in file: "+fileName))
                     self.CreatePlotFile('FB',fileName,zoomReset=False,automatic=True)
                     
         # end of if interactive

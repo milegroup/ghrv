@@ -123,7 +123,7 @@ class SelectEpisodesTags(wx.Frame):
 
 class ConfigPoincarePlot(wx.Dialog):
     def __init__(self, parent, id, MinPrev, MaxPrev):
-        wx.Dialog.__init__(self, parent, id, u"Poincaré Plot configuration")
+        wx.Dialog.__init__(self, parent, id, "Poincaré Plot configuration")
 
         vbox = wx.BoxSizer(wx.VERTICAL)
 

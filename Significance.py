@@ -236,9 +236,9 @@ class SignificanceWindow(wx.Frame):
 
         if (numValuesLeft>signifNumMinValues) and (numValuesRight>signifNumMinValues):
             if self.ActiveTagRight:
-                cad=cad+ u"%s: %g\u00b1%g, %s: %g\u00b1%g\n" % (self.ActiveTagLeft,np.mean(valuesLeft),np.std(valuesLeft,ddof=1),self.ActiveTagRight,np.mean(valuesRight),np.std(valuesRight,ddof=1))
+                cad=cad+ "%s: %g\u00b1%g, %s: %g\u00b1%g\n" % (self.ActiveTagLeft,np.mean(valuesLeft),np.std(valuesLeft,ddof=1),self.ActiveTagRight,np.mean(valuesRight),np.std(valuesRight,ddof=1))
             else:
-                cad=cad+ u"Inside: %g\u00b1%g, Outside: %g\u00b1%g\n" % (np.mean(valuesLeft),np.std(valuesLeft,ddof=1),np.mean(valuesRight),np.std(valuesRight,ddof=1))
+                cad=cad+ "Inside: %g\u00b1%g, Outside: %g\u00b1%g\n" % (np.mean(valuesLeft),np.std(valuesLeft,ddof=1),np.mean(valuesRight),np.std(valuesRight,ddof=1))
 
             # from scipy.stats import normaltest   
             # z,pval = normaltest(valuesLeft)

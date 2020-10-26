@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding:utf-8 -*-
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
@@ -382,25 +381,25 @@ class MainWindow(wx.Frame):
             '-filter','-interp']
 
             for argument in arguments:
-            	if argument[0] == '-':
-            		if argument not in possibleArguments:
-            			print "\n** ERROR: command '"+argument+"' not recognized **\n"
-            			print "** gHRV terminal mode commands:"
-            			print HelpString
-            			sys.exit(0)
+                if argument[0] == '-':
+                    if argument not in possibleArguments:
+                        print("\n** ERROR: command '"+argument+"' not recognized **\n")
+                        print("** gHRV terminal mode commands:")
+                        print(HelpString)
+                        sys.exit(0)
 
             if "-help" in arguments:
-            	print ("\n** gHRV: terminal mode **\n")
-                print HelpString
+                print ("\n** gHRV: terminal mode **\n")
+                print(HelpString)
                 sys.exit(0)
 
             else:
-            	print ("\n** gHRV: terminal mode **\n")
-            	dm.SetVerbose(True)
-            	BeatTXTFilePresent = False
-            	EpisodesAsciiFilePresent = False
-            	InterpolationFlagPresent = False
-            	FilterFlagPresent = False
+                print ("\n** gHRV: terminal mode **\n")
+                dm.SetVerbose(True)
+                BeatTXTFilePresent = False
+                EpisodesAsciiFilePresent = False
+                InterpolationFlagPresent = False
+                FilterFlagPresent = False
 
                 if "-loadBeatTXT" in arguments:
                     BeatTXTFile = arguments[arguments.index("-loadBeatTXT")+1]
@@ -414,33 +413,33 @@ class MainWindow(wx.Frame):
                     FilterFlagPresent = True
 
                 if (EpisodesAsciiFilePresent and not BeatTXTFilePresent):
-                    print "** ERROR: trying to load episodes without beats! **\n"
+                    print("** ERROR: trying to load episodes without beats! **\n")
                     sys.exit()
                 if (FilterFlagPresent and not BeatTXTFilePresent):
-                    print "** ERROR: trying to filter without beats! **\n"
+                    print("** ERROR: trying to filter without beats! **\n")
                     sys.exit()
                 if (InterpolationFlagPresent and not BeatTXTFilePresent):
-                    print "** ERROR: trying to interpolate without beats! **\n"
+                    print("** ERROR: trying to interpolate without beats! **\n")
                     sys.exit()
 
                 try:
-                	dm.LoadFileAscii(BeatTXTFile, self.settings)
+                    dm.LoadFileAscii(BeatTXTFile, self.settings)
                 except:
-                	print "** ERROR: the file does not seem to be a valid beats file **"
-                	sys.exit(1)
+                    print("** ERROR: the file does not seem to be a valid beats file **")
+                    sys.exit(1)
                 if FilterFlagPresent:
                     dm.FilterNIHR()
                 if InterpolationFlagPresent:   
                     dm.InterpolateNIHR()
                 if EpisodesAsciiFilePresent:
-                	try:
-            			dm.LoadEpisodesAscii(EpisodesAsciiFile)
-	                except:
-	                    print "** ERROR: the file does not seem to be a valid episodes file **"
-	                    sys.exit(1)
-	                EpisodesTags=dm.GetEpisodesTags()
-	                for Tag in EpisodesTags:
-	                	dm.AssignEpisodeColor(Tag)
+                    try:
+                        dm.LoadEpisodesAscii(EpisodesAsciiFile)
+                    except:
+                        print("** ERROR: the file does not seem to be a valid episodes file **")
+                        sys.exit(1)
+                    EpisodesTags=dm.GetEpisodesTags()
+                    for Tag in EpisodesTags:
+                        dm.AssignEpisodeColor(Tag)
                 self.RefreshMainWindow()
                 self.RefreshMainWindowButtons()
 
@@ -495,7 +494,7 @@ class MainWindow(wx.Frame):
         """If config dir and file does not exist, it is created
         If config file exists, it is loaded"""
         
-        from ConfigParser import SafeConfigParser
+        from configparser import SafeConfigParser
 
         # print "Intializing configuration"
         
@@ -513,7 +512,7 @@ class MainWindow(wx.Frame):
     def ConfigLoad(self):
         """ Loads configuration file"""
         
-        from ConfigParser import SafeConfigParser
+        from configparser import SafeConfigParser
         self.settings={}
 
         options=SafeConfigParser()
@@ -527,12 +526,12 @@ class MainWindow(wx.Frame):
     def ConfigSave(self):
         """ Saves configuration file"""
         
-        from ConfigParser import SafeConfigParser
+        from configparser import SafeConfigParser
         options = SafeConfigParser()
         
         options.add_section('ghrv')
         
-        for param in self.settings.keys():
+        for param in list(self.settings.keys()):
             options.set('ghrv',param,self.settings[param])
         
         tempF = open(self.configFile,'w')
@@ -546,11 +545,11 @@ class MainWindow(wx.Frame):
         #print self.settings
 
     def CheckVersion(self):
-        from ConfigParser import SafeConfigParser
+        from configparser import SafeConfigParser
         from sys import argv
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
 
-        if "lastcheckedversion" not in self.settings.keys(): # First run of the program
+        if "lastcheckedversion" not in list(self.settings.keys()): # First run of the program
             self.settings["lastcheckedversion"]=Version
             self.ConfigSave()
 
@@ -584,11 +583,11 @@ class MainWindow(wx.Frame):
             remoteVersionFile = "https://raw.github.com/milegroup/ghrv/master/ProgramVersions/win.txt"
 
         try:
-            remoteFile = urllib2.urlopen(remoteVersionFile)
-            remoteVersion=remoteFile.readline().strip()
+            remoteFile = urllib.request.urlopen(remoteVersionFile)
+            remoteVersion=remoteFile.readline().strip().decode('utf-8')
             remoteFile.close()
-            string = string + "Version avalaible in gHRV web page: " + remoteVersion + "\n"
-        except urllib2.URLError:
+            string = string + "Version avalaible in gHRV web page: " + str(remoteVersion) + "\n"
+        except urllib.error.URLError:
             string = string + "I couldn't check for updates\n"
 
         string = string + "Last checked version "+self.settings["lastcheckedversion"]+"\n"
@@ -599,7 +598,7 @@ class MainWindow(wx.Frame):
                 self.UpdateWindowOpen(remoteVersion,platformString)
     
         if argv[0]=="gHRV.py":
-            print string
+            print(string)
 
         if ReportVersion:
             dial = wx.MessageDialog(self, caption="Version info", message=string, style=wx.OK)
@@ -720,7 +719,7 @@ class MainWindow(wx.Frame):
             dial.Destroy()
             if ext=="txt":
                 try:
-                    dm.LoadFileAscii(str(unicode(fileName)),self.settings)
+                    dm.LoadFileAscii(str(str(fileName)),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading ascii file")
@@ -731,7 +730,7 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow()
             elif ext=="hrm":
                 try:
-                    dm.LoadFilePolar(str(unicode(fileName)),self.settings)
+                    dm.LoadFilePolar(str(str(fileName)),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading polar file")
@@ -742,7 +741,7 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow()
             elif ext=="sdf":
                 try:
-                    dm.LoadFileSuunto(str(unicode(fileName)),self.settings)
+                    dm.LoadFileSuunto(str(str(fileName)),self.settings)
                     
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
@@ -757,7 +756,7 @@ class MainWindow(wx.Frame):
                 # result = dial.ShowModal()
                 # dial.Destroy()
                 try: 
-                    dm.LoadBeatWFDB(str(unicode(fileName)),self.settings)
+                    dm.LoadBeatWFDB(str(str(fileName)),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename:\n"+fileName,
                                      captionStr="Error loading WFDB file")
@@ -769,7 +768,7 @@ class MainWindow(wx.Frame):
                         self.RefreshMainWindow()
             else:
                 try:
-                    dm.LoadFileAscii(str(unicode(fileName)),self.settings)
+                    dm.LoadFileAscii(str(str(fileName)),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading ascii file")
@@ -792,7 +791,7 @@ class MainWindow(wx.Frame):
             dial.Destroy()
             if ext=="txt":
                 try:
-                    dm.LoadEpisodesAscii(str(unicode(fileName)))
+                    dm.LoadEpisodesAscii(str(str(fileName)))
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                          captionStr="Error loading episodes file")
@@ -804,7 +803,7 @@ class MainWindow(wx.Frame):
                         
             elif ext=="hea":
                 try:
-                    dm.LoadEpisodesWFDB(str(unicode(fileName)))
+                    dm.LoadEpisodesWFDB(str(str(fileName)))
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                          captionStr="Error loading episodes file")
@@ -840,13 +839,13 @@ class MainWindow(wx.Frame):
             dial.Destroy()
                             
             try:
-                dm.LoadProject(str(unicode(fileName)))
+                dm.LoadProject(str(str(fileName)))
             except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading project file")
             except:
                 import sys
-                print sys.exc_info()
+                print(sys.exc_info())
                 Utils.ErrorWindow(messageStr=fileName+" does not seem to be a valid project file",captionStr="Error loading project file")
             else:
                 self.RefreshMainWindow()                
@@ -859,7 +858,7 @@ class MainWindow(wx.Frame):
         if result == wx.ID_OK:
             fileName=dial.GetPath()
             try:
-                dm.SaveProject(str(unicode(fileName)))
+                dm.SaveProject(str(str(fileName)))
                 Utils.InformCorrectFile(fileName)
             except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
@@ -1013,7 +1012,7 @@ class MainWindow(wx.Frame):
         self.RefreshMainWindowButtons()
                 
         nothingChanges = True
-        for k in self.projectSettings.keys():
+        for k in list(self.projectSettings.keys()):
             if self.projectSettings[k] != self.oldProjectSettings[k]:
                 nothingChanges = False
         
@@ -1021,7 +1020,7 @@ class MainWindow(wx.Frame):
             return # No changes in options
         
         onlyNameChanges = True
-        for k in self.projectSettings.keys():
+        for k in list(self.projectSettings.keys()):
             if k != 'name':
                 if self.projectSettings[k] != self.oldProjectSettings[k]:
                     onlyNameChanges = False
@@ -1326,14 +1325,14 @@ class ConfigurationWindow(wx.Frame):
         tmpSettings['hfmax'] = str(self.HFMax.GetValue())
             
         try:
-            for k in tmpSettings.keys():
+            for k in list(tmpSettings.keys()):
                 x=float(tmpSettings[k])
         except:
             messageError="One or more of the parameters are not valid numbers"
             error=True
         
         if not error:
-            for k in tmpSettings.keys():
+            for k in list(tmpSettings.keys()):
                 if float(tmpSettings[k])<0:
                     messageError="Parameters must be positive numbers"
                     error = True
@@ -1354,7 +1353,7 @@ class ConfigurationWindow(wx.Frame):
                     
         if not error and self.conftype=="project":
             try:
-                tmp = str(unicode(str(self.ProjName.GetValue())))
+                tmp = str(str(str(self.ProjName.GetValue())))
             except:
                 error = True
                 messageError="Illegal characters in project name"
@@ -1369,7 +1368,7 @@ class ConfigurationWindow(wx.Frame):
             self.WindowParent.ErrorWindow(messageStr=messageError)
             self.Raise()
         else:
-            for k in tmpSettings.keys():
+            for k in list(tmpSettings.keys()):
                 self.settings[k] = str(float(tmpSettings[k]))
             if self.conftype=="project":
                 self.settings['name']=str(self.ProjName.GetValue())
