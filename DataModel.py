@@ -970,10 +970,9 @@ class DM:
             # print("Frame power (time): "+str(hammingfactor*np.mean(frame*frame))+" ms^2")
 
             spec_tmp=np.absolute(np.fft.fft(frame))**2
-            spec=spec_tmp[0:(len(spec_tmp)/2)] # Only positive half of spectrum
+            spec=spec_tmp[0:(len(spec_tmp)//2)] # Only positive half of spectrum
 
             freqs = np.linspace(start=0,stop=self.data["interpfreq"]/2,num=len(spec),endpoint=True)
-
             
             # print("Frame power (frequency): "+str(power(spec,freqs,0,self.data["interpfreq"]/2)))
             

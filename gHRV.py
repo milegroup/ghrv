@@ -719,7 +719,7 @@ class MainWindow(wx.Frame):
             dial.Destroy()
             if ext=="txt":
                 try:
-                    dm.LoadFileAscii(str(str(fileName)),self.settings)
+                    dm.LoadFileAscii(str(fileName),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading ascii file")
@@ -730,7 +730,7 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow()
             elif ext=="hrm":
                 try:
-                    dm.LoadFilePolar(str(str(fileName)),self.settings)
+                    dm.LoadFilePolar(str(fileName),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading polar file")
@@ -741,7 +741,7 @@ class MainWindow(wx.Frame):
                     self.RefreshMainWindow()
             elif ext=="sdf":
                 try:
-                    dm.LoadFileSuunto(str(str(fileName)),self.settings)
+                    dm.LoadFileSuunto(str(fileName),self.settings)
                     
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
@@ -756,7 +756,7 @@ class MainWindow(wx.Frame):
                 # result = dial.ShowModal()
                 # dial.Destroy()
                 try: 
-                    dm.LoadBeatWFDB(str(str(fileName)),self.settings)
+                    dm.LoadBeatWFDB(str(fileName),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename:\n"+fileName,
                                      captionStr="Error loading WFDB file")
@@ -768,7 +768,7 @@ class MainWindow(wx.Frame):
                         self.RefreshMainWindow()
             else:
                 try:
-                    dm.LoadFileAscii(str(str(fileName)),self.settings)
+                    dm.LoadFileAscii(str(fileName),self.settings)
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading ascii file")
@@ -791,7 +791,7 @@ class MainWindow(wx.Frame):
             dial.Destroy()
             if ext=="txt":
                 try:
-                    dm.LoadEpisodesAscii(str(str(fileName)))
+                    dm.LoadEpisodesAscii(str(fileName))
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                          captionStr="Error loading episodes file")
@@ -803,7 +803,7 @@ class MainWindow(wx.Frame):
                         
             elif ext=="hea":
                 try:
-                    dm.LoadEpisodesWFDB(str(str(fileName)))
+                    dm.LoadEpisodesWFDB(str(fileName))
                 except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                          captionStr="Error loading episodes file")
@@ -839,7 +839,7 @@ class MainWindow(wx.Frame):
             dial.Destroy()
                             
             try:
-                dm.LoadProject(str(str(fileName)))
+                dm.LoadProject(str(fileName))
             except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
                                      captionStr="Error loading project file")
@@ -858,7 +858,7 @@ class MainWindow(wx.Frame):
         if result == wx.ID_OK:
             fileName=dial.GetPath()
             try:
-                dm.SaveProject(str(str(fileName)))
+                dm.SaveProject(str(fileName))
                 Utils.InformCorrectFile(fileName)
             except UnicodeEncodeError:
                     Utils.ErrorWindow(messageStr="Ilegal characters in filename: "+fileName,
@@ -1353,7 +1353,7 @@ class ConfigurationWindow(wx.Frame):
                     
         if not error and self.conftype=="project":
             try:
-                tmp = str(str(str(self.ProjName.GetValue())))
+                tmp = str(self.ProjName.GetValue())
             except:
                 error = True
                 messageError="Illegal characters in project name"
