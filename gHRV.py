@@ -2,7 +2,7 @@
 
 #   ----------------------------------------------------------------------
 #   gHRV: a graphical application for Heart Rate Variability analysis
-#   Copyright (C) 2018 LIA2 Research Group - Dpt. Informatics
+#   Copyright (C) 2020 LIA2 Research Group - Dpt. Informatics
 #      University of Vigo - Spain
 #
 #   Authors:
@@ -494,7 +494,7 @@ class MainWindow(wx.Frame):
         """If config dir and file does not exist, it is created
         If config file exists, it is loaded"""
         
-        from configparser import SafeConfigParser
+        from configparser import ConfigParser
 
         # print "Intializing configuration"
         
@@ -512,10 +512,10 @@ class MainWindow(wx.Frame):
     def ConfigLoad(self):
         """ Loads configuration file"""
         
-        from configparser import SafeConfigParser
+        from configparser import ConfigParser
         self.settings={}
 
-        options=SafeConfigParser()
+        options=ConfigParser()
         options.read(self.configFile)
         for section in options.sections():
             for param,value in options.items(section):
@@ -526,8 +526,8 @@ class MainWindow(wx.Frame):
     def ConfigSave(self):
         """ Saves configuration file"""
         
-        from configparser import SafeConfigParser
-        options = SafeConfigParser()
+        from configparser import ConfigParser
+        options = ConfigParser()
         
         options.add_section('ghrv')
         
@@ -545,7 +545,7 @@ class MainWindow(wx.Frame):
         #print self.settings
 
     def CheckVersion(self):
-        from configparser import SafeConfigParser
+        from configparser import ConfigParser
         from sys import argv
         import urllib.request, urllib.error, urllib.parse
 
