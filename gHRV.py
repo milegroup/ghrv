@@ -266,12 +266,12 @@ class MainWindow(wx.Frame):
         self.buttonAnalyze.Disable()
         
         
-        self.buttonTemporal = wx.Button(self.MainPanel, -1, label="Frame-based evolution...")
+        self.buttonTemporal = wx.Button(self.MainPanel, -1, label="Frame-based evolution")
         sbToolsButtonsSizer.Add(self.buttonTemporal, flag=wx.ALL | wx.EXPAND, border=borderSmall)
         self.Bind(wx.EVT_BUTTON, self.OnFrameBased, id=self.buttonTemporal.GetId())
         self.buttonTemporal.SetToolTip(wx.ToolTip("Temporal evolution of parameters"))
-        # if platform != 'darwin' and ColoredButtons:
-        #     self.buttonTemporal.SetBackgroundColour(TemporalBGColor)
+        if platform != 'darwin' and ColoredButtons:
+            self.buttonTemporal.SetBackgroundColour(TemporalBGColor)
         self.buttonTemporal.Disable()
         
         self.buttonReport = wx.Button(self.MainPanel, -1, label="Report")
