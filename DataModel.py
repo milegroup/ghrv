@@ -1942,7 +1942,7 @@ class DM:
             SignifAxes = fig.add_subplot(1,1,1)    
             SignifAxes.hist([valuesleft,valuesright], self.signifNumBins, 
                             weights = [valuesleftweight,valuesrightweight],
-                            normed=False, histtype='bar',
+                            density=False, histtype='bar',
                             color=['red', 'cyan'],
                             label=labels)
             SignifAxes.set_title('Histogram: '+self.ActiveParamSignif)
@@ -2090,7 +2090,7 @@ class DM:
     def CreatePlotHRHistogramEmbedded(self,fig):
         axes = fig.add_subplot(1,1,1)
         xvector, yvector = self.GetHRDataPlot()
-        axes.hist(yvector, 30, normed=1, facecolor="blue")
+        axes.hist(yvector, 30, density=True, facecolor="blue")
         axes.set_xlabel("HR (beats/min.)")
         axes.set_ylabel("Probability")
         axes.set_title("HR histogram")
@@ -2099,7 +2099,7 @@ class DM:
         
     def CreatePlotRRHistogramEmbedded(self,fig):
         axes = fig.add_subplot(1,1,1)
-        axes.hist(self.data["RR"], 30, normed=1, facecolor="red")
+        axes.hist(self.data["RR"], 30, density=True, facecolor="red")
         axes.set_xlabel("RR (msec.)")
         axes.set_ylabel("Probability")
         axes.set_title("RR histogram")
@@ -2221,7 +2221,7 @@ class DM:
             self.data["PlotHRXMin"]=xvector[0]
             self.data["PlotHRXMax"]=xvector[-1]
         
-        HRaxes.plot(xvector,yvector,'k-')
+        HRaxes.plot(xvector,yvector,'k-', linewidth=0.75)
         HRaxes.set_xlabel("Time (sec.)")
         HRaxes.set_ylabel("HR (beats/min.)")
         
@@ -2329,7 +2329,7 @@ class DM:
         """ Redraws the frame-based evolution figure"""
         
         def CreateBandSupblot(axes,x,y,ylabel):
-            axes.plot(x,y,'-k')        
+            axes.plot(x,y,'-k', linewidth=0.75)        
             axes.set_ylabel(ylabel)
             if ylabel not in ["Mean HR","HR STD","ApEn","Heart rate"]:
                 axes.set_ylim(bottom=0)

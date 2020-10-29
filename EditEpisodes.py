@@ -186,7 +186,7 @@ class EditEpisodesWindow(wx.Frame):
         #
         self.axes.clear()        
         
-        self.axes.plot(self.xvector,self.yvector,'k-')
+        self.axes.plot(self.xvector,self.yvector,'k-', linewidth=0.75)
         self.axes.set_xlabel("Time (sec.)")
         self.axes.set_ylabel("HR (beats/min.)")
         self.axes.set_title(self.dm.GetHeartRatePlotTitle())
