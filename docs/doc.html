@@ -1,0 +1,624 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>gHRV by milegroup</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="alternate stylesheet" title="printable" href="stylesheets/printable.css" />
+    <script src="javascripts/scale.fix.js"></script>
+    <script src="javascripts/styleswitch.js" type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <img src="./images/LogoBig.png"/>
+        <h1 class="header">gHRV</h1>
+        <p class="header">A graphical tool for Heart-Rate Variability analysis</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="./index.html">Main page</a></li>
+          <li class="download"><a class="buttonspack" href="./packages.html">Packages</a></li>
+          <li><a class="buttons github" href="https://github.com/milegroup/ghrv">GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/milegroup">milegroup</a></p>
+
+
+      </header>
+
+      <section>
+
+        <FORM  NAME="myform">
+          <INPUT class="printablebutton" TYPE="button" NAME="button" Value="Printable version" onClick="javascript:chooseStyle('printable', 60)">
+          <INPUT class="defaultbutton" TYPE="button" NAME="button" Value="Default style" onClick="javascript:chooseStyle('default', 60)">
+        </FORM>
+        
+        <br/>
+        <br/>
+
+        <h1>Table of contents</h1>
+          <ul>
+            <li><a class="toc" href="#overview">Overview</a></li>
+
+            <li><a class="toc" href="#gs">Getting Started</a>
+            <ul>
+              <li><a class="toc" href="#gs:ld">License and Disclaimer</a></li>
+              <li><a class="toc" href="#gs:sr">System Requirements</a></li>
+              <li><a class="toc" href="#gs:do">Downloading <strong>gHRV</strong></a></li>
+              <li><a class="toc" href="#gs:in">Installing <strong>gHRV</strong></a></li>
+              <li><a class="toc" href="#gs:un">Uninstalling <strong>gHRV</strong></a></li>
+              <li><a class="toc" href="#gs:up">Updating <strong>gHRV</strong></a></li>
+              <li><a class="toc" href="#gs:ki">Known Issues </a></li>
+            </ul></li>
+
+            <li><a class="toc" href="#ugs">Using gHRV Software</a>
+            <ul>
+              <li><a class="toc" href="#ugs:rg">Running <strong>gHRV</strong></a></li>
+              <li><a class="toc" href="#ugs:rgt">Running <strong>gHRV</strong> from terminal (Linux/GNU)</a></li>
+              <li><a class="toc" href="#ugs:pp">Projects Panel</a></li>
+              <li><a class="toc" href="#ugs:hp">Heart Rate Data Panel </a></li>
+              <li><a class="toc" href="#ugs:ep">Episodes Panel </a></li>
+              <li><a class="toc" href="#ugs:tp">Tools Panel</a></li>
+              <li><a class="toc" href="#ugs:gp"><strong>gHRV</strong> Panel</a></li>
+            </ul></li>
+
+            <li><a class="toc" href="#references">References</a></li>
+          </ul>
+
+        <h1 id="overview">Overview</h1>
+          <p>Heart Rate Variability (HRV) can be defined as the variations in the sequence of periods between consecutive heartbeats, and it is regulated by factors extrinsic to the circulatory system. Variability is the result of a trade-off between the influence of the parasympathetic system (accelerating the heart rate) and the sympathetic system (slowing the heart rate). This relationship was experimentally determined by Aselkrod in 1981 <a class="cite" href="#references">[Aksel81]</a>. Since then, its clinical usefulness in various pathologies such as myocardial infarction, hypertension, heart failure, transplantation, etc, has been studied <a class="cite" href="#references">[Malik95]</a> <a class="cite" href="#references">[Task96]</a>. The typical HRV spectrum of a healthy person at rest is mainly composed of two components: a low frequency band (LF), from 0.04 to 0.15 Hz; and a high frequency band (HF) ranging from 0.15 to 0.4 Hz.</p>
+
+          <p>HRV analysis has been a very active research field for the last twenty years. Distinct techniques have been proposed in this area, such as spectral analysis, non-lineal techniques or time-domain methods <a class="cite" href="#references">[Achar06]</a> <a class="cite" href="#references">[Chang07]</a> .</p>
+
+          <p>At the present moment, HRV analysis has not been established as a standard method for diagnosis. This has conducted providers of medical technology at excluding this type of analysis in their devices, and researchers depend on software applications in order to apply additional processing methods.</p>
+
+          <p>The common factor for all the algorithms aimed at helping clinicians in the HRV analysis is the fact that the majority of them have been implemented by particular investigation groups, which are forced to develop their own and proprietary software, due to the lack of a common software package, easily accessible and downloadable, that fulfills the particular requirements of each research association.</p>
+
+          <p>To perform this task, many programming languages are employed, such as Matlab <a class="cite" href="#references">[MatHRV]</a>,  Java <a class="cite" href="#references">[Bogu11]</a>, or even LabView <a class="cite" href="#references">[Nati09]</a>. Other software packages also deserve comment, such as the Kubios-HRV <a class="cite" href="#references">[Tarv14]</a>.</p>
+
+          <p>Many applications can be found in the literature, including generation of correlated discrete ordinal data arising from longitudinal studies of medical research <a class="cite" href="#references">[Ibra11]</a>, detection of breast cancer <a class="cite" href="#references">[Roca12]</a>, population pharmacokinetic modeling for analyzing drugs effects and individual variations <a class="cite" href="#references">[Sun11]</a>, or time-series analysis <a class="cite" href="#references">[Koso11]</a>.</p>
+
+          <p>Due to the growing scientific community developing specific software, and attending to the requirements of researchers, that usually need to unify software functionality into one open source and easily extendible tool, we have developed <strong>gHRV</strong>, a software package for HRV analysis (partially based on RHRV <a class="cite" href="#references">[Rodr11]</a>), in an attempt to help clinicians in the analysis of the heart rate. <strong>gHRV</strong> offers a powerful and simple graphical interface. Central ideas behind its design are easy of installation and of use.</p>
+
+          <p><strong>gHRV</strong> has been implemented employing Python <a class="cite" href="#references">[Pyth]</a>, based on object oriented programming (although it also supports imperative and functional programming), giving clean and legible code, which improves software maintenance. Besides, it makes a quite efficient use of memory and it is very extensible, thanks to libraries available to programmers. These advantages make Python one of the ten most used programming languages in this moment. Appart from these benefits, Python provides:</p>
+            <p><ul><li>A high grade of efficiency and portability.</li>
+              <li>Efficient and flexible libraries, which allow to implement a graphical interface, advanced mathematical functions and highly customizable plotting capability.</li>
+              <li>Developing tools (IDEs or Integrated Development Environments, compilers, debuggers...) freely available for distinct operating systems.</li>
+            </ul></p>
+
+          <p><strong>gHRV</strong> is a simple and easy-to-use graphical interface, and guided interaction with the user is performed in order to minimize errors and functional problems. With this purpose, the interface enables or disables interactive elements depending on the state of the interaction.</p>
+
+          <p>An important functionality of <strong>gHRV</strong> is the possibility to deal with different episodes (apnea, ischemia,...), creating or adding new episodes or deleting existing ones, and to obtain time evolution of power in frequency bands.</p>
+
+          <p>The following main functionalities are provided:</p>
+          <p><ul>
+            <li>Heartbeats: file loading and exporting, automatic filtering, manual filtering and interpolation.</li>
+            <li>Episodes: file loading, removing all episodes and editing.</li>
+            <li>Frame-based evolution: time evolution of power in frequency bands, and non-linear and temporal parameters.</li>
+            <li>Poincar&eacute; plots: representation of the Poincar&eacute; plots of the RR (beat-to-beat) intervals.</li>
+            <li>Significance analysis: statistical analysis of spectral parameters, in and out episodes.</li>
+          </ul></p>
+
+          <p>Details of the implementation and installation instructions are given on the following.</p>
+
+
+        <h1 id="gs">Getting Started</h1>
+
+        <h2 id="gs:ld">License and Disclaimer</h2>
+
+        <p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
+        
+        <p>The programmers of this software provide the software below “as is," and you use the software at your own risk. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. No oral or written communication from or information provided by the programmers shall create a warranty. Under no circumstances shall the programmers of this software be liable for direct, indirect, special, incidental, or consequential damages resulting from the use, misuse, or inability to use this software.</p>
+
+        <h2 id="gs:sr">System Requirements</h2>
+
+        <p><strong>gHRV</strong> runs on Windows, Linux or OSX operating systems. Minimal system requirements are:</p>
+        <ul>
+          <li>Windows: Windows XP or newer, 32 or 64 bits.</li>
+          <li>OSX: MacOSX Lion or newer.</li>
+          <li>Linux: Recent distribution based on deb packages. Tested on Ubuntu 11.10, 12.04 LTS, 12.10 and 13.10.</li>
+        </ul>
+
+
+        <h2 id="gs:do" >Downloading <strong>gHRV</strong></h2>
+
+        <p><strong>gHRV</strong> can be downloaded from <a href="http://milegroup.github.com/ghrv/packages.html">http://milegroup.github.com/ghrv/packages.html</a>. <strong>gHRV</strong> is distributed as free software (GNU GPL) and binaries for Windows, MacOSX and Debian/Ubuntu systems are provided as well.</p>
+
+        <p>For downloading <strong>gHRV</strong>, select the corresponding version for your operating system. Although different versions are avalaible, we recommend the most recent 1.5. In this documentation, X and YY refer to the version and the subversion of the <strong>gHRV</strong> program.</p>
+
+        <p>In <a href="http://milegroup.github.com/ghrv/packages.html">http://milegroup.github.com/ghrv/packages.html</a> the source code and some example files are also avalaible:</p>
+        <p><ul>
+          <li>An ascii file containing beats positions: <strong>beat_ascii.txt</strong>.</li>
+          <li>An ascii file containing episodes: <strong>episodes.txt</strong>.</li>
+          <li>A simple gHRV project with episodes: <strong>SimpleProject.ghrv</strong>.</li>
+          <li>A gHRV project containing samples during and after physical exercise: <strong>Training.ghrv</strong>.</li>
+          <li>An example of a report created by gHRV and exported as html: <strong>TrainingReport.zip</strong>.</li>
+        </ul></p>
+
+
+        <h2  id="gs:in">Installing <strong>gHRV</strong></h2>
+
+        <h3>Windows</h3>
+
+        <p>Windows binary is available as a <strong>gHRV_X_YY.msi file</strong>. Installation is straightforward: double click on the file. First, the installer must be authorized to proceed.</p>
+
+        <img src="docfigures/Figure2.jpg" class="screenshot"/>
+        <p class="imgtxt">Windows installation: security warning</p>
+
+        <p>The <strong>gHRV</strong> setup wizard opens: follow the instructions to complete the installation process.</p>
+
+        <img src="docfigures/Figure3.jpg" class="screenshot"/>
+        <p class="imgtxt">Windows installation: setup wizard</p>
+
+        <p>After license agreement, <strong>gHRV</strong> is installed on your system. Installation also creates a link of the tool in your desktop.</p>
+        
+        <p><strong>gHRV</strong> has been tested on Windows XP and Windows 7 (32 and 64 bits). </p>
+
+        <h3>OSX</h3>
+
+        <p>OSX binary is distributed as a <strong>gHRV_X_YY.dmg</strong> file. Depending on the security configuration of the computer, it may be possible that the system does not allow to install the program the usual way. In this case, the simplest and easiest way is to CTRL-click (or right click) the <strong>gHRV_X_YY.dmg</strong> file, and on the revealed context menu, choose ‘Open.’ A new window will appear with a file named gHRV.app inside. </p>
+
+        <img src="docfigures/Figure4.jpg" class="screenshot"/>
+        <p class="imgtxt">OSX installation: folder containing the installation files for <strong>gHRV</strong></p>
+
+        <p>Just drag this file to the <strong>Applications</strong> folder.</p>
+
+        <img src="docfigures/Figure5.jpg" class="screenshot"/>
+        <p class="imgtxt">Installing <strong>gHRV</strong> in OSX</p>
+
+        <p>Then, you can eject the unit that was mounted by the <strong>.dmg</strong> file. <strong>gHRV</strong> has been tested on OSX Mountain Lion, Lion and Mavericks.</p>
+
+        <h3>Deb-based linux systems</h3>
+        <p><strong>gHRV</strong> is distributed as a <strong>gHRV_X.YY_all.deb</strong> package. The easiest way to install is to download this package, open a terminal and change to the directory where the file is. Then use the commands:</p>
+        <pre>$ sudo apt-get install gdebi<br/>$ sudo gdebi gHRV_X.YY_all.deb</pre>
+        <p>gdebi installs gHRV and its dependencies. The program is avalaible both in the Start menu and in console mode as <strong>gHRV</strong>.</p>
+        <p>You can also install gHRV with the Software Centre.</p>
+
+        <img src="docfigures/Figure6.jpg" class="screenshot"/>
+        <p class="imgtxt">Installing <strong>gHRV</strong> in Linux Software Centre</p>
+
+        <p>Click on <strong>Open with</strong> and, on the next step, click on <strong>Install</strong>.</p>
+
+        <img src="docfigures/Figure7.jpg" class="screenshot"/>
+        <p class="imgtxt">Installing <strong>gHRV</strong> in Linux Software Centre (II)</p>
+
+        <p><strong>gHRV</strong> has been tested on Ubuntu desktop from 11.10. Users of Ubuntu 16.04 and newer must install gHRV 1.9</p>
+
+        <h3>Source package</h3>
+        <p><strong>gHRV</strong> sources are distributed as a <strong>gHRV_X.YY.tar.gz</strong>. Advanced users can run the program from the source code. A working interpreter of the Python programming language is needed with the following libraries:</p>
+        <p><ul>
+          <li>Matplotlib</li>
+          <li>wxPython</li>
+          <li>Numpy</li>
+          <li>Scipy</li>
+        </ul></p>
+        <p>In Linux debian-based systems, just open a terminal and use one of the following commands. This was tested on Ubuntu 15.10 and lower:</p>
+        <pre>$ sudo apt-get install python-numpy python-wxgtk2.8 python-matplotlib python-scipy python-tk</pre>
+
+        <p>This was tested on Ubuntu 16.04 and higher:</p>        
+        <pre>$ sudo apt-get install python-numpy python-wxgtk3.0 python-matplotlib python-scipy python-tk</pre> 
+        <p>Then, go to the directory where the .tar.gz was extracted and use:</p>
+        <pre>$ python gHRV.py</pre>
+
+        <h2 id="gs:un">Uninstalling <strong>gHRV</strong></h2>
+
+        <h3>Windows</h3>
+
+        <p>To uninstall <strong>gHRV</strong>, go to <strong>Start -> Control Panel -> Add or Remove programs</strong>, select <strong>gHRV</strong> and press the <strong>Remove</strong> button.</p>
+
+        <h3>OSX</h3>
+
+        <p>To uninstall <strong>gHRV</strong>, just drag the <strong>gHRV</strong> program from the <strong>Applications</strong> folder to the <strong>Trash</strong> folder.</p>
+
+        <h3>Deb-based linux systems</h3>
+
+        <p>To uninstall <strong>gHRV</strong>, open a terminal and use the command:</p>
+
+        <pre>$ sudo apt-get remove ghrv</pre>
+
+
+        <h2 id="gs:up">Updating <strong>gHRV</strong></h2>
+
+        <p>To update <strong>gHRV</strong> to a newer version, just make a new install with the procedure decribed above. The installation procedure updates the program automatically.</p>
+
+        <h2 id="gs:ki">Known Issues </h2>
+
+        <h3>OSX</h3>
+
+        <p>There is some focus problem in OSX implementation of wxpython libraries. The effect of this problem is that sometimes, just after running <strong>gHRV</strong>, new windows are not shown. Normally, clicking on the <strong>gHRV</strong> icon in the dock solves this problem.</p>
+
+        <h3>Deb-based linux systems</h3>
+
+        <p>If Linux version is called from a terminal, there maybe a warning (Gtk-WARNING **: Unable to retrieve the file info...) in the terminal when saving a new project. This is caused by the implementation of file dialogs in some libraries. Users can ignore this message since the file is saved correctly.</p>
+
+        <h1 id="ugs">Using gHRV Software</h1>
+
+        <h2 id="ugs:rg">Running <strong>gHRV</strong></h2>
+
+        <p><strong>gHRV</strong> application provides a broad functionality related to HRV analysis, and can be easily and intuitively used, presenting results in a very illustrative and attractive way for the user. To execute <strong>gHRV</strong> just click on the icon.</p>
+
+        <img src="docfigures/Figure8.jpg" class="screenshot"/>
+        <p class="imgtxt"><strong>gHRV</strong> icon</p>
+
+        <p>The main window of <strong>gHRV</strong> will be shown. On the left hand side of the window, several options can be selected. After starting <strong>gHRV</strong>, the user can select to load either a project or a hear rate data file, by clicking the corresponding option. The remaining functionalities are activated either when data are avaliable or it becomes possible to perform the action.</p>
+
+        <img src="docfigures/Figure9.jpg" class="screenshot"/>
+        <p class="imgtxt">Initial view of <strong>gHRV</strong></p>
+
+        
+
+        <p>A detailed description about all the options are given in the next Sections of this manual.</p>
+
+        <h2 id="ugs:rgt">Running <strong>gHRV</strong> from terminal (GNU/Linux)</h2>
+
+        <p><strong>gHRV</strong> can be run from a terminal when installed on a GNU/Linux system. This mode allows users to instruct <strong>gHRV</strong> to load beats files and episodes files or interpolate and automatically filter heart rate records. After these operations are performed, <strong>gHRV</strong> opens its graphical interface exactly as these operations were done using the graphical capabilities of the program.</p>
+
+        <p>For more information, open a terminal in linux and use the following command:</p>
+        <pre>$ gHRV -help</pre>
+
+
+
+        <h2 id="ugs:pp">Projects Panel</h2>
+
+        <h3>Load</h3>
+        <p><strong>gHRV</strong> can create .gHRV project files, with a specific format, that can be imported later. To load a previously created project, just click on <strong>Load</strong>, and select the corresponding file project. As an example, you can download from the web page <a href="http://milegroup.github.com/ghrv/packages.html">http://milegroup.github.com/ghrv/packages.html</a> the file SimpleProject.gHRV.</p>
+
+        <img src="docfigures/Figure10.jpg" class="screenshot"/>
+        <p class="imgtxt">Initial loading options for <strong>gHRV</strong></p>
+
+        <p>If the file format is not accepted by <strong>gHRV</strong>, an error message will appear.</p>
+
+        <img src="docfigures/Figure11.jpg" class="screenshot"/>
+        <p class="imgtxt">Initial project loading error message</p>       
+
+        <p>After the project has been loaded, the <strong>Load</strong> buttons are all disabled, and the <strong>Save, Clear</strong> and <strong>Settings </strong> options from the <strong>Projects Panel</strong> are now enabled.</p> 
+
+        <img src="docfigures/Figure12.jpg" class="screenshot"/>
+        <p class="imgtxt"><strong>gHRV</strong> project retrieved from SimpleProject.ghrv file</p>       
+
+        <p>In the upper left corner of the graph area, buttons for zooming in or out and panning the graph, and for saving the plot can be observed.</p>
+
+        <img src="docfigures/Figure13.jpg" class="screenshot"/>
+        <p class="imgtxt">Buttons for zooming, panning and saving the plot</p>     
+        
+        <p>These functions allow the user to manipulate the graphical representation and to exports plots that can be used in other programs. Exporting formats are .jpg, .png, .pdf, .svg, .tif and .eps (availability of some of these formats depends on the operating system).</p>   
+
+        <h3>Save</h3>
+        <p><strong>Save</strong> button allows users to save projects.</p>
+  
+        <img src="docfigures/Figure14.jpg" class="screenshot"/>
+        <p class="imgtxt">Saving a new project in <strong>gHRV</strong></p>   
+
+        <h3>Clear</h3>
+        <p>Just click on the button, and a confirmation window will appear, giving the user the possibility of removing the project from the <strong>gHRV</strong> active interface.</p>
+
+        <img src="docfigures/Figure15.jpg" class="screenshot"/>
+        <p class="imgtxt">Removing a project from <strong>gHRV</strong> memory</p>   
+
+        <h3>Settings</h3>
+        <p><strong>Settings</strong> button can be used when either frequency or window analyzing values are to modified. This options will be explained when describing the <strong>Config</strong> option, in the <strong>gHRV</strong> panel. The project name can also be changed (not the file name, for this option you must use <strong>Save</strong>). </p>
+
+        <img src="docfigures/Figure16.jpg" class="screenshot"/>
+        <p class="imgtxt"><strong>Settings</strong> options panel</p>   
+
+        <p>When clicking <strong>Apply</strong>, a new window appears, asking for confirmation.</p>
+
+       <img src="docfigures/Figure17.jpg" class="screenshot"/>
+        <p class="imgtxt"><strong>Setting</strong> options panel: creating a new project</p>   
+
+
+        <h2 id="ugs:hp">Heart Rate Data Panel</h2>
+        <p><strong>gHRV</strong> reads different heart rate data file formats: Polar, Suunto, ASCII (beats and RR series) and WFDB (qrs) beats files. As an example, you can download from the <a href="http://milegroup.github.com/ghrv/doc.html"> http://milegroup.github.com/ghrv/doc.html </a> the file <strong>beat_ascii.txt</strong>, where data are in a single-column ascii file, indicating the beats position from a previously annotated ECG file.</p>
+
+        <img src="docfigures/Figure18.jpg" class="screenshot"/>
+        <p class="imgtxt">Accepted format file for heart rate data</p>   
+
+        <p>The instantaneous heart rate can be defined as the inverse of the time separation between two consecutive heart beats. Once the beats have been loaded, the heart rate is calculated. In mathematical terms, this corresponds to the calculation of the series:</p>
+
+        <pre>HR(i)=1000/[T(i)-T(i-1)]</pre>
+
+        <p>where HR(i) is the instantaneous heart rate, and T(i) is the position of the i-th beat, measured in milliseconds.</p>
+
+        <h3>Load</h3>
+        <p>To load a heart rate data file, just click on <strong>Load</strong>, and select the corresponding file.</p>
+
+        <img src="docfigures/Figure19.jpg" class="screenshot"/>
+        <p class="imgtxt">Initial loading options for heart rate data panel</p>   
+
+        <p>If the data file format is not accepted by <strong>gHRV</strong>, an error message is displayed.</p>
+
+        <img src="docfigures/Figure20.jpg" class="screenshot"/>
+        <p class="imgtxt">Initial heart rate data file loading error message</p>   
+
+        <p>After a file has been loaded, it can be observed that the <strong>Load</strong> button is diabled, and <strong>Filter</strong>, <strong>Edit</strong> and <strong>Export</strong> buttons in the <strong>Heart Rate Data Panel</strong> are now enabled, and can be used.</p>
+
+        <img src="docfigures/Figure21.jpg" class="screenshot"/>
+        <p class="imgtxt">Heart rate data shown in main window</p>
+
+        <p>In order to load beats from a WFDB record, just open the .hea file. <strong>gHRV</strong> will read this header file and a new window will appear where the user can select the anotator format.</p>
+
+        <img src="docfigures/Figure21b.jpg" class="screenshot"/>
+        <p class="imgtxt">gHRV reading a .hea WFDB header file</p>
+
+        <h3>Filter</h3>
+        <p><strong>Filter</strong> button obtains a filtered version of the heart rate data. This functionality can be used to reject erroneous heart beats that distort the result of the analysis. It uses an algorithm  based on adaptive thresholds and also eliminates points that are not within acceptable physiological values.</p>
+
+        <img src="docfigures/Figure22.jpg" class="screenshot"/>
+        <p class="imgtxt">Filtered heart rate data obtained with the <strong>Filter</strong> button</p>   
+
+        <h3>Edit</h3>
+        <p>Ocasionally, users may desire to remove specific artifacts or points in the heart data. The <strong>Edit</strong> functionality performs a manual edition, removing points by selecting them on a graphical window.</p>
+
+        <img src="docfigures/Figure23.jpg" class="screenshot"/>
+        <p class="imgtxt">Edit and remove data to remove points</p>   
+
+        <p>Just select a rectangular area containing the points to be eliminated by clicking the oposite corners. A green rectangular area containing the points will appear in the graphic window. At the bottom of the window, information about the selected points to be removed is also shown.</p>
+
+        <img src="docfigures/Figure24.jpg" class="screenshot"/>
+        <p class="imgtxt">Rectangular area containing the points to be eliminated</p>
+
+        <p>To remove the  selected points, just click on the <strong>Remove</strong> button; in other case, just click <strong>Clear</strong> and return to the previous step. Repeat the process until you have finished to remove points. Press <strong>End</strong> to finish the removing process. A new window asking for confirmation appears before the removal.</p>
+
+        <img src="docfigures/Figure25.jpg" class="screenshot"/>
+        <p class="imgtxt">Window containing a confirmation message for removing data points</p>
+
+        <h3>Export</h3>
+
+        <p>The <strong>Export</strong> button allows users to obtain a .txt file containing the heart rate signal obtained after filtering and edition. A new window appears to select the format of the output file before saving the file.</p>
+
+         <img src="docfigures/Figure25b.jpg" class="screenshot"/>
+        <p class="imgtxt">Export the heart rate data to a .txt file</p>
+
+        <h2 id="ugs:ep">Episodes Panel</h2>
+
+        <p>In many ocasions, ECG files may be accompanied by episode files, reflecting specific situations of ischemia or apnea, for example. With <strong>gHRV</strong>, functions for loading and editing these episodes are provided.</p>
+
+        <p>The data corresponding to these episodes can also be incorporated to the <strong>gHRV</strong> analysis. To perform this, data should be in the format provided in the apnea_ascii.txt file, available at the web page  <a href="http://milegroup.github.com/ghrv/packages.html"> http://milegroup.github.com/ghrv/packages.html</a>.</p>
+
+        <p>Each file line must contain the begin time (Init_Time), a tag identifying the type of episode (Resp_Events) and its duration (Durat). Some episodes files contain also a numerical value associated with the episode (SaO2 in the example) that is not read by <strong>gHRV</strong>.</p>
+
+
+        <img src="docfigures/Figure26.jpg" class="screenshot"/>
+        <p class="imgtxt">Accepted format file for episodes data</p>
+
+        <p>Episodes contained in WFDB records can be read too.</p>
+
+
+        
+        
+        <h3>Load</h3>
+        <p>To load episode file, just click on <strong> Load</strong> and select the corresponding file.
+
+        <img src="docfigures/Figure27.jpg" class="screenshot"/>
+        <p class="imgtxt">Initial loading options for heart rate data files</p>
+
+        <p>If the data file format is not accepted by <strong>gHRV</strong>, an error message is displayed.</p>
+
+        <img src="docfigures/Figure28.jpg" class="screenshot"/>
+        <p class="imgtxt">Initial episode data file loading error message</p>
+
+        <p><strong>gHRV</strong> also reads annotations from WFDB records. In this case, just open the .hea file and the program will read this header file and ask the user can select the anotator he wishes to load. A list of episodes type will appear to allow users to select the specific episodes to load.</p>
+
+        <img src="docfigures/Figure26b.jpg" class="screenshot"/>
+        <p class="imgtxt">gHRV reading episodes from a WFDB record</p>
+
+        <p>After successfully loading an episodes file, the <strong>Load</strong> button will be disabled, while the <strong>Clear</strong> and <strong>Edit</strong> buttons will be active.</p>
+
+        <h3>Clear</h3>
+        <p>Use this button if you want to remove the information about episodes included in the heart rate data.</p>
+
+        <h3>Edit</h3>
+        <p>To add new episodes to your heart rate date, click on the <strong>Edit</strong> option, and a new window will appear.</p>
+
+        <img src="docfigures/Figure29.jpg" class="screenshot"/>
+        <p class="imgtxt">Episodes edition window</p>
+
+        <p>Users can add new episodes by clicking at the beginning and at the end of the episode in the graphical window. In the right panel, the text box in the <strong>Add</strong> panel accepts a tag for the episode. The <strong>Add episode</strong> button incorporates it to the data. Different colors for the different tags of episodes are automatically selected.</p>
+
+        <img src="docfigures/Figure30.jpg" class="screenshot"/>
+        <p class="imgtxt">Adding an episode</p>
+
+        <p>At the bottom of the window, information will be given about the position of the new episode.</p>
+
+        <img src="docfigures/Figure31.jpg" class="screenshot"/>
+        <p class="imgtxt">Result of adding several episodes in <strong>gHRV</strong></p>
+
+        <p>Users can also create, modify or remove episodes by clicking the <strong>Manual</strong> button. In this case, a new window will appear, allowing the user to modify the information, removing existing episodes or adding new ones. Just click on the <strong>Add</strong> option, or select one episode and click <strong>Edit</strong> to modifiy or remove it. Click on the <strong>End</strong> button when all the modifications have been made.</p>     
+        <img src="docfigures/Figure32.jpg" class="screenshot"/>
+        <p class="imgtxt">Manual edition of episodes</p>
+
+        <p>Episodes can be renamed using the <strong>Rename</strong> button. This functionality allows users to replace one tag with another, thus affecting all the episodes labelled with this tag.</p>
+
+        <img src="docfigures/Figure32b.jpg" class="screenshot"/>
+        <p class="imgtxt">Renaming of a tag</p>
+
+        <h2 id="ugs:tp">Tools Panel</h2>
+
+        <p>Functionalities on the <strong>Tools Panel</strong> can only be used when a heart rate signal is loaded.</p>
+
+        <img src="docfigures/Figure33.jpg" class="screenshot"/>
+        <p class="imgtxt"> Options for the tools panel </p>
+
+        <h3>Interpolate</h3>
+        <p>This button interpolates the heart rate signal, applying a linear interpolation. The default frequency for interpolation is 4 Hz, even although it can be modified in the <strong>Config</strong> option of the <strong>gHRV Panel</strong> (this will be explained in the corresponding Section of this Manual). A new heart rate signal adequate for Fourier  spectral analysis appears in the graphical window, preserving the episodes information (if present).</p>
+
+        <img src="docfigures/Figure34.jpg" class="screenshot"/>
+        <p class="imgtxt"> Interpolated signal in <strong>gHRV</strong></p>
+
+        <p><strong>Interpolation</strong> button is now disabled, and it becomes possible to click in the <strong>Frame-based evolution</strong> button for performing spectral analysis.</p>
+
+        <h3>Frame-based evolution</h3>
+
+        <p>In order to estimate the spectral power, spectrogram of the signal is first calculated, employing the SHort-Time Fourier Transform (STFT). A Hamming window is used with default values of width and shift of 120 and 60 sec., respectively. These default values can be modified in the <strong>Config</strong> option of the <strong>gHRV</strong> panel. Next, the power in various spectral bands is obtained:</p>
+
+        <ul>
+          <li>ULF: power in the ULF band (0.0-0.03 Hz).</li>
+          <li>VLF: power in the VLF band (0.03-0.05 Hz).</li>
+          <li>LF: power in the LF band (0.05-0.15 Hz).</li>
+          <li>HF: power in the HF band (0.15-0.4Hz).</li>
+        </ul>
+
+        <p>These limits for the bands can be modified in the <strong>Config</strong> option from the <strong>gHRV</strong> panel. Other parameters are also calculated:</p>
+        <ul>
+          <li>LF/HF ratio: defined as the ratio for the LF and the HF bands.</li>
+          <li>Power: total value for the spectral power.</li>
+          <li>Mean HR: mean heart rate value.</li>
+          <li>HR STD: heart rate standard deviation.</li>
+          <li>pNN50: percentage of differences between adjacent intervals that are >50 msec.</li>
+          <li>rMSSD: square root of the mean of the squares of the differences between adjacent intervals.</li>
+          <li>ApEn: approximate entropy.</li>
+          <li>FracDim: fractal dimension. </li>
+          <li>Heart rate: data employed to perform the analysis.</li>
+        </ul>
+
+        <p>For performing spectral analysis, just click the <strong>Frame-based evolution </strong> button, and a window indicating the calculation process in progress will appear.</p>
+
+        <img src="docfigures/Figure35.jpg" class="screenshot"/>
+        <p class="imgtxt"> Frame-based evolution calculation </p>
+
+        <p>After the calculation is finished, a window containing information about the parameters is presented. Information of episodes is also shown (if present in the data).</p>
+
+        <img src="docfigures/Figure36.jpg" class="screenshot"/>
+        <p class="imgtxt"> Frame-based analysis in <strong>gHRV</strong> </p>
+
+        <p>In the upper right panel users can select which parameters are to be included in the plot.</p>
+
+        <p>The <strong>Significance</strong> button opens a new window containing a plot that shows the distribution of the selected parameter inside/outside an episode, or in two different episodes. A Kolmogorov-Smirnov test for statistic independence is performed on these values and the result of this test is shown at the bottom of the window. Users can select which parameter is to be considered in this study.</p>
+
+        <img src="docfigures/Figure38.jpg" class="screenshot"/>
+        <p class="imgtxt"> Significance study for the LF/HF parameter </p>
+
+        <p>A txt report can also be obtained with the <strong>Export txt</strong> button. By clicking in this button, a window for selecting the parameters to be included appears.</p>
+
+        <img src="docfigures/Figure39.jpg" class="screenshot"/>
+        <p class="imgtxt"> Generation of a txt file containing the selected parameters </p>
+
+        <p>When the parameters are selected, the report will be saved at the selected directory.</p>
+
+        <img src="docfigures/Figure40.jpg" class="screenshot"/>
+        <p class="imgtxt"> Saving a txt file containing frame-based parameters</p>
+
+        <h3>Poincaré Plot</h3>
+
+        <p>The last button of the <strong>Tools Panel</strong> is for obtaining the <strong>Poincaré plot</strong>, useful for quantifying the self-similarity of signals by representing a scatterplot of each RR interval against the preceding ones. <strong>Poincaré plots</strong> provide global and detailed beat-to-beat information on the heart behavior.</p>
+
+        <p>By clicking on the <strong>Poincaré plot</strong> button, a plot for the whole record is presented on a new window.</p>
+
+        <img src="docfigures/Figure41.jpg" class="screenshot"/>
+        <p class="imgtxt">Global Poincaré plot</p>
+
+        <p>Users can also select different Poincaré plots, among the different episodes and intervals present in the data that are being analyzed.</p>
+
+        <img src="docfigures/Figure42.jpg" class="screenshot"/>
+        <p class="imgtxt"> Two different Poincaré plots for two types of episodes</p>
+
+        <p>The plot can be saved to a file, clicking <strong>Save</strong> on the upper left corner of the plot.</p>
+
+        <img src="docfigures/Figure43.jpg" class="screenshot"/>
+        <p class="imgtxt"> Saving a Poincaré plot.</p>
+
+        <p>Finally, the limits of the plot can be customized, allowing the users to compare Poincaré plots of different records, by clicking <strong>Config</strong> on the upper left corner of the plot.</p>
+
+        <img src="docfigures/Figure43b.jpg" class="screenshot"/>
+        <p class="imgtxt"> Customizing the limits in a Poincaré plot.</p>
+
+        <h3>Report</h3>
+        <p>A report including the analysis performed in the previous stages can be generated, by clicking the <strong>Report</strong> button. A resume window including the analysis of the data and results is then presented.</p>
+
+        <img src="docfigures/Figure44.jpg" class="screenshot"/>
+        <p class="imgtxt"> Final report (1)</p>
+
+        <img src="docfigures/Figure45.jpg" class="screenshot"/>
+        <p class="imgtxt"> Final report (2)</p>
+
+        <img src="docfigures/Figure46.jpg" class="screenshot"/>
+        <p class="imgtxt"> Final report (3)</p>
+
+        <p>The user can also save a report as an HTML file, by clicking on the <strong>Save as HTML...</strong> button.</p>
+
+        <img src="docfigures/Figure47.jpg" class="screenshot"/>
+        <p class="imgtxt"> Saving options for the final report </p>
+
+        <p>At the present moment, the <trong>Open in browser</strong> button is not working in all the operating systems; it will be in a future version of <strong>gHRV</strong>.</p>
+
+        <h2 id="ugs:gp"><strong>gHRV</strong> Panel</h2>
+
+       <p>The last panel of the <strong>gHRV</strong> interface is <strong>gHRV</strong> panel.</p>
+
+       <img src="docfigures/Figure48.jpg" class="screenshot"/>
+       <p class="imgtxt"> . Options for the <strong>gHRV</strong> panel </p>
+
+       <h3>About</h3>
+       <p>Click on the <strong>About</strong> button to obtain information about <strong>gHRV</strong>.</p>
+
+       <img src="docfigures/Figure49.jpg" class="screenshot"/>
+       <p class="imgtxt"> About option for the <strong>gHRV</strong> panel </p>
+
+       <h3>Config</h3>
+       <p><strong>Config</strong> allows users to set values for parameters.</p>
+
+       <img src="docfigures/Figure50.jpg" class="screenshot"/>
+       <p class="imgtxt"> Modification of default parameters for spectral analysis </p>
+
+       <p>The analysis parameter that are configurable by users are interpolation frequency, window size and shift, and limits for the frequency bands. Just rewrite the value and then press the <strong>Set as default</strong> button. To retrieve the default values, press the <strong>Reset</strong> option.</p>
+
+       <p>Notice that if there is an active project in <strong>gHRV</strong>, this function does not change project's settings: to modify settings of project, it must be done by clicking <strong>Settings</strong> button in the first group of buttons.</p>
+
+       <h3>Quit</h3>
+       <p>Just click the <strong>Quit</strong> button if you want to exit the program. A new window asking for confirmation appears.</p>
+
+       <img src="docfigures/Figure51.jpg" class="screenshot"/>
+       <p class="imgtxt"> Exiting window for <strong>gHRV</strong></p>
+
+        <h1 id="references">References</h1>
+        <dl>
+          <dt>[Achar06]</dt><dd>U.R. Acharya, K.P. Joseph, N. Kannathal, C.M., Lim, J.S. Suri, Heart rate variability: a review, Medical and Biomedical Engineering and Computing 44, 1031-1051 (2006).</dd>
+          <dt>[Aksel81]</dt><dd>S. Akselkrod, D. Gordon, F.A. Ubel, D.C. Shannon, A.C. Barger, R.J. Cohen, Power spectrum analysis of heart rate fluctuation: a quantitative probe of beat to beat cardiovascular control, Science 213, 220-222 (1981)</dd>
+          <dt>[Bogu11]</dt><dd>Bogunovik, HRV-Frame: Java-based framework for feature extraction from cardiac rythm, Lecture Notes in Computer Science 6747, 96-100 (2011).</dt>
+          <dt>[Chang07]</dt><dd>F.C. Chang, C.K. Chang, C.C. Chiu, S.F. Hsu, Y.D. Lin, Variations of HRV Analysis in Different Approaches, In Computers in Cardiology 34, 17-20 (2007).</dd>
+          <dt>[Ibra11]</dt><dd>N.A. Ibrahim, S. Suliadi, S., Generating correlated discrete ordinal data using R and SAS IML, Computer Methods and Programs in Biomedicine, 104, 122e-132e (2011).</dd>
+          <dt> [Jovi11]</dt><dd>A. Jovic, N. Bogunovik, HRV-Frame: Java-based framework for feature extraction from cardiac rythm, Lecture Notes in Computer Science 6747, 96-100 (2011).</dd>
+          <dt>[Koso11]</dt><dd>H. Kosorus, J. Honigl, J. Kung, Using R, WEKA and RapidMiner in time series analysis of sensor data for structural health monitoring. Proceedings of DEXA 2011, 306 – 310 (2011).</dd> 
+          <dt>[Malik95]</dt><dd>M. Malik, A.J. Camm, Heart rate variability. Futura (1995)</dd>
+          <dt>[MatHRV]</dt><dd><a href="http://www.macalester.edu/~kaplan/hrv/doc/">http://www.macalester.edu/~kaplan/hrv/doc/</a></dd>
+          <dt>[Nati09]</dt><dd>National Instruments. Using LabVIEW for heart rate variability analysis. Published online at <a href="http://zone.ni.com/devzone/cda/epd/p/id/5832">http://zone.ni.com/devzone/cda/epd/p/id/5832</a> on Apr 24, 2009.</dd>
+          <dt>[Pyth]</dt><dd><a href="http://www.python.org">http://www.python.org</a></dd>
+          <dt>[Roca12]</dt><dd>J. Roca-Pardi&ntilde;as, M.J. Lado, P.G.Tahoces, C. Cadarso-Su&aacute;rez, Reducing false positives in a CAD scheme for detecting breast microcalcificacions: a cuantitative study with GAMs, Cancer Prevention, (Alexandros Georgakilas, Ed.), 459-476 (2012).</dd>
+          <dt>[Rodr11]</dt><dd>L. Rodr&iacute;guez-Li&ntilde;ares, A.J. M&eacute;ndez, M.J. Lado, D.N. Olivieri, X.A. Vila, X.A., I. G&oacute;mez-Conde, An open source tool for heart rate variability spectral analysis. Computer Methods and Programs in Biomedicine 103, 39-50 (2011).</dd>
+          <dt>[Sun11]</dt><dd>X. Sun, K. Wu, D. Cook, PKgraph: An R package for graphically diagnosing population pharmacokinetic models. Computer Methods and Programs in Biomedicine, 104, 461-471 (2011).</dd>
+          <dt>[Tarv14]</dt><dd>M.P. Tarvainen, J.P. Niskanen, J.A. Lipponen, P.O. Ranta-Aho, P.A. Karjalainen, Kubios HRV--heart rate variability analysis software, Computer Methods and Programs in Biomedicine 113(1), 210-220 (2014). doi: 10.1016/j.cmpb.2013.07.024</dd>
+          <dt>[Task96]</dt><dd>Task Force of the European Society of Cardiology the North American Society of Pacing Electrophysiology, Heart rate variability: standards of measurement, physiological interpretation, and clinical use, Circulation 93, 1043-1065 (1996)</dd>
+          <dt>[Vila97]</dt><dd>J.A. Vila, F. Palacios, J. Rodríguez-Presedo, M. Fernández-Delgado, P. Félix, S. Barro, Time-frequency analysis of heart-rate variability, IEEE Engineering in Medicine and Biology Magazine, 16, 119-125 (1997).</dt>
+
+
+          
+
+
+
+
+
+
+    
+
+          
+
+
+        </dl>
+
+        
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
