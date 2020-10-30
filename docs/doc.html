@@ -129,11 +129,11 @@
 
         <h2 id="gs:do" >Downloading <strong>gHRV</strong></h2>
 
-        <p><strong>gHRV</strong> can be downloaded from <a href="http://milegroup.github.com/ghrv/packages.html">http://milegroup.github.com/ghrv/packages.html</a>. <strong>gHRV</strong> is distributed as free software (GNU GPL) and binaries for Windows, MacOSX and Debian/Ubuntu systems are provided as well.</p>
+        <p><strong>gHRV</strong> can be downloaded from <a href="https://milegroup.github.com/ghrv/packages.html">https://milegroup.github.com/ghrv/packages.html</a>. <strong>gHRV</strong> is distributed as free software (GNU GPL) and binaries for Windows, MacOSX and Debian/Ubuntu systems are provided as well.</p>
 
         <p>For downloading <strong>gHRV</strong>, select the corresponding version for your operating system. Although different versions are avalaible, we recommend the most recent 1.5. In this documentation, X and YY refer to the version and the subversion of the <strong>gHRV</strong> program.</p>
 
-        <p>In <a href="http://milegroup.github.com/ghrv/packages.html">http://milegroup.github.com/ghrv/packages.html</a> the source code and some example files are also avalaible:</p>
+        <p>In <a href="https://milegroup.github.com/ghrv/packages.html">https://milegroup.github.com/ghrv/packages.html</a> the source code and some example files are also avalaible:</p>
         <p><ul>
           <li>An ascii file containing beats positions: <strong>beat_ascii.txt</strong>.</li>
           <li>An ascii file containing episodes: <strong>episodes.txt</strong>.</li>
@@ -179,17 +179,9 @@
         <p><strong>gHRV</strong> is distributed as a <strong>gHRV_X.YY_all.deb</strong> package. The easiest way to install is to download this package, open a terminal and change to the directory where the file is. Then use the commands:</p>
         <pre>$ sudo apt-get install gdebi<br/>$ sudo gdebi gHRV_X.YY_all.deb</pre>
         <p>gdebi installs gHRV and its dependencies. The program is avalaible both in the Start menu and in console mode as <strong>gHRV</strong>.</p>
-        <p>You can also install gHRV with the Software Centre.</p>
+        <p>You can also install gHRV using the Software Centre by double-clicking on the .deb file.</p>
 
-        <img src="docfigures/Figure6.jpg" class="screenshot"/>
-        <p class="imgtxt">Installing <strong>gHRV</strong> in Linux Software Centre</p>
-
-        <p>Click on <strong>Open with</strong> and, on the next step, click on <strong>Install</strong>.</p>
-
-        <img src="docfigures/Figure7.jpg" class="screenshot"/>
-        <p class="imgtxt">Installing <strong>gHRV</strong> in Linux Software Centre (II)</p>
-
-        <p><strong>gHRV</strong> has been tested on Ubuntu desktop from 11.10. Users of Ubuntu 16.04 and newer must install gHRV 1.9</p>
+        <p><strong>gHRV</strong> has been tested on Ubuntu desktop from 11.10. Users of Ubuntu 20.04 and newer must install gHRV 2.0</p>
 
         <h3>Source package</h3>
         <p><strong>gHRV</strong> sources are distributed as a <strong>gHRV_X.YY.tar.gz</strong>. Advanced users can run the program from the source code. A working interpreter of the Python programming language is needed with the following libraries:</p>
@@ -199,13 +191,17 @@
           <li>Numpy</li>
           <li>Scipy</li>
         </ul></p>
-        <p>In Linux debian-based systems, just open a terminal and use one of the following commands. This was tested on Ubuntu 15.10 and lower:</p>
+        <p>In Linux debian-based systems, just open a terminal and use one of the following commands. For Ubuntu 15.10 and lower:</p>
         <pre>$ sudo apt-get install python-numpy python-wxgtk2.8 python-matplotlib python-scipy python-tk</pre>
-
-        <p>This was tested on Ubuntu 16.04 and higher:</p>        
+        <p>For Ubuntu 16.04 and higher:</p>        
         <pre>$ sudo apt-get install python-numpy python-wxgtk3.0 python-matplotlib python-scipy python-tk</pre> 
         <p>Then, go to the directory where the .tar.gz was extracted and use:</p>
         <pre>$ python gHRV.py</pre>
+
+        <p>Ubuntu 20.04 requires the use of python version 3, instead of python2. In this case, the required libraries can be installed:</p>
+        <pre>$ sudo apt-get install python3-numpy python3-wxgtk4.0 python3-matplotlib python3-scipy python3-tk</pre>
+        <p>Then, go to the directory where the .tar.gz was extracted and use:</p>
+        <pre>$ python3 gHRV.py</pre>
 
         <h2 id="gs:un">Uninstalling <strong>gHRV</strong></h2>
 
