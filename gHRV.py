@@ -1506,7 +1506,7 @@ class UpdateSoftwareWindow(wx.Frame):
 
     def OnBrowser(self,event):
         import webbrowser
-        webbrowser.open("http://milegroup.github.com/ghrv/packages.html")
+        webbrowser.open("https://milegroup.github.io/ghrv/packages.html")
         self.WindowParent.Destroy()
 
         
