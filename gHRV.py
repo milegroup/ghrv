@@ -115,7 +115,7 @@ class MainWindow(wx.Frame):
         
         
         vboxLeftLeft.Add(panel11, proportion=1, flag=wx.GROW)
-        LogoBitmap=wx.Bitmap('LogoVert.png')
+        LogoBitmap=wx.Bitmap(str(os.path.dirname(__file__))+'LogoVert.png')
         
         Logo = wx.StaticBitmap(self.MainPanel, bitmap=LogoBitmap )
         vboxLeftLeft.Add(Logo, flag=wx.ALIGN_BOTTOM)
@@ -1401,12 +1401,7 @@ class ConfigurationWindow(wx.Frame):
             self.HFMin.SetValue(self.settings2['hfmin'])
             self.HFMax.SetValue(self.settings2['hfmax'])
         
-        
-    def OnEnd(self,event):
-        if self.conftype == 'general':
-            self.WindowParent.OnConfigEnded()
-        else:
-            self.WindowParent.OnProjectOptionsEnded()
+        os.path.dirname
         #self.MakeModal(False)
         self.Destroy()
 
@@ -1446,7 +1441,7 @@ class UpdateSoftwareWindow(wx.Frame):
             
         sizer=wx.BoxSizer(wx.VERTICAL)
 
-        PageStr = '''<p><img src="LogoSmall.png" width="50" height="50"/></p>
+        PageStr = '''<p><img src="'''+str(os.path.dirname(os.path.abspath(__file__)))+'''/LogoSmall.png" width="50" height="50"/></p>
             <center><p><b>There is a new version of gHRV!</b><>
             <p>You are running gHRV version %s (%s package)</p>
             <p>gHRV version %s is available for this platform</p>

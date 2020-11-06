@@ -23,7 +23,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #   ----------------------------------------------------------------------
 
-import wx
+import wx, os
 from sys import platform
 from configvalues import *
 
@@ -40,7 +40,7 @@ class AboutDlg(wx.Frame):
             wx.Frame.__init__(self, parent, size=aboutWindowSizeMac)
             
         if platform != "darwin":
-            icon = wx.Icon("LogoIcon.ico", wx.BITMAP_TYPE_ICO)
+            icon = wx.Icon(str(os.path.dirname(os.path.abspath(__file__)))+"/LogoIcon.ico", wx.BITMAP_TYPE_ICO)
             self.SetIcon(icon)
         
         self.WindowParent=parent
@@ -56,8 +56,8 @@ class AboutDlg(wx.Frame):
 
         vbox = wx.BoxSizer(wx.VERTICAL)
         
-        PageStr = """<center>
-            <p><img src="LogoSmall.png"/></p>
+        PageStr = '''<center>
+            <p><img src="'''+str(os.path.dirname(os.path.abspath(__file__)))+'''/LogoSmall.png"/></p>
             <h3>gHRV %s</h3>
             <p><b>gHRV: a graphical application for Heart Rate Variability analysis</b></p>
             <p>Copyright (C) 2020  LIA2 Research Group - Dpt. Informatics - University of Vigo - Spain</p>
@@ -73,7 +73,7 @@ class AboutDlg(wx.Frame):
             </ul>
             <hr/>
             <p> This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
-            <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).</p>""" % Version
+            <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).</p>''' % Version
 
         html=wx.html.HtmlWindow(panel, id)
         html.SetPage(PageStr)
