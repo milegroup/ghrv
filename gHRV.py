@@ -115,7 +115,7 @@ class MainWindow(wx.Frame):
         
         
         vboxLeftLeft.Add(panel11, proportion=1, flag=wx.GROW)
-        LogoBitmap=wx.Bitmap(str(os.path.dirname(__file__))+'LogoVert.png')
+        LogoBitmap=wx.Bitmap(str(os.path.dirname(os.path.abspath(__file__)))+'/LogoVert.png')
         
         Logo = wx.StaticBitmap(self.MainPanel, bitmap=LogoBitmap )
         vboxLeftLeft.Add(Logo, flag=wx.ALIGN_BOTTOM)
