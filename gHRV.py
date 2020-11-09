@@ -115,10 +115,18 @@ class MainWindow(wx.Frame):
         
         
         vboxLeftLeft.Add(panel11, proportion=1, flag=wx.GROW)
-        LogoBitmap=wx.Bitmap(str(os.path.dirname(__file__))+'/LogoVert.png')
-        
+      
+        # This is to solve a problem with LogoVert in MacOs binary package
+        try:
+            import sys
+            wd = sys._MEIPASS
+        except AttributeError:
+            wd = os.getcwd()
+        #print(wd)
+        LogoBitmap=wx.Bitmap(wd+'/LogoVert.png')
         Logo = wx.StaticBitmap(self.MainPanel, bitmap=LogoBitmap )
         vboxLeftLeft.Add(Logo, flag=wx.ALIGN_BOTTOM)
+    
         self.sizer.Add(vboxLeftLeft,flag=wx.EXPAND|wx.ALL, border=0)
         
         
