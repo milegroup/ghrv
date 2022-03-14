@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=gHRV
+GenericName=Software for heart rate variability analysis
+GenericName[lt]=Širdies ritmo variabilumo analizės programa
+GenericName[fi]=Sykevariaatioanalyysiohjelma
+Comment=Analyze heart rate variability data
+Comment[lt]=Širdies ritmo variabilumo analizavimas
+Exec=gHRV
+Icon=gHRV-icon.png
+Type=Application
+Terminal=false
+StartupNotify=true
+Encoding=UTF-8
+Categories=Education;Math;

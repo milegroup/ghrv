@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Determine path, were this script exist
+DIR="$( cd "$( dirname "$0" )" && pwd )" ;
+
+if [ -f "${DIR}/gHRV.py" ]; then
+   cd /usr/share/gHRV/ ;
+   elif [ -f "/usr/local/share/gHRV/gHRV.py" ]; then
+     cd /usr/local/share/gHRV/ ;
+   elif [ -f "/usr/share/gHRV/gHRV.py" ]; then
+     cd /usr/share/gHRV/ ;
+fi ;
+
+python ./gHRV.py ;
