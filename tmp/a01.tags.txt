@@ -1,0 +1,4 @@
+Init_time	Tag		Durat	Value
+00:12:30	APNEA	12840	0
+03:50:30	APNEA	7260	0
+05:53:30	APNEA	8070	0
